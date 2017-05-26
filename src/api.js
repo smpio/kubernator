@@ -42,10 +42,8 @@ export const getResourceKindsPrioritized = cacheResult(() => {
 })
 
 export const getResourceKinds = cacheResult(() => {
-  return getResourceApisWithoutDerived().then(resourceApis => (
+  return getListableResourceApis().then(resourceApis => (
     resourceApis.reduce((kinds, resourceApi) => {
-      if (ignoredKinds.indexOf(resourceApi.kind) != -1) return kinds
-
       let existingResourceApi = kinds[resourceApi.kind]
       if (!existingResourceApi || existingResourceApi.apiVersion == 'extensions/v1beta1') {
         kinds[resourceApi.kind] = resourceApi
@@ -59,10 +57,10 @@ export const getResourceKinds = cacheResult(() => {
   ))
 })
 
-export const getResourceApisWithoutDerived = cacheResult(() => {
+export const getListableResourceApis = cacheResult(() => {
   return getResourceApis()
     .then(resourceApis => resourceApis.filter(resourceApi => (
-      resourceApi.name.indexOf('/') == -1
+      resourceApi.verbs.indexOf('list') != -1
     )))
 })
 
@@ -136,10 +134,4 @@ const kindsByPriority = [
   'ServiceAccount',
   'Role',
   'RoleBinding',
-]
-
-const ignoredKinds = [
-  'Binding',
-  'ReplicationControllerDummy',
-  'LocalSubjectAccessReview',
 ]
