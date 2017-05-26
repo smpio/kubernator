@@ -5,6 +5,7 @@ const logger = require('../build/lib/logger')
 const webpackConfig = require('../build/webpack.config')
 const project = require('../project.config')
 const compress = require('compression')
+const proxy = require('express-http-proxy')
 
 const app = express()
 app.use(compress())
@@ -34,6 +35,8 @@ if (project.env === 'development') {
   // of development since this directory will be copied into ~/dist
   // when the application is compiled.
   app.use(express.static(path.resolve(project.basePath, 'public')))
+
+  app.use('/k8s', proxy('localhost:8001'))
 
   // This rewrites all routes requests to the root /index.html file
   // (ignoring file requests). If you want to implement universal
