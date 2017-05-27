@@ -44,10 +44,7 @@ export const getResourceUrl = (name, kind, namespace) => {
     let resource = resources[kind]
     if (!resource) throw ('Unknown resource kind ' + kind)
 
-    let url = 'apis/' + resource.apiVersion + '/'
-    if (resource.apiVersion == 'v1') {
-      url = 'api/v1/'
-    }
+    let url = getUrlByVersion(resource.apiVersion)
 
     if (namespace && resource.namespaced) {
       url += 'namespaces/' + namespace + '/'
@@ -61,6 +58,14 @@ export const getResourceUrl = (name, kind, namespace) => {
 
     return url
   })
+}
+
+export const getUrlByVersion = (apiVersion) => {
+    if (apiVersion == 'v1') {
+      return 'api/v1/'
+    } else {
+      return 'apis/' + apiVersion + '/'
+    }
 }
 
 export const getResourceKindsPrioritized = cacheResult(() => {
