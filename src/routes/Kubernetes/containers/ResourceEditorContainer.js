@@ -1,6 +1,6 @@
 import { connect } from 'react-redux'
 import ResourceEditor from '../components/ResourceEditor'
-import { openResource, saveResource, detachEditor } from '../modules/editor'
+import { openResource, saveResource, detachEditor, setResourceYaml } from '../modules/editor'
 
 const mapStateToProps = (state) => ({
   resource: state.editor.activeResource,
@@ -10,6 +10,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = {
   openResource,
   saveResource,
+  setResourceYaml,
   detach: detachEditor,
 }
 

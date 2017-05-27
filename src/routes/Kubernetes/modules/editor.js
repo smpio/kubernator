@@ -6,6 +6,7 @@ import { fetchResource } from '../../../api'
 export const OPEN_RESOURCE = 'OPEN_RESOURCE'
 export const SAVE_RESOURCE = 'SAVE_RESOURCE'
 export const DETACH_EDITOR = 'DETACH_EDITOR'
+export const SET_RESOURCE_YAML = 'SET_RESOURCE_YAML'
 
 // ------------------------------------
 // Actions
@@ -36,6 +37,13 @@ export function detachEditor () {
   }
 }
 
+export function setResourceYaml (value) {
+  return {
+    type: SET_RESOURCE_YAML,
+    payload: value,
+  }
+}
+
 // ------------------------------------
 // Action Handlers
 // ------------------------------------
@@ -55,6 +63,11 @@ const actionHandlers = {
   [DETACH_EDITOR]: (state, action) => ({
     ...state,
     activeResource: null,
+  }),
+
+  [SET_RESOURCE_YAML]: (state, action) => ({
+    ...state,
+    activeResourceYaml: action.payload,
   }),
 }
 
