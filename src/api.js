@@ -1,3 +1,13 @@
+export const updateResource = (resource, newResource, options) => {
+  let url = resource.metadata.selfLink
+  options = {
+    ...options,
+    method: 'PUT',
+    body: newResource,
+  }
+  return fetchPath(url, options)
+}
+
 export const fetchResource = (name, kind, namespace, options) => {
   return getResourceKinds().then(resources => {
     let resource = resources[kind]
@@ -117,15 +127,20 @@ function cacheResult (func) {
 
 export function fetchPath (path, options) {
   options = {
+    method: 'GET',
     type: 'json',
     ...options,
   }
 
   let init = {
+    method: options.method,
+    body: options.body,
     headers: {
       Accept: 'application/' + options.type,
+      'Content-Type': 'application/' + options.type,
     },
   }
+
   return fetch(getUrl(path), init).then(response => {
     if (options.type == 'json') {
       return response.json()
