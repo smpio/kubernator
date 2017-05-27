@@ -1,4 +1,16 @@
 .kubernetes {
   margin: 1.5rem auto;
   text-align: left;
+
+  .tree {
+    float: left;
+    width: 280px;
+    margin-right: 20px;
+    border: 1px solid;
+  }
+
+  .viewer {
+    border: 1px solid;
+    display: inline-block;
+  }
 }

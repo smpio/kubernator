@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { fetchByKind, getResourceKindsPrioritized } from '../../../api'
+import './TreeNode.scss'
 
 export class TreeNode extends React.Component {
   static propTypes = {
@@ -83,7 +84,7 @@ export class TreeNode extends React.Component {
 
     return (
       <div className={visible ? '' : 'hidden'}>
-        <div onClick={this.toggleCollapse}>{resource.metadata.name} {visible ? '' : 'HIDDEN'}</div>
+        <div onClick={this.toggleCollapse}>{resource.metadata.name}</div>
         {childs && (
           <ul>
             {childs.map(child => (
