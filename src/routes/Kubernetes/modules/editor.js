@@ -4,6 +4,8 @@ import { fetchResource } from '../../../api'
 // Constants
 // ------------------------------------
 export const OPEN_RESOURCE = 'OPEN_RESOURCE'
+export const SAVE_RESOURCE = 'SAVE_RESOURCE'
+export const DETACH_EDITOR = 'DETACH_EDITOR'
 
 // ------------------------------------
 // Actions
@@ -22,6 +24,18 @@ export function openResource (resource) {
   }
 }
 
+export function saveResource () {
+  return {
+    type: SAVE_RESOURCE,
+  }
+}
+
+export function detachEditor () {
+  return {
+    type: DETACH_EDITOR,
+  }
+}
+
 // ------------------------------------
 // Action Handlers
 // ------------------------------------
@@ -30,7 +44,17 @@ const actionHandlers = {
     ...state,
     activeResource: action.payload.data,
     activeResourceYaml: action.payload.yaml,
-  })
+  }),
+
+  [SAVE_RESOURCE]: (state, action) => {
+    console.error('SAVE_RESOURCE not implemented yet')
+    return state
+  },
+
+  [DETACH_EDITOR]: (state, action) => ({
+    ...state,
+    activeResource: null,
+  }),
 }
 
 // ------------------------------------
@@ -38,6 +62,7 @@ const actionHandlers = {
 // ------------------------------------
 const initialState = {
   activeResource: null,
+  activeResourceYaml: '',
 }
 
 export default function reducer (state = initialState, action) {
