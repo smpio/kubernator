@@ -8,7 +8,7 @@ export const ResourceEditor = ({ resource, resourceYaml, detach, saveResource })
       {resource && <button onClick={detach}>Detach resource</button>}
       <button onClick={saveResource}>Save</button>
     </div>
-    <pre contentEditable='true'>{resourceYaml}</pre>
+    <pre contentEditable='true' dangerouslySetInnerHTML={{__html: resourceYaml}} />
   </div>
 )
 ResourceEditor.propTypes = {
