@@ -1,11 +1,15 @@
 import React from 'react'
+import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
+import { openResource } from '../modules/editor'
 import { fetchByKind, getResourceKindsPrioritized } from '../../../api'
 import './TreeNode.scss'
+
 
 export class TreeNode extends React.Component {
   static propTypes = {
     resource: PropTypes.object.isRequired,
+    openResource: PropTypes.func.isRequired,
   }
 
   constructor(props) {
@@ -27,7 +31,12 @@ export class TreeNode extends React.Component {
     }
   }
 
-  toggleCollapse = e => {
+  onClick = e => {
+    this.toggleCollapse()
+    this.props.openResource(this.props.resource)
+  }
+
+  toggleCollapse() {
     this.collapsed = !this.collapsed
     this.updateState()
   }
@@ -84,12 +93,12 @@ export class TreeNode extends React.Component {
 
     return (
       <div className={visible ? '' : 'hidden'}>
-        <div onClick={this.toggleCollapse}>{resource.metadata.name}</div>
+        <div onClick={this.onClick}>{resource.metadata.name}</div>
         {childs && (
           <ul>
             {childs.map(child => (
               <li key={child.metadata.name}>
-                <TreeNode resource={child} collapsed={true} />
+                <TreeNodeContainer resource={child} collapsed={true} />
               </li>
             ))}
           </ul>
@@ -99,4 +108,12 @@ export class TreeNode extends React.Component {
   }
 }
 
-export default TreeNode
+const mapDispatchToProps = {
+  openResource,
+}
+
+const mapStateToProps = (state) => ({
+})
+
+export const TreeNodeContainer = connect(mapStateToProps, mapDispatchToProps)(TreeNode)
+export default TreeNodeContainer

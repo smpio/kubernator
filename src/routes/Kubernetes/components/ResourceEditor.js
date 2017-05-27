@@ -1,14 +1,13 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import './ResourceEditor.scss'
 
-class ResourceEditor extends React.Component {
-  render () {
-    return (
-      <div>
-        <code>This is resource editor!</code>
-      </div>
-    )
-  }
-}
+export const ResourceEditor = ({ resource }) => (
+  <div>
+    {resource &&
+      <code>{JSON.stringify(resource, null, 2)}</code>
+    }
+  </div>
+)
 
 export default ResourceEditor
