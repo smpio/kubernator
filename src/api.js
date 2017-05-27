@@ -1,6 +1,4 @@
-
-
-export const fetchByKind = (kind, namespace) => {
+export const fetchResource = (name, kind, namespace, options) => {
   return getResourceKinds().then(resources => {
     let resource = resources[kind]
     if (!resource) return null
@@ -16,12 +14,18 @@ export const fetchByKind = (kind, namespace) => {
 
     url += resource.name
 
-    return fetchPath(url).then(data => {
-      data.items = data.items.map(item => ({
-        ...item,
-        apiVersion: resource.apiVersion,
-        kind: resource.kind,
-      }))
+    if (name) {
+      url += '/' + name
+    }
+
+    return fetchPath(url, options).then(data => {
+      if (!name) {
+        data.items = data.items.map(item => ({
+          ...item,
+          apiVersion: resource.apiVersion,
+          kind: resource.kind,
+        }))
+      }
       return data
     })
   })
@@ -111,8 +115,24 @@ function cacheResult (func) {
   }
 }
 
-export function fetchPath (path) {
-  return fetch(getUrl(path)).then(response => response.json())
+export function fetchPath (path, options) {
+  options = {
+    type: 'json',
+    ...options,
+  }
+
+  let init = {
+    headers: {
+      Accept: 'application/' + options.type,
+    },
+  }
+  return fetch(getUrl(path), init).then(response => {
+    if (options.type == 'json') {
+      return response.json()
+    } else {
+      return response.text()
+    }
+  })
 }
 
 export function getUrl (path) {

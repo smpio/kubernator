@@ -2,10 +2,10 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import './ResourceEditor.scss'
 
-export const ResourceEditor = ({ resource }) => (
+export const ResourceEditor = ({ resourceYaml }) => (
   <div>
-    {resource &&
-      <pre>{JSON.stringify(resource, null, 2)}</pre>
+    {resourceYaml &&
+      <pre>{resourceYaml}</pre>
     }
   </div>
 )

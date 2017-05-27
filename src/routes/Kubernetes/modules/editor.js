@@ -1,3 +1,5 @@
+import { fetchResource } from '../../../api'
+
 // ------------------------------------
 // Constants
 // ------------------------------------
@@ -7,9 +9,16 @@ export const OPEN_RESOURCE = 'OPEN_RESOURCE'
 // Actions
 // ------------------------------------
 export function openResource (resource) {
-  return {
-    type    : OPEN_RESOURCE,
-    payload : resource,
+  return (dispatch) => {
+    return fetchResource(resource.metadata.name, resource.kind, resource.metadata.namespace, {
+      type: 'yaml',
+    }).then(resourceYaml => dispatch({
+      type: OPEN_RESOURCE,
+      payload: {
+        data: resource,
+        yaml: resourceYaml,
+      },
+    }))
   }
 }
 
@@ -19,8 +28,9 @@ export function openResource (resource) {
 const actionHandlers = {
   [OPEN_RESOURCE]: (state, action) => ({
     ...state,
-    activeResource: action.payload,
-  }),
+    activeResource: action.payload.data,
+    activeResourceYaml: action.payload.yaml,
+  })
 }
 
 // ------------------------------------

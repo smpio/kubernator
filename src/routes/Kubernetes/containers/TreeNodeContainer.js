@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { openResource } from '../modules/editor'
-import { fetchByKind, getResourceKindsPrioritized } from '../../../api'
+import { fetchResource, getResourceKindsPrioritized } from '../../../api'
 import './TreeNode.scss'
 
 
@@ -58,7 +58,7 @@ export class TreeNode extends React.Component {
     let kind = this.props.resource.kind
 
     if (kind == 'NamespaceList') {
-      return fetchByKind('Namespace').then(data => data.items)
+      return fetchResource(null, 'Namespace').then(data => data.items)
     }
     else if (kind == 'Namespace') {
       return getResourceKindsPrioritized().then(resources => (
@@ -81,7 +81,7 @@ export class TreeNode extends React.Component {
     else if (kind == 'ResourceRoot') {
       let childKind = this.props.resource.metadata.name
       let childNamespace = this.props.resource.metadata.namespace
-      return fetchByKind(childKind, childNamespace).then(data => data.items)
+      return fetchResource(null, childKind, childNamespace).then(data => data.items)
     }
 
     return Promise.resolve(null)
