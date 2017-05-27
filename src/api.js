@@ -20,44 +20,29 @@ export const updateResource = (resource, newResource, options) => {
   return fetchPath(url, options)
 }
 
-// TODO: deduplicate code
 export const fetchResource = (name, kind, namespace, options) => {
-  return getResourceKinds().then(resources => {
-    let resource = resources[kind]
-    if (!resource) return null
-
-    let url = 'apis/' + resource.apiVersion + '/'
-    if (resource.apiVersion == 'v1') {
-      url = 'api/v1/'
-    }
-
-    if (namespace && resource.namespaced) {
-      url += 'namespaces/' + namespace + '/'
-    }
-
-    url += resource.name
-
-    if (name) {
-      url += '/' + name
-    }
-
-    return fetchPath(url, options).then(data => {
+  return getResourceUrl(name, kind, namespace).then(url => (
+    fetchPath(url, options).then(data => {
       if (!name) {
-        data.items = data.items.map(item => ({
-          ...item,
-          apiVersion: resource.apiVersion,
-          kind: resource.kind,
-        }))
+        return getResourceKinds().then(resources => {
+          let resource = resources[kind]
+          data.items = data.items.map(item => ({
+            ...item,
+            apiVersion: resource.apiVersion,
+            kind: resource.kind,
+          }))
+          return data
+        })
       }
       return data
     })
-  })
+  ))
 }
 
 export const getResourceUrl = (name, kind, namespace) => {
   return getResourceKinds().then(resources => {
     let resource = resources[kind]
-    if (!resource) throw Exception('Unknown resource kind', kind)
+    if (!resource) throw ('Unknown resource kind ' + kind)
 
     let url = 'apis/' + resource.apiVersion + '/'
     if (resource.apiVersion == 'v1') {
