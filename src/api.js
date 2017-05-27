@@ -1,3 +1,15 @@
+// TODO: doesn't take into account newResource.apiVersion
+export const createResource = (newResource, kind, namespace, options) => {
+  return getResourceUrl(null, kind, namespace).then(url => {
+    options = {
+      ...options,
+      method: 'POST',
+      body: newResource,
+    }
+    return fetchPath(url, options)
+  })
+}
+
 export const updateResource = (resource, newResource, options) => {
   let url = resource.metadata.selfLink
   options = {
@@ -8,6 +20,7 @@ export const updateResource = (resource, newResource, options) => {
   return fetchPath(url, options)
 }
 
+// TODO: deduplicate code
 export const fetchResource = (name, kind, namespace, options) => {
   return getResourceKinds().then(resources => {
     let resource = resources[kind]
@@ -38,6 +51,30 @@ export const fetchResource = (name, kind, namespace, options) => {
       }
       return data
     })
+  })
+}
+
+export const getResourceUrl = (name, kind, namespace) => {
+  return getResourceKinds().then(resources => {
+    let resource = resources[kind]
+    if (!resource) throw Exception('Unknown resource kind', kind)
+
+    let url = 'apis/' + resource.apiVersion + '/'
+    if (resource.apiVersion == 'v1') {
+      url = 'api/v1/'
+    }
+
+    if (namespace && resource.namespaced) {
+      url += 'namespaces/' + namespace + '/'
+    }
+
+    url += resource.name
+
+    if (name) {
+      url += '/' + name
+    }
+
+    return url
   })
 }
 

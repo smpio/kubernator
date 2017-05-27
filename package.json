@@ -24,6 +24,7 @@
     "compression": "^1.6.2",
     "express": "^4.14.0",
     "express-http-proxy": "^1.0.3",
+    "js-yaml": "^3.8.4",
     "object-assign": "^4.1.1",
     "promise": "^7.1.1",
     "prop-types": "^15.5.10",

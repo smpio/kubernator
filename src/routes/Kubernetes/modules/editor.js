@@ -1,4 +1,5 @@
-import { fetchResource, updateResource } from '../../../api'
+import { fetchResource, updateResource, createResource } from '../../../api'
+import yaml from 'js-yaml'
 
 // ------------------------------------
 // Constants
@@ -27,21 +28,27 @@ export function openResource (resource) {
 export const saveResource = () => {
   return (dispatch, getState) => {
     let {activeResource, activeResourceYaml} = getState().editor
+    let promise;
 
     if (activeResource) {
-      return updateResource(activeResource, activeResourceYaml, {
+      promise = updateResource(activeResource, activeResourceYaml, {
         type: 'yaml'
-      }).then((newResourceYaml) => dispatch({
-        type: OPEN_RESOURCE,
-        payload: {
-          data: activeResource,
-          yaml: newResourceYaml,
-        },
-      }))
+      })
     }
     else {
-      return null
+      let newResource = yaml.safeLoad(activeResourceYaml)
+      promise = createResource(activeResourceYaml, newResource.kind, newResource.metadata.namespace, {
+        type: 'yaml'
+      })
     }
+
+    return promise.then((newResourceYaml) => dispatch({
+      type: OPEN_RESOURCE,
+      payload: {
+        data: activeResource,
+        yaml: newResourceYaml,
+      },
+    }))
   }
 }
 
