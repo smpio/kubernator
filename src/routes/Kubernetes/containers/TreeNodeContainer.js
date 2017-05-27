@@ -14,6 +14,7 @@ export class TreeNode extends React.Component {
 
   constructor(props) {
     super(props)
+    this.onClick = this.onClick.bind(this)
     this.state = {
       visible: true
     }
@@ -31,7 +32,7 @@ export class TreeNode extends React.Component {
     }
   }
 
-  onClick = e => {
+  onClick(e) {
     this.toggleCollapse()
     this.props.openResource(this.props.resource)
   }
