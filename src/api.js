@@ -17,7 +17,8 @@ export const fetchByKind = (kind, namespace) => {
     url += resource.name
 
     return fetchPath(url).then(data => {
-      data.items = data.items.map(item => Object.assign(item, {
+      data.items = data.items.map(item => ({
+        ...item,
         apiVersion: resource.apiVersion,
         kind: resource.kind,
       }))
@@ -28,7 +29,7 @@ export const fetchByKind = (kind, namespace) => {
 
 export const getResourceKindsPrioritized = cacheResult(() => {
   return getResourceKinds().then(resources => {
-    resources = Object.assign({}, resources)
+    resources = {...resources}
     let list = kindsByPriority.reduce((list, kind) => {
       let resource = resources[kind]
       if (resource) {
@@ -37,7 +38,10 @@ export const getResourceKindsPrioritized = cacheResult(() => {
       }
       return list
     }, [])
-    return list.concat(Object.values(resources))
+    return [
+      ...list,
+      ...Object.values(resources),
+    ]
   })
 })
 
@@ -69,14 +73,16 @@ export const getResourceApis = cacheResult(() => {
     .then(apiGroups => Promise.all(apiGroups.map(apiGroup => fetchPath(apiGroup.url))))
     .then(apiGroupInfos => (
       apiGroupInfos.map(apiGroupInfo => (
-        apiGroupInfo.resources.map(resource => Object.assign({}, resource, {
+        apiGroupInfo.resources.map(resource => ({
+          ...resource,
           apiVersion: apiGroupInfo.groupVersion
         }))
       ))
     ))
-    .then(listOfResourceLists => listOfResourceLists.reduce((previousValue, currentValue) => (
-      previousValue.concat(currentValue)
-    ), []))
+    .then(listOfResourceLists => listOfResourceLists.reduce((flatList, nextResourceList) => [
+      ...flatList,
+      ...nextResourceList,
+    ], []))
 })
 
 export const getApiGroups = cacheResult(() => {
@@ -85,10 +91,13 @@ export const getApiGroups = cacheResult(() => {
       version: apiGroup.preferredVersion.groupVersion,
       url: 'apis/' + apiGroup.preferredVersion.groupVersion,
     })))
-    .then(apiGroups => apiGroups.concat({
-      version: 'v1',
-      url: 'api/v1',
-    }))
+    .then(apiGroups => [
+      ...apiGroups,
+      {
+        version: 'v1',
+        url: 'api/v1',
+      },
+    ])
 })
 
 function cacheResult (func) {
