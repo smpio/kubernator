@@ -1,6 +1,7 @@
 import React from 'react'
 import { fetchByKind } from '../../../api'
 import TreeNode from '../containers/TreeNode'
+import ResourceEditor from './ResourceEditor'
 import './KubernetesView.scss'
 
 class KubernetesView extends React.Component {
@@ -17,8 +18,8 @@ class KubernetesView extends React.Component {
               },
             }} />
           </div>
-          <div className='viewer'>
-            <pre>This is yaml viewer!</pre>
+          <div className='editor'>
+            <ResourceEditor />
           </div>
         </div>
       </div>
