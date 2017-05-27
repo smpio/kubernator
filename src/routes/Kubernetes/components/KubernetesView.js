@@ -5,20 +5,17 @@ import './KubernetesView.scss'
 
 
 export const KubernetesView = () => (
-  <div>
-    <h4>Kubernetes</h4>
-    <div className='kubernetes'>
-      <div className='tree'>
-        <TreeNode resource={{
-          kind: 'NamespaceList',
-          metadata: {
-            name: 'Namespaces',
-          },
-        }} />
-      </div>
-      <div className='editor'>
-        <ResourceEditor />
-      </div>
+  <div className='kubernetes'>
+    <div className='tree'>
+      <TreeNode resource={{
+        kind: 'NamespaceList',
+        metadata: {
+          name: 'Namespaces',
+        },
+      }} />
+    </div>
+    <div className='editor'>
+      <ResourceEditor />
     </div>
   </div>
 )

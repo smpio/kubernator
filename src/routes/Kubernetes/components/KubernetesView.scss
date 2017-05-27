@@ -1,16 +1,15 @@
 .kubernetes {
-  margin: 1.5rem auto;
-  text-align: left;
-
   .tree {
-    float: left;
-    width: 280px;
-    margin-right: 20px;
     border: 1px solid;
+    position: fixed;
+    height: 100%;
+    width: 30%;
+    overflow: scroll;
   }
 
   .editor {
     border: 1px solid;
-    display: inline-block;
+    margin-left: 30%;
+    padding: 1px 16px;
   }
 }

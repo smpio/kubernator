@@ -27,7 +27,7 @@ const actionHandlers = {
 // Reducer
 // ------------------------------------
 const initialState = {
-  activeResource: {asd: 'qwe'},
+  activeResource: null,
 }
 
 export default function reducer (state = initialState, action) {

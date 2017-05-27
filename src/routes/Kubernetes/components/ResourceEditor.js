@@ -5,7 +5,7 @@ import './ResourceEditor.scss'
 export const ResourceEditor = ({ resource }) => (
   <div>
     {resource &&
-      <code>{JSON.stringify(resource, null, 2)}</code>
+      <pre>{JSON.stringify(resource, null, 2)}</pre>
     }
   </div>
 )
