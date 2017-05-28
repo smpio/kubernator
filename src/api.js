@@ -1,3 +1,5 @@
+import { memoize } from './utils'
+
 // TODO: doesn't take into account newResource.apiVersion
 export const createResource = (newResource, kind, namespace, options) => {
   return getResourceUrl(null, kind, namespace).then(url => {
@@ -73,7 +75,7 @@ export const getUrlByVersion = (apiVersion) => {
     }
 }
 
-export const getResourceKindsPrioritized = cacheResult(() => {
+export const getResourceKindsPrioritized = memoize(() => {
   return getResourceKinds().then(resources => {
     resources = {...resources}
     let list = kindsByPriority.reduce((list, kind) => {
@@ -91,7 +93,7 @@ export const getResourceKindsPrioritized = cacheResult(() => {
   })
 })
 
-export const getResourceKinds = cacheResult(() => {
+export const getResourceKinds = memoize(() => {
   return getListableResourceApis().then(resourceApis => (
     resourceApis.reduce((kinds, resourceApi) => {
       let existingResourceApi = kinds[resourceApi.kind]
@@ -107,14 +109,14 @@ export const getResourceKinds = cacheResult(() => {
   ))
 })
 
-export const getListableResourceApis = cacheResult(() => {
+export const getListableResourceApis = memoize(() => {
   return getResourceApis()
     .then(resourceApis => resourceApis.filter(resourceApi => (
       resourceApi.verbs.indexOf('list') != -1
     )))
 })
 
-export const getResourceApis = cacheResult(() => {
+export const getResourceApis = memoize(() => {
   return getApiGroups()
     .then(apiGroups => Promise.all(apiGroups.map(apiGroup => fetchPath(apiGroup.url))))
     .then(apiGroupInfos => (
@@ -131,7 +133,7 @@ export const getResourceApis = cacheResult(() => {
     ], []))
 })
 
-export const getApiGroups = cacheResult(() => {
+export const getApiGroups = memoize(() => {
   return fetchPath('apis')
     .then(data => data.groups.map(apiGroup => ({
       version: apiGroup.preferredVersion.groupVersion,
@@ -145,17 +147,6 @@ export const getApiGroups = cacheResult(() => {
       },
     ])
 })
-
-function cacheResult (func) {
-  let value = undefined;
-
-  return function () {
-    if (value === undefined) {
-      value = func.apply(this, arguments)
-    }
-    return value
-  }
-}
 
 export function fetchPath (path, options) {
   options = {
