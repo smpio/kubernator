@@ -40,10 +40,7 @@ export const fetchResource = (name, kind, namespace, options) => {
 }
 
 export const getResourceUrl = (name, kind, namespace) => {
-  return getResourceKinds().then(resources => {
-    let resource = resources[kind]
-    if (!resource) throw ('Unknown resource kind ' + kind)
-
+  return getResourceKind(kind).then(resource => {
     let url = getUrlByVersion(resource.apiVersion)
 
     if (namespace && resource.namespaced) {
@@ -57,6 +54,14 @@ export const getResourceUrl = (name, kind, namespace) => {
     }
 
     return url
+  })
+}
+
+export const getResourceKind = (kind) => {
+  return getResourceKinds().then(resources => {
+    let resource = resources[kind]
+    if (!resource) throw ('Unknown resource kind ' + kind)
+    return resource
   })
 }
 
