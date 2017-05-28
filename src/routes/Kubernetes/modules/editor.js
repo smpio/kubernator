@@ -2,18 +2,35 @@ import { fetchResource, updateResource, createResource } from '../../../api'
 import { copyResource } from '../../../introspection'
 import yaml from 'js-yaml'
 
+
 // ------------------------------------
 // Constants
 // ------------------------------------
 export const OPEN_RESOURCE = 'OPEN_RESOURCE'
 export const DETACH_EDITOR = 'DETACH_EDITOR'
 export const SET_RESOURCE_YAML = 'SET_RESOURCE_YAML'
+export const START_USER_ACTION = 'START_USER_ACTION'
+export const END_USER_ACTION = 'END_USER_ACTION'
 
 // ------------------------------------
 // Actions
 // ------------------------------------
+function userAction (thunkAction) {
+  return (dispatch, ...otherArgs) => {
+    dispatch(startUserAction())
+    return thunkAction(dispatch, ...otherArgs)
+      .then(result => {
+        dispatch(endUserAction())
+        return result
+      }, error => {
+        dispatch(endUserAction())
+        throw error
+      })
+  }
+}
+
 export function openResource (resource) {
-  return (dispatch) => {
+  return userAction((dispatch) => {
     return fetchResource(resource.metadata.name, resource.kind, resource.metadata.namespace, {
       type: 'yaml',
     }).then(resourceYaml => dispatch({
@@ -23,11 +40,11 @@ export function openResource (resource) {
         yaml: resourceYaml,
       },
     }))
-  }
+  })
 }
 
 export const saveResource = () => {
-  return (dispatch, getState) => {
+  return userAction((dispatch, getState) => {
     let {activeResource, activeResourceYaml} = getState().editor
     let promise;
 
@@ -50,11 +67,11 @@ export const saveResource = () => {
         yaml: newResourceYaml,
       },
     }))
-  }
+  })
 }
 
 export const detachEditor = () => {
-  return (dispatch, getState) => {
+  return userAction((dispatch, getState) => {
     let {activeResourceYaml} = getState().editor
     return copyResource(yaml.safeLoad(activeResourceYaml)).then(newResource => {
       let newResourceYaml = yaml.safeDump(newResource, {
@@ -68,7 +85,7 @@ export const detachEditor = () => {
         },
       })
     })
-  }
+  })
 }
 
 export function setResourceYaml (value) {
@@ -76,6 +93,27 @@ export function setResourceYaml (value) {
     type: SET_RESOURCE_YAML,
     payload: value,
   }
+}
+
+export const startUserAction = () => {
+  return {
+    type: START_USER_ACTION,
+  }
+}
+
+export const endUserAction = () => {
+  return {
+    type: END_USER_ACTION,
+  }
+}
+
+export const actions = {
+  openResource,
+  saveResource,
+  detachEditor,
+  setResourceYaml,
+  startUserAction,
+  endUserAction,
 }
 
 // ------------------------------------
@@ -92,6 +130,16 @@ const actionHandlers = {
     ...state,
     activeResourceYaml: action.payload,
   }),
+
+  [START_USER_ACTION]: state => ({
+    ...state,
+    activeUserActionsCount: state.activeUserActionsCount + 1,
+  }),
+
+  [END_USER_ACTION]: state => ({
+    ...state,
+    activeUserActionsCount: state.activeUserActionsCount > 0 ? state.activeUserActionsCount - 1 : 0,
+  }),
 }
 
 // ------------------------------------
@@ -100,6 +148,7 @@ const actionHandlers = {
 const initialState = {
   activeResource: null,
   activeResourceYaml: '',
+  activeUserActionsCount: 0,
 }
 
 export default function reducer (state = initialState, action) {

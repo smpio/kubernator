@@ -6,7 +6,7 @@ export class ResourceEditor extends React.Component {
   static propTypes = {
     resource: PropTypes.object.isRequired,
     resourceYaml: PropTypes.string.isRequired,
-    detach: PropTypes.func.isRequired,
+    detachEditor: PropTypes.func.isRequired,
     saveResource: PropTypes.func.isRequired,
     setResourceYaml: PropTypes.func.isRequired,
   }
@@ -21,11 +21,11 @@ export class ResourceEditor extends React.Component {
   }
 
   render () {
-    let { resource, resourceYaml, detach, saveResource } = this.props
+    let { resource, resourceYaml, detachEditor, saveResource } = this.props
     return (
       <div>
         <div className='toolbar'>
-          {resource && <button onClick={detach}>Detach resource</button>}
+          {resource && <button onClick={detachEditor}>Detach resource</button>}
           <button onClick={saveResource}>Save</button>
         </div>
         <textarea className='editorArea' value={resourceYaml} onChange={this.handleChange} />
