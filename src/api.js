@@ -165,15 +165,22 @@ export function fetchPath (path, options) {
   }
 
   return fetch(getUrl(path), init).then(response => {
-    if (response.status != 200) {
-      return Promise.reject(response)
-    }
+    let data;
 
     if (options.type == 'json') {
-      return response.json()
+      data = response.json()
     } else {
-      return response.text()
+      data = response.text()
     }
+
+    if (response.status != 200) {
+      return data.then(data => {
+        response.data = data
+        return Promise.reject(response)
+      })
+    }
+
+    return data
   })
 }
 
