@@ -5,19 +5,14 @@ import ResourceEditor from '../containers/ResourceEditorContainer'
 import './KubernetesView.scss'
 
 
-export const KubernetesView = ({showProgressIndicator}) => (
+export const KubernetesView = ({rootModel, showProgressIndicator}) => (
   <div className='kubernetes'>
     <div className={'progressIndicator ' + (showProgressIndicator ? '' : 'hidden')}>
       Loading...
     </div>
 
     <div className='tree'>
-      <TreeNode resource={{
-        kind: 'NamespaceList',
-        metadata: {
-          name: 'Namespaces',
-        },
-      }} />
+      <TreeNode id={rootModel.id} />
     </div>
     <div className='editor'>
       <ResourceEditor />
@@ -25,6 +20,7 @@ export const KubernetesView = ({showProgressIndicator}) => (
   </div>
 )
 KubernetesView.propTypes = {
+  rootModel: PropTypes.object.isRequired,
   showProgressIndicator: PropTypes.bool,
 }
 

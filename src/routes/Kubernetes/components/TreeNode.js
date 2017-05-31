@@ -1,112 +1,26 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { openResource } from '../modules/editor'
-import { fetchResource, getResourceKindsPrioritized } from '../../../api'
 import './TreeNode.scss'
 
 
-export class TreeNode extends React.Component {
-  static propTypes = {
-    resource: PropTypes.object.isRequired,
-    openResource: PropTypes.func.isRequired,
-  }
-
-  constructor(props) {
-    super(props)
-    this.onClick = this.onClick.bind(this)
-    this.state = {
-      visible: true
-    }
-
-    this.collapsed = props.collapsed || false
-    this.updateState()
-
-    if (this.collapsed && props.resource.kind == 'ResourceRoot') {
-      this.state.visible = false
-      this.getChilds().then(childs => {
-        this.setState({
-          visible: !!childs.length
-        })
-      })
-    }
-  }
-
-  onClick(e) {
-    this.toggleCollapse()
-    this.props.openResource(this.props.resource)
-  }
-
-  toggleCollapse() {
-    this.collapsed = !this.collapsed
-    this.updateState()
-  }
-
-  updateState() {
-    let childs = Promise.resolve(null)
-    if (!this.collapsed) {
-      childs = this.getChilds()
-    }
-
-    childs.then(childs => {
-      this.setState({
-        childs: childs
-      })
-    })
-  }
-
-  getChilds() {
-    let kind = this.props.resource.kind
-
-    if (kind == 'NamespaceList') {
-      return fetchResource(null, 'Namespace').then(data => data.items)
-    }
-    else if (kind == 'Namespace') {
-      return getResourceKindsPrioritized().then(resources => (
-        resources.reduce((childs, resource) => {
-          if (!resource.namespaced) return childs
-
-          childs.push({
-            kind: 'ResourceRoot',
-            metadata: {
-              name: resource.kind,
-              namespace: this.props.resource.metadata.name,
-            },
-            resource: resource,
-          })
-
-          return childs
-        }, [])
-      ))
-    }
-    else if (kind == 'ResourceRoot') {
-      let childKind = this.props.resource.metadata.name
-      let childNamespace = this.props.resource.metadata.namespace
-      return fetchResource(null, childKind, childNamespace).then(data => data.items)
-    }
-
-    return Promise.resolve(null)
-  }
-
-  render() {
-    const resource = this.props.resource
-    const { childs, visible } = this.state
-
-    return (
-      <div className={visible ? '' : 'hidden'}>
-        <div onClick={this.onClick}>{resource.metadata.name}</div>
-        {childs && (
-          <ul>
-            {childs.map(child => (
-              <li key={child.metadata.name}>
-                <TreeNodeContainer resource={child} collapsed={true} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    )
-  }
+export const TreeNode = ({model, clickTreeNode}) => (
+  <div className={'node ' + (model.isEmpty ? '' : 'empty')}>
+    <div onClick={() => clickTreeNode(model)}>{model.visibleName}</div>
+    {model.isOpened && (
+      <ul>
+        {model.childIds.map(childId => (
+          <li key={childId}>
+            <TreeNodeContainer id={childId} />
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+)
+TreeNode.propTypes = {
+  model: PropTypes.object.isRequired,
+  clickTreeNode: PropTypes.func.isRequired,
 }
 
-import TreeNodeContainer from '../containers/TreeNodeContainer'  // for use in render()
+import TreeNodeContainer from '../containers/TreeNodeContainer'  // used to render childs
 export default TreeNode

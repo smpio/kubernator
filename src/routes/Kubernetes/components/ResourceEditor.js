@@ -4,7 +4,7 @@ import './ResourceEditor.scss'
 
 export class ResourceEditor extends React.Component {
   static propTypes = {
-    resource: PropTypes.object.isRequired,
+    resource: PropTypes.object,
     resourceYaml: PropTypes.string.isRequired,
     detachEditor: PropTypes.func.isRequired,
     saveResource: PropTypes.func.isRequired,
