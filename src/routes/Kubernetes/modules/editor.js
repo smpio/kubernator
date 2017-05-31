@@ -119,9 +119,14 @@ function closeTreeNode(node, dispatch) {
 }
 
 function getRootNodeChilds (node) {
-  return fetchResource(null, 'Namespace').then(data => data.items.map(resource => (
-    TreeNodeModel.fromResource(resource)
-  )))
+  return getResourceKindsPrioritized().then(resources => (
+    resources.reduce((childs, resource) => {
+      if (!resource.namespaced) {
+        childs.push(TreeNodeModel.fromKind(resource))
+      }
+      return childs
+    }, [])
+  ))
 }
 
 function getResourceNodeChilds (node) {
