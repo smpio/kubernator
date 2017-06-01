@@ -227,6 +227,8 @@ export const detachEditor = () => {
 }
 
 export const deleteActiveObject = () => {
+  if (!confirm('Really delete?')) return
+
   return userAction((dispatch, getState) => {
     let {activeObject} = getState().editor
     if (!activeObject) return Promise.reject(new Error('No active object'))
