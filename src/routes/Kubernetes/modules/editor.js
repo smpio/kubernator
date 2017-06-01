@@ -1,11 +1,12 @@
 import {
-  fetchResource,
-  updateResource,
-  createResource,
-  getResourceKindsPrioritized
+  fetchObject,
+  updateObject,
+  createObject,
+  fetchObjectsByKind,
+  getResourcesPrioritized,
 } from '../../../api'
 import TreeNodeModel from '../../../TreeNodeModel'
-import { copyResource } from '../../../introspection'
+import { copyObject } from '../../../introspection'
 import yaml from 'js-yaml'
 
 
@@ -16,9 +17,9 @@ export const SET_CHILDS = 'SET_CHILDS'
 export const OPEN_NODE = 'OPEN_NODE'
 export const CLOSE_NODE = 'CLOSE_NODE'
 export const SET_NODE_ERROR = 'SET_NODE_ERROR'
-export const OPEN_RESOURCE = 'OPEN_RESOURCE'
+export const OPEN_OBJECT = 'OPEN_OBJECT'
 export const DETACH_EDITOR = 'DETACH_EDITOR'
-export const SET_RESOURCE_YAML = 'SET_RESOURCE_YAML'
+export const SET_OBJECT_YAML = 'SET_OBJECT_YAML'
 export const START_USER_ACTION = 'START_USER_ACTION'
 export const END_USER_ACTION = 'END_USER_ACTION'
 
@@ -49,17 +50,15 @@ export function clickTreeNode (node) {
       treePromise = closeTreeNode(node, dispatch)
     }
 
-    if (node.type == TreeNodeModel.types.resource) {
-      let resource = node.data
+    if (node.type == TreeNodeModel.types.object) {
+      let obj = node.data
 
-      editorPromise = fetchResource(resource.metadata.name, resource.kind, resource.metadata.namespace, {
+      editorPromise = fetchObject(obj.metadata.name, obj.kind, obj.metadata.namespace, {
         type: 'yaml',
-      }).then(resourceYaml => dispatch({
-        type: OPEN_RESOURCE,
-        payload: {
-          data: resource,
-          yaml: resourceYaml,
-        },
+      }).then(objYaml => dispatch({
+        type: OPEN_OBJECT,
+        object: obj,
+        yaml: objYaml,
       }))
     } else {
       editorPromise = Promise.resolve()
@@ -92,7 +91,7 @@ function fetchChilds(node, dispatch) {
   let childs = null
 
   if (node.type == TreeNodeModel.types.root) childs = getRootNodeChilds(node)
-  if (node.type == TreeNodeModel.types.resource) childs = getResourceNodeChilds(node)
+  if (node.type == TreeNodeModel.types.object) childs = getObjectNodeChilds(node)
   if (node.type == TreeNodeModel.types.kind) childs = getKindNodeChilds(node)
 
   if (childs) {
@@ -133,7 +132,7 @@ function closeTreeNode(node, dispatch) {
 }
 
 function getRootNodeChilds (node) {
-  return getResourceKindsPrioritized().then(resources => (
+  return getResourcesPrioritized().then(resources => (
     resources.reduce((childs, resource) => {
       if (!resource.namespaced) {
         childs.push(TreeNodeModel.fromKind(resource))
@@ -143,12 +142,12 @@ function getRootNodeChilds (node) {
   ))
 }
 
-function getResourceNodeChilds (node) {
+function getObjectNodeChilds (node) {
   if (node.data.kind != 'Namespace') {
     return Promise.resolve(null)
   }
 
-  return getResourceKindsPrioritized().then(resources => (
+  return getResourcesPrioritized().then(resources => (
     resources.reduce((childs, resource) => {
       if (resource.namespaced) {
         childs.push(TreeNodeModel.fromKind(resource, node.data.metadata.name))
@@ -159,62 +158,56 @@ function getResourceNodeChilds (node) {
 }
 
 function getKindNodeChilds (node) {
-  return fetchResource(null, node.data.kind, node.data.namespace).then((
-    data => data.items.map(resource => (
-      TreeNodeModel.fromResource(resource)
-    )
+  return fetchObjectsByKind(node.data.kind, node.data.namespace).then((
+    data => data.items.map(obj => TreeNodeModel.fromObject(obj)
   )))
 }
 
-export const saveResource = () => {
+export const saveObject = () => {
   return userAction((dispatch, getState) => {
-    let {activeResource, activeResourceYaml} = getState().editor
+    let {activeObject, activeObjectYaml} = getState().editor
     let promise;
 
-    if (activeResource) {
-      promise = updateResource(activeResource, activeResourceYaml, {
+    if (activeObject) {
+      promise = updateObject(activeObject, activeObjectYaml, {
         type: 'yaml'
       })
     }
     else {
-      let newResource = yaml.safeLoad(activeResourceYaml)
-      promise = createResource(activeResourceYaml, newResource.kind, newResource.metadata.namespace, {
+      let newObj = yaml.safeLoad(activeObjectYaml)
+      promise = createObject(activeObjectYaml, newObj.kind, newObj.metadata.namespace, {
         type: 'yaml'
       })
     }
 
-    return promise.then((newResourceYaml) => dispatch({
-      type: OPEN_RESOURCE,
-      payload: {
-        data: activeResource,
-        yaml: newResourceYaml,
-      },
+    return promise.then(newObjYaml => dispatch({
+      type: OPEN_OBJECT,
+      object: activeObject,
+      yaml: newObjYaml,
     }))
   })
 }
 
 export const detachEditor = () => {
   return userAction((dispatch, getState) => {
-    let {activeResourceYaml} = getState().editor
-    return copyResource(yaml.safeLoad(activeResourceYaml)).then(newResource => {
-      let newResourceYaml = yaml.safeDump(newResource, {
+    let {activeObjectYaml} = getState().editor
+    return copyObject(yaml.safeLoad(activeObjectYaml)).then(newObj => {
+      let newObjYaml = yaml.safeDump(newObj, {
         noRefs: true,
       })
       return dispatch({
-        type: OPEN_RESOURCE,
-        payload: {
-          data: null,
-          yaml: newResourceYaml,
-        },
+        type: OPEN_OBJECT,
+        object: null,
+        yaml: newObjYaml,
       })
     })
   })
 }
 
-export function setResourceYaml (value) {
+export function setObjectYaml (value) {
   return {
-    type: SET_RESOURCE_YAML,
-    payload: value,
+    type: SET_OBJECT_YAML,
+    yaml: value,
   }
 }
 
@@ -232,9 +225,9 @@ export const endUserAction = () => {
 
 export const actions = {
   clickTreeNode,
-  saveResource,
+  saveObject,
   detachEditor,
-  setResourceYaml,
+  setObjectYaml,
   startUserAction,
   endUserAction,
 }
@@ -311,15 +304,15 @@ const globalActionHandlers = {
     }
   },
 
-  [OPEN_RESOURCE]: (state, action) => ({
+  [OPEN_OBJECT]: (state, action) => ({
     ...state,
-    activeResource: action.payload.data,
-    activeResourceYaml: action.payload.yaml,
+    activeObject: action.object,
+    activeObjectYaml: action.yaml,
   }),
 
-  [SET_RESOURCE_YAML]: (state, action) => ({
+  [SET_OBJECT_YAML]: (state, action) => ({
     ...state,
-    activeResourceYaml: action.payload,
+    activeObjectYaml: action.yaml,
   }),
 
   [START_USER_ACTION]: state => ({
@@ -351,8 +344,8 @@ const initialState = {
   nodes: {
     [rootNode.id]: rootNode,
   },
-  activeResource: null,
-  activeResourceYaml: '',
+  activeObject: null,
+  activeObjectYaml: '',
   activeUserActionsCount: 0,
 }
 

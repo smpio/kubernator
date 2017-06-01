@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import TreeNode from '../containers/TreeNodeContainer'
-import ResourceEditor from '../containers/ResourceEditorContainer'
+import ObjectEditor from '../containers/ObjectEditorContainer'
 import './KubernetesView.scss'
 
 
@@ -15,7 +15,7 @@ export const KubernetesView = ({rootModel, showProgressIndicator}) => (
       <TreeNode id={rootModel.id} />
     </div>
     <div className='editor'>
-      <ResourceEditor />
+      <ObjectEditor />
     </div>
   </div>
 )

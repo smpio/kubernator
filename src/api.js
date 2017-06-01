@@ -1,68 +1,66 @@
 import { memoize } from './utils'
 
 // TODO: doesn't take into account newResource.apiVersion
-export const createResource = (newResource, kind, namespace, options) => {
-  return getResourceUrl(null, kind, namespace).then(url => {
+export const createObject = (newObj, kind, namespace, options) => {
+  return getUrlByKind(kind, namespace).then(url => {
     options = {
       ...options,
       method: 'POST',
-      body: newResource,
+      body: newObj,
     }
     return fetchPath(url, options)
   })
 }
 
-export const updateResource = (resource, newResource, options) => {
-  let url = resource.metadata.selfLink
+export const updateObject = (obj, newObj, options) => {
+  let url = obj.metadata.selfLink
   options = {
     ...options,
     method: 'PUT',
-    body: newResource,
+    body: newObj,
   }
   return fetchPath(url, options)
 }
 
-export const fetchResource = (name, kind, namespace, options) => {
-  return getResourceUrl(name, kind, namespace).then(url => (
+export const fetchObject = (name, kind, namespace, options) => {
+  return getObjectUrl(name, kind, namespace).then(url => fetchPath(url, options))
+}
+
+export const getObjectUrl = (name, kind, namespace) => {
+  return getUrlByKind(kind, namespace).then(url => url + '/' + name)
+}
+
+export const fetchObjectsByKind = (kind, namespace, options) => {
+  return getUrlByKind(kind, namespace).then(url => (
     fetchPath(url, options).then(data => {
-      if (!name) {
-        return getResourceKinds().then(resources => {
-          let resource = resources[kind]
-          data.items = data.items.map(item => ({
-            ...item,
-            apiVersion: resource.apiVersion,
-            kind: resource.kind,
-          }))
-          return data
-        })
-      }
-      return data
+      return getResourceByKind(kind).then(resource => {
+        data.items = data.items.map(item => ({
+          ...item,
+          apiVersion: resource.apiVersion,
+          kind: resource.kind,
+        }))
+        return data
+      })
     })
   ))
 }
 
-export const getResourceUrl = (name, kind, namespace) => {
-  return getResourceKind(kind).then(resource => {
+export const getUrlByKind = (kind, namespace) => {
+  return getResourceByKind(kind).then(resource => {
     let url = getUrlByVersion(resource.apiVersion)
 
     if (namespace && resource.namespaced) {
       url += 'namespaces/' + namespace + '/'
     }
 
-    url += resource.name
-
-    if (name) {
-      url += '/' + name
-    }
-
-    return url
+    return url + resource.name
   })
 }
 
-export const getResourceKind = (kind) => {
-  return getResourceKinds().then(resources => {
-    let resource = resources[kind]
-    if (!resource) throw ('Unknown resource kind ' + kind)
+export const getResourceByKind = (kind) => {
+  return getMapKindResource().then(map => {
+    let resource = map[kind]
+    if (!resource) throw ('No resource for kind ' + kind)
     return resource
   })
 }
@@ -75,33 +73,33 @@ export const getUrlByVersion = (apiVersion) => {
     }
 }
 
-export const getResourceKindsPrioritized = memoize(() => {
-  return getResourceKinds().then(resources => {
-    resources = {...resources}
+export const getResourcesPrioritized = memoize(() => {
+  return getMapKindResource().then(map => {
+    map = {...map}
     let ordered = kindsByPriority.reduce((ordered, kind) => {
-      let resource = resources[kind]
+      let resource = map[kind]
       if (resource) {
-        delete resources[kind]
+        delete map[kind]
         ordered.push(resource)
       }
       return ordered
     }, [])
     return [
       ...ordered,
-      ...Object.values(resources),
+      ...Object.values(map),
     ]
   })
 })
 
-export const getResourceKinds = memoize(() => {
-  return getListableResourceApis().then(resourceApis => (
-    resourceApis.reduce((kinds, resourceApi) => {
-      let existingResourceApi = kinds[resourceApi.kind]
-      if (!existingResourceApi || existingResourceApi.apiVersion == 'extensions/v1beta1') {
-        kinds[resourceApi.kind] = resourceApi
+export const getMapKindResource = memoize(() => {
+  return getListableResources().then(resources => (
+    resources.reduce((kinds, resource) => {
+      let existingResource = kinds[resource.kind]
+      if (!existingResource || existingResource.apiVersion == 'extensions/v1beta1') {
+        kinds[resource.kind] = resource
       } else {
-        console.error('Multiple API resources for same kind:',
-          existingResourceApi.apiVersion, resourceApi.apiVersion,
+        console.error('Multiple resources for same kind:',
+          existingResource.apiVersion, resource.apiVersion,
           'ignoring the latter')
       }
       return kinds
@@ -109,14 +107,14 @@ export const getResourceKinds = memoize(() => {
   ))
 })
 
-export const getListableResourceApis = memoize(() => {
-  return getResourceApis()
-    .then(resourceApis => resourceApis.filter(resourceApi => (
-      resourceApi.verbs.indexOf('list') != -1
+export const getListableResources = memoize(() => {
+  return getResources()
+    .then(resources => resources.filter(resource => (
+      resource.verbs.indexOf('list') != -1
     )))
 })
 
-export const getResourceApis = memoize(() => {
+export const getResources = memoize(() => {
   return getApiGroups()
     .then(apiGroups => Promise.all(apiGroups.map(apiGroup => fetchPath(apiGroup.url))))
     .then(apiGroupInfos => (

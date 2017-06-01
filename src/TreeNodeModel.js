@@ -1,7 +1,7 @@
 class TreeNodeModel {
   static types = {
     root: 'root',
-    resource: 'resource',
+    object: 'object',
     kind: 'kind',
   }
 
@@ -15,8 +15,8 @@ class TreeNodeModel {
     this.error = null
   }
 
-  static fromResource(resource) {
-    return new TreeNodeModel(TreeNodeModel.types.resource, resource, resource.metadata.name)
+  static fromObject(resource) {
+    return new TreeNodeModel(TreeNodeModel.types.object, resource, resource.metadata.name)
   }
 
   static fromKind(data, namespace) {

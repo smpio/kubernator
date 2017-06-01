@@ -1,13 +1,13 @@
-import { fetchPath, getUrlByVersion, getResourceKind } from './api'
+import { fetchPath, getUrlByVersion, getResourceByKind } from './api'
 import { memoize } from './utils'
 import _ from 'lodash'
 
-export const copyResource = resource => {
-  return getKindSpec(resource.kind).then(spec => getObjectWithoutRO(resource, spec))
+export const copyObject = obj => {
+  return getKindSpec(obj.kind).then(spec => getObjectWithoutRO(obj, spec))
 }
 
 export const getKindSpec = memoize(kind => {
-  return getResourceKind(kind)
+  return getResourceByKind(kind)
     .then(resource => {
       return getApiSpec(resource.apiVersion).then(apiSpec => {
         let prefix = resource.apiVersion.split('/').slice(-1)[0]
