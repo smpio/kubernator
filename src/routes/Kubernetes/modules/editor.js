@@ -2,6 +2,7 @@ import {
   fetchObject,
   updateObject,
   createObject,
+  deleteObject,
   fetchObjectsByKind,
   getResourcesPrioritized,
 } from '../../../api'
@@ -19,6 +20,7 @@ export const CLOSE_NODE = 'CLOSE_NODE'
 export const SET_NODE_ERROR = 'SET_NODE_ERROR'
 export const OPEN_OBJECT = 'OPEN_OBJECT'
 export const DETACH_EDITOR = 'DETACH_EDITOR'
+export const DELETE_OBJECT = 'DELETE_OBJECT'
 export const SET_OBJECT_YAML = 'SET_OBJECT_YAML'
 export const START_USER_ACTION = 'START_USER_ACTION'
 export const END_USER_ACTION = 'END_USER_ACTION'
@@ -209,6 +211,15 @@ export const detachEditor = () => {
   })
 }
 
+export const deleteActiveObject = () => {
+  return userAction((dispatch, getState) => {
+    let {activeObject} = getState().editor
+    if (!activeObject) return Promise.reject(new Error('No active object'))
+
+    return deleteObject(activeObject).then(() => dispatch(detachEditor()))
+  })
+}
+
 export function setObjectYaml (value) {
   return {
     type: SET_OBJECT_YAML,
@@ -235,6 +246,7 @@ export const actions = {
   setObjectYaml,
   startUserAction,
   endUserAction,
+  deleteActiveObject,
 }
 
 // ------------------------------------

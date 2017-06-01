@@ -9,6 +9,7 @@ export class ObjectEditor extends React.Component {
     detachEditor: PropTypes.func.isRequired,
     saveObject: PropTypes.func.isRequired,
     setObjectYaml: PropTypes.func.isRequired,
+    deleteActiveObject: PropTypes.func.isRequired,
   }
 
   constructor(props) {
@@ -21,12 +22,13 @@ export class ObjectEditor extends React.Component {
   }
 
   render () {
-    let { object, yaml, detachEditor, saveObject } = this.props
+    let { object, yaml, detachEditor, saveObject, deleteActiveObject } = this.props
     return (
       <div>
         <div className='toolbar'>
-          {object && <button onClick={detachEditor}>Detach</button>}
           <button onClick={saveObject}>Save</button>
+          {object && <button onClick={detachEditor}>Detach</button>}
+          {object && <button onClick={deleteActiveObject}>Delete</button>}
           {object && <span style={{float: 'right'}}>{object.metadata.namespace}/{object.metadata.name} ({object.kind})</span>}
         </div>
         <textarea className='editorArea' value={yaml} onChange={this.handleChange} />

@@ -22,6 +22,12 @@ export const updateObject = (obj, newObj, options) => {
   return fetchPath(url, options)
 }
 
+export const deleteObject = (obj) => {
+  return fetchPath(obj.metadata.selfLink, {
+    method: 'DELETE',
+  })
+}
+
 export const fetchObject = (name, kind, namespace, options) => {
   return getObjectUrl(name, kind, namespace).then(url => fetchPath(url, options))
 }
