@@ -8,7 +8,8 @@ const createStore = (initialState = {}) => {
   // ======================================================
   // Middleware Configuration
   // ======================================================
-  const middleware = [thunk]
+  const thunkExtra = {}
+  const middleware = [thunk.withExtraArgument(thunkExtra)]
 
   // ======================================================
   // Store Enhancers
@@ -45,6 +46,7 @@ const createStore = (initialState = {}) => {
     })
   }
 
+  thunkExtra.store = store
   return store
 }
 

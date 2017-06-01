@@ -9,6 +9,7 @@ import {
 import TreeNodeModel from '../../../TreeNodeModel'
 import { copyObject } from '../../../introspection'
 import yaml from 'js-yaml'
+import React from 'react'
 
 
 // ------------------------------------
@@ -29,14 +30,28 @@ export const END_USER_ACTION = 'END_USER_ACTION'
 // Actions
 // ------------------------------------
 function userAction (thunkAction) {
-  return (dispatch, ...otherArgs) => {
+  return (dispatch, getState, extra) => {
     dispatch(startUserAction())
-    return thunkAction(dispatch, ...otherArgs)
+    return thunkAction(dispatch, getState, extra)
       .then(result => {
         dispatch(endUserAction())
         return result
       }, error => {
         dispatch(endUserAction())
+
+        let notySys = extra.store.notificationSystem
+        let noty = {
+          title: 'Error',
+          level: 'error',
+        }
+
+        if (error instanceof Response) {
+          noty.children = <pre>{error.data.toString()}</pre>
+        } else {
+          noty.message = error.toString()
+        }
+
+        notySys.addNotification(noty)
         throw error
       })
   }
