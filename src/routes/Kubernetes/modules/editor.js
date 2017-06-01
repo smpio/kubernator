@@ -106,7 +106,7 @@ function fetchChilds(node, dispatch) {
 
       return childs
     }, error => {
-      let details = error
+      let details = null
       if (error instanceof Response) {
         details = error.data
       }
@@ -114,10 +114,12 @@ function fetchChilds(node, dispatch) {
       dispatch({
         type: SET_NODE_ERROR,
         nodeId: node.id,
-        error: details,
+        error: details || error,
       })
 
-      throw error
+      if (!details) {
+        throw error
+      }
     })
   }
 
