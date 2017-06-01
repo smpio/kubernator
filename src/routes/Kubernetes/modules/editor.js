@@ -15,6 +15,7 @@ import yaml from 'js-yaml'
 export const SET_CHILDS = 'SET_CHILDS'
 export const OPEN_NODE = 'OPEN_NODE'
 export const CLOSE_NODE = 'CLOSE_NODE'
+export const SET_NODE_ERROR = 'SET_NODE_ERROR'
 export const OPEN_RESOURCE = 'OPEN_RESOURCE'
 export const DETACH_EDITOR = 'DETACH_EDITOR'
 export const SET_RESOURCE_YAML = 'SET_RESOURCE_YAML'
@@ -105,6 +106,19 @@ function fetchChilds(node, dispatch) {
       }
 
       return childs
+    }, error => {
+      let details = error
+      if (error instanceof Response) {
+        details = error.data
+      }
+
+      dispatch({
+        type: SET_NODE_ERROR,
+        nodeId: node.id,
+        error: details,
+      })
+
+      throw error
     })
   }
 
@@ -280,6 +294,21 @@ const globalActionHandlers = {
 
     childIds.forEach(id => delete state.nodes[id])
     return state
+  },
+
+  [SET_NODE_ERROR]: (state, action) => {
+    const {nodeId} = action
+    const node = state.nodes[nodeId]
+
+    return {
+      ...state,
+      nodes: {
+        ...state.nodes,
+        [nodeId]: Object.assign({__proto__: node.__proto__}, node, {
+          error: action.error,
+        }),
+      },
+    }
   },
 
   [OPEN_RESOURCE]: (state, action) => ({

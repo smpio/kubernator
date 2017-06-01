@@ -12,6 +12,7 @@ class TreeNodeModel {
     this.visibleName = visibleName
     this.childIds = []
     this.isOpened = false
+    this.error = null
   }
 
   static fromResource(resource) {
