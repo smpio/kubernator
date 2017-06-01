@@ -171,7 +171,7 @@ export function fetchPath (path, options) {
       data = response.text()
     }
 
-    if (response.status != 200) {
+    if (response.status.toString()[0] != '2') {
       return data.then(data => {
         response.data = data
         return Promise.reject(response)
