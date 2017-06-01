@@ -177,6 +177,9 @@ export const saveObject = () => {
     }
     else {
       let newObj = yaml.safeLoad(activeObjectYaml)
+      if (!newObj || !newObj.kind || !newObj.metadata) {
+        return Promise.reject(new Error('Invalid object "' + newObj + '"'))
+      }
       promise = createObject(activeObjectYaml, newObj.kind, newObj.metadata.namespace, {
         type: 'yaml'
       })
