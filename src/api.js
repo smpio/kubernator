@@ -167,7 +167,7 @@ export function fetchPath (path, options) {
   return fetch(getUrl(path), init).then(response => {
     let data;
 
-    if (options.type == 'json') {
+    if (response.headers.get('Content-Type') == 'application/json') {
       data = response.json()
     } else {
       data = response.text()
