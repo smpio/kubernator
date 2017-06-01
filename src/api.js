@@ -78,16 +78,16 @@ export const getUrlByVersion = (apiVersion) => {
 export const getResourceKindsPrioritized = memoize(() => {
   return getResourceKinds().then(resources => {
     resources = {...resources}
-    let list = kindsByPriority.reduce((list, kind) => {
+    let ordered = kindsByPriority.reduce((ordered, kind) => {
       let resource = resources[kind]
       if (resource) {
         delete resources[kind]
-        list.push(resource)
+        ordered.push(resource)
       }
-      return list
+      return ordered
     }, [])
     return [
-      ...list,
+      ...ordered,
       ...Object.values(resources),
     ]
   })
