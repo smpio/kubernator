@@ -2,10 +2,12 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import './TreeNode.scss'
 
-
 export const TreeNode = ({model, clickTreeNode}) => (
   <div className={'node ' + (model.isEmpty ? '' : 'empty ') + (model.error ? 'error ' : '')} title={model.error}>
-    <div onClick={() => clickTreeNode(model)}>{model.visibleName}</div>
+    <div onClick={() => clickTreeNode(model)}>
+      {model.isOpened ? '▾ ' : '▸ '}
+      {model.visibleName}
+    </div>
     {model.isOpened && (
       <ul>
         {model.childIds.map(childId => (
