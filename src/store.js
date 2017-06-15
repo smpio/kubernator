@@ -11,8 +11,7 @@ import createSagaMiddleware from 'redux-saga'
 import thunkMiddleware from 'redux-thunk'
 
 import customMiddleware from './middleware'
-import modules from './modules'
-import sagas from './sagas'
+import { reducers, sagas } from './modules'
 
 export const history = createHistory()
 const sagaMiddleware = createSagaMiddleware()
@@ -41,7 +40,7 @@ const composedEnhancers = compose(
 )
 
 const store = createStore(
-  modules,
+  reducers,
   initialState,
   composedEnhancers
 )
