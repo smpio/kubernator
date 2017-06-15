@@ -1,6 +1,5 @@
 import { fetchPath, getUrlByVersion, getResourceByKind } from './api'
-import memoize from './memoize'
-import _ from 'lodash'
+import { memoize } from 'decko'
 
 export const copyObject = obj => {
   return getKindSpec(obj.kind).then(spec => getObjectWithoutRO(obj, spec))

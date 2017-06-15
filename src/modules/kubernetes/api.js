@@ -1,4 +1,4 @@
-import memoize from './memoize'
+import { memoize } from 'decko'
 
 // TODO: doesn't take into account newResource.apiVersion
 export const createObject = (newObj, kind, namespace, options) => {
