@@ -6,7 +6,7 @@ import {
   fetchObjectsByKind,
   getResourcesPrioritized,
 } from './api'
-import TreeNodeModel from './TreeNodeModel'
+import TreeNode from './TreeNode'
 import { copyObject } from './introspection'
 import yaml from 'js-yaml'
 import React from 'react'
@@ -67,7 +67,7 @@ export function clickTreeNode (node) {
       treePromise = closeTreeNode(node, dispatch)
     }
 
-    if (node.type == TreeNodeModel.types.object) {
+    if (node.type == TreeNode.types.object) {
       let obj = node.data
 
       editorPromise = fetchObject(obj.metadata.name, obj.kind, obj.metadata.namespace, {
@@ -105,9 +105,9 @@ function openTreeNode(node, dispatch) {
 function fetchChilds(node, dispatch) {
   let childs = null
 
-  if (node.type == TreeNodeModel.types.root) childs = getRootNodeChilds(node)
-  if (node.type == TreeNodeModel.types.object) childs = getObjectNodeChilds(node)
-  if (node.type == TreeNodeModel.types.kind) childs = getKindNodeChilds(node)
+  if (node.type == TreeNode.types.root) childs = getRootNodeChilds(node)
+  if (node.type == TreeNode.types.object) childs = getObjectNodeChilds(node)
+  if (node.type == TreeNode.types.kind) childs = getKindNodeChilds(node)
 
   if (childs) {
     return childs.then(childs => {
@@ -152,7 +152,7 @@ function getRootNodeChilds (node) {
   return getResourcesPrioritized().then(resources => (
     resources.reduce((childs, resource) => {
       if (!resource.namespaced) {
-        childs.push(TreeNodeModel.fromKind(resource))
+        childs.push(TreeNode.fromKind(resource))
       }
       return childs
     }, [])
@@ -167,7 +167,7 @@ function getObjectNodeChilds (node) {
   return getResourcesPrioritized().then(resources => (
     resources.reduce((childs, resource) => {
       if (resource.namespaced) {
-        childs.push(TreeNodeModel.fromKind(resource, node.data.metadata.name))
+        childs.push(TreeNode.fromKind(resource, node.data.metadata.name))
       }
       return childs
     }, [])
@@ -176,7 +176,7 @@ function getObjectNodeChilds (node) {
 
 function getKindNodeChilds (node) {
   return fetchObjectsByKind(node.data.kind, node.data.namespace).then((
-    data => data.items.map(obj => TreeNodeModel.fromObject(obj)
+    data => data.items.map(obj => TreeNode.fromObject(obj)
   )))
 }
 
@@ -360,7 +360,7 @@ const getAllDescendantIds = (nodeId, nodes) => {
 // ------------------------------------
 // Reducer
 // ------------------------------------
-const rootNode = new TreeNodeModel(TreeNodeModel.types.root, {}, 'Kubernetes Cluster')
+const rootNode = new TreeNode(TreeNode.types.root, {}, 'Kubernetes Cluster')
 const initialState = {
   rootNode: rootNode,
   nodes: {
