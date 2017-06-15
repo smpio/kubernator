@@ -38,20 +38,15 @@ function userAction (thunkAction) {
         return result
       }, error => {
         dispatch(endUserAction())
-
-        let notySys = extra.store.notificationSystem
-        let noty = {
-          title: 'Error',
-          level: 'error',
-        }
-
-        if (error instanceof Response) {
-          noty.children = <pre>{error.data.toString()}</pre>
-        } else {
-          noty.message = error.toString()
-        }
-
-        notySys.addNotification(noty)
+        dispatch({
+          type: 'kubernetes/ERROR',
+          error: true,
+          payload: {
+            message: error instanceof Response
+              ? error.data.toString()
+              : error.toString(),
+          },
+        })
         throw error
       })
   }
