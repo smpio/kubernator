@@ -7,19 +7,35 @@ import {
   Counter,
 } from '../'
 
-import 'sanitize.css/sanitize.css'
+import {
+  Layout,
+  Menu,
+} from 'antd'
+
+import logo from './logo.png'
 import './index.css'
 
 export default props =>
-  <div>
-    <header>
-      <Link to='/'>Home</Link>
-      <Link to='/kubernetes'>Kubernetes</Link>
-      <Link to='/counter'>Counter</Link>
-    </header>
-    <main>
-      <Route exact path='/' component={Home} />
-      <Route exact path='/kubernetes' component={Kubernetes} />
-      <Route exact path='/counter' component={Counter} />
-    </main>
-  </div>
+  <Layout className='layout'>
+    <Layout.Header>
+      <img className='logo' src={logo} />
+      <Menu className='menu' theme='dark' mode='horizontal'>
+        <Menu.Item key='home'>
+          <Link to='/'>Home</Link>
+        </Menu.Item>
+        <Menu.Item key='kubernetes'>
+          <Link to='/kubernetes'>Kubernetes</Link>
+        </Menu.Item>
+        <Menu.Item key='counter'>
+          <Link to='/counter'>Counter</Link>
+        </Menu.Item>
+      </Menu>
+    </Layout.Header>
+    <Layout.Content className='content'>
+      <div className='canvas'>
+        <Route exact path='/' component={Home} />
+        <Route exact path='/kubernetes' component={Kubernetes} />
+        <Route exact path='/counter' component={Counter} />
+      </div>
+    </Layout.Content>
+  </Layout>

@@ -10,6 +10,7 @@ import { routerMiddleware } from 'react-router-redux'
 import createSagaMiddleware from 'redux-saga'
 import thunkMiddleware from 'redux-thunk'
 
+import customMiddleware from './middleware'
 import modules from './modules'
 import sagas from './sagas'
 
@@ -23,7 +24,8 @@ const enhancers = []
 const middleware = [
   sagaMiddleware,
   thunkMiddleware,
-  routerMiddleware(history)
+  routerMiddleware(history),
+  ...customMiddleware,
 ]
 
 if (process.env.NODE_ENV === 'development') {

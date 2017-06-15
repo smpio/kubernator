@@ -1,0 +1,32 @@
+.layout {
+  height: 100%;
+
+  .ant-layout-header {
+    padding: 0 2em;
+    height: 4em;
+    line-height: 4;
+  }
+
+  .logo {
+    display: block;
+    float: left;
+    margin: 1em 2em 1em 0;
+    height: 2em;
+  }
+
+  .menu {
+    line-height: 4;
+    border: none;
+  }
+
+  .content {
+    height: 100%;
+    padding: 1em;
+
+    .canvas {
+      height: 100%;
+      background: white;
+      padding: 1em;
+    }
+  }
+}
