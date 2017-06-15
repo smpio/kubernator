@@ -1,5 +1,6 @@
 import React from 'react'
 import { Route, Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet'
 
 import {
   Home,
@@ -17,6 +18,9 @@ import './index.css'
 
 export default props =>
   <Layout className='layout'>
+    <Helmet>
+      <title>App</title>
+    </Helmet>
     <Layout.Header>
       <img className='logo' src={logo} />
       <Menu className='menu' theme='dark' mode='horizontal'>
