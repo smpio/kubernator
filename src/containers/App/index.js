@@ -22,11 +22,10 @@ export default props =>
       <title>App</title>
     </Helmet>
     <Layout.Header>
-      <img className='logo' src={logo} />
+      <Link to='/'>
+        <img className='logo' src={logo} />
+      </Link>
       <Menu className='menu' theme='dark' mode='horizontal'>
-        <Menu.Item key='home'>
-          <Link to='/'>Home</Link>
-        </Menu.Item>
         <Menu.Item key='kubernetes'>
           <Link to='/kubernetes'>Kubernetes</Link>
         </Menu.Item>
