@@ -15,6 +15,10 @@ export const ITEMS_GET = `${PREFIX}/ITEMS_GET`;
 export const ITEMS_GET__S = `${PREFIX}/ITEMS_GET/S`;
 export const ITEMS_GET__F = `${PREFIX}/ITEMS_GET/F`;
 
+export const ITEM_GET = `${PREFIX}/ITEM_GET`;
+export const ITEM_GET__S = `${PREFIX}/ITEM_GET/S`;
+export const ITEM_GET__F = `${PREFIX}/ITEM_GET/F`;
+
 
 // action creators
 // -----------------
@@ -22,6 +26,11 @@ export const ITEMS_GET__F = `${PREFIX}/ITEMS_GET/F`;
 export const itemsGet = (resource, resolve, reject) => ({
   type: ITEMS_GET,
   payload: { resource, resolve, reject },
+});
+
+export const itemGet = item => ({
+  type: ITEM_GET,
+  payload: { item },
 });
 
 

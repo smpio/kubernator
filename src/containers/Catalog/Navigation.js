@@ -11,6 +11,7 @@ import {
   groupsGet,
   resourcesGet,
   itemsGet,
+  itemGet,
 } from '../../modules/catalog';
 
 import { Tree as TreeRoot } from 'antd';
@@ -18,6 +19,7 @@ const TreeNode = TreeRoot.TreeNode;
 
 const TYPE_GROUP = 'TYPE_GROUP';
 const TYPE_RESOURCE = 'TYPE_RESOURCE';
+const TYPE_ITEM = 'TYPE_ITEM';
 
 
 // render helpers
@@ -30,17 +32,18 @@ function renderItem(props) {
     items,
   } = props;
 
-  const {
-    metadata: {
-      name,
-    },
-  } = items[itemUid];
+  const item = items[itemUid];
+  const { metadata: { name }} = item;
 
   return (
     <TreeNode
       key={name}
       title={name}
       isLeaf
+      custom={{
+        type: TYPE_ITEM,
+        data: item,
+      }}
     />
   );
 }
@@ -77,16 +80,19 @@ function renderResource(props) {
 
   const resource = resources[resourceName];
   const { [NAMESPACES]: namespaces, verbs } = resource;
+
   const isExpandable = verbs.includes('list');
 
   return (
     <TreeNode
       key={resourceName}
       title={resourceName}
-      customType={TYPE_RESOURCE}
-      customData={resource}
       disabled={!isExpandable}
-      isLeaf={!isExpandable}>
+      isLeaf={!isExpandable}
+      custom={{
+        type: TYPE_RESOURCE,
+        data: resource,
+      }}>
       {
         isExpandable &&
         Object.keys(namespaces).map(namespaceName =>
@@ -141,8 +147,10 @@ function renderGroup(props) {
     <TreeNode
       key={groupName}
       title={groupName}
-      customType={TYPE_GROUP}
-      customData={group}>
+      custom={{
+        type: TYPE_GROUP,
+        data: group,
+      }}>
       {
         Object.keys(kinds).map(kindName =>
           renderKind({
@@ -165,11 +173,11 @@ class Navigation extends React.Component {
   constructor(props) {
     super(props);
     this.onLoadData = this.onLoadData.bind(this);
-    //this.onSelect = this.onSelect.bind(this);
+    this.onSelect = this.onSelect.bind(this);
   }
 
   onLoadData(treeNode) {
-    const { customType: type, customData: data } = treeNode.props;
+    const { custom: { type, data } = {}} = treeNode.props;
     const { resourcesGet, itemsGet } = this.props;
     return new Promise((resolve, reject) => {
       switch (type) {
@@ -180,13 +188,11 @@ class Navigation extends React.Component {
     });
   }
 
-  /*
-  onSelect(selectedKeys, e) {
-    const { onItemSelect } = this.props
-    const { node: { props: { eventKey: key, id }}} = e
-    onItemSelect(id)
+  onSelect(selectedKeys, event) {
+    const { custom: { type, data } = {}} = event.node.props;
+    const { itemGet } = this.props;
+    if (type === TYPE_ITEM) itemGet(data);
   }
-  */
 
   componentWillMount() {
     this.props.groupsGet();
@@ -233,6 +239,7 @@ Navigation.propTypes = {
   groupsGet: PropTypes.func,
   resourcesGet: PropTypes.func,
   itemsGet: PropTypes.func,
+  itemGet: PropTypes.func,
 };
 
 export default connect(
@@ -241,5 +248,6 @@ export default connect(
     groupsGet,
     resourcesGet,
     itemsGet,
+    itemGet,
   }, dispatch),
 )(Navigation);
