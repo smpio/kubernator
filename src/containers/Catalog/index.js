@@ -9,12 +9,12 @@ import './index.css';
 export default class Catalog extends React.PureComponent {
   render() {
     return (
-      <div>
+      <div className="catalog">
         <Helmet>
           <title>Catalog</title>
         </Helmet>
-        <Navigation />
-        <Content />
+        <Navigation className="catalog__navigation" />
+        <Content className="catalog__content" />
       </div>
     );
   }

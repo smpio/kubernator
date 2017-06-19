@@ -1,0 +1,14 @@
+.catalog {
+  display: flex;
+}
+
+.catalog__navigation {
+
+  .ant-tree.ant-tree-show-line li span.ant-tree-switcher {
+    background-color: initial;
+  }
+}
+
+.catalog__content {
+  flex-grow: 2;
+}

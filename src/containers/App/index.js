@@ -24,9 +24,9 @@ export default props =>
     </Helmet>
     <Layout.Header>
       <Link to="/">
-        <img className="logo" src={logo} />
+        <img className="layout__logo" src={logo} />
       </Link>
-      <Menu className="menu" theme="dark" mode="horizontal">
+      <Menu className="layout__menu" theme="dark" mode="horizontal">
         <Menu.Item key="catalog">
           <Link to="/catalog">Catalog</Link>
         </Menu.Item>
@@ -38,8 +38,8 @@ export default props =>
         </Menu.Item>
       </Menu>
     </Layout.Header>
-    <Layout.Content className="content">
-      <div className="canvas">
+    <Layout.Content className="layout__content">
+      <div className="layout__canvas">
         <Route exact path="/" component={Home} />
         <Route exact path="/catalog" component={Catalog} />
         <Route exact path="/kubernetes" component={Kubernetes} />

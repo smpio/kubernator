@@ -8,16 +8,14 @@ import { connect } from 'react-redux';
 import {
   itemPost,
   itemDelete,
-} from '../../../modules/catalog'
+} from '../../modules/catalog'
 */
-
-import './index.css';
 
 class Content extends React.Component {
   render() {
     return (
-      <div>
-        Content
+      <div className="content">
+        <h2>Content</h2>
       </div>
     );
   }

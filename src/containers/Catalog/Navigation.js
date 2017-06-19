@@ -11,9 +11,7 @@ import {
   groupsGet,
   resourcesGet,
   itemsGet,
-} from '../../../modules/catalog';
-
-import './index.css';
+} from '../../modules/catalog';
 
 import { Tree as TreeRoot } from 'antd';
 const TreeNode = TreeRoot.TreeNode;
@@ -206,21 +204,24 @@ class Navigation extends React.Component {
     } = this;
 
     return (
-      <TreeRoot
-        loadData={onLoadData}
-        onSelect={onSelect}
-        showLine>
-        {
-          Object.keys(groups).map(groupName =>
-            renderGroup({
-              groupName,
-              groups,
-              resources,
-              items,
-            }),
-          )
-        }
-      </TreeRoot>
+      <div className="navigation">
+        <h2>Navigation</h2>
+        <TreeRoot
+          loadData={onLoadData}
+          onSelect={onSelect}
+          showLine>
+          {
+            Object.keys(groups).map(groupName =>
+              renderGroup({
+                groupName,
+                groups,
+                resources,
+                items,
+              }),
+            )
+          }
+        </TreeRoot>
+      </div>
     );
   }
 }
