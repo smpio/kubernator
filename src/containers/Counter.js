@@ -1,23 +1,23 @@
-import React from 'react'
-import PropTypes from 'prop-types'
+import React from 'react';
+import PropTypes from 'prop-types';
 
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 
-import { Helmet } from 'react-helmet'
+import { Helmet } from 'react-helmet';
 
 import {
   increment,
   incrementAsync,
-} from '../modules/counter'
+} from '../modules/counter';
 
 class Counter extends React.Component {
-  render () {
+  render() {
     const {
       count,
       increment,
       incrementAsync,
-    } = this.props
+    } = this.props;
     return (
       <div>
         <Helmet>
@@ -27,7 +27,7 @@ class Counter extends React.Component {
         <button onClick={incrementAsync}>incrementAsync</button>
         <div>Count: {count}</div>
       </div>
-    )
+    );
   }
 }
 
@@ -35,7 +35,7 @@ Counter.propTypes = {
   count: PropTypes.number,
   increment: PropTypes.func,
   incrementAsync: PropTypes.func,
-}
+};
 
 export default connect(
   state => ({
@@ -45,4 +45,4 @@ export default connect(
     increment,
     incrementAsync,
   }, dispatch),
-)(Counter)
+)(Counter);
