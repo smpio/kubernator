@@ -26,7 +26,7 @@ export default props =>
       <Link to="/">
         <img className="layout__logo" src={logo} />
       </Link>
-      <Menu className="layout__menu" theme="dark" mode="horizontal">
+      <Menu theme="dark" mode="horizontal">
         <Menu.Item key="catalog">
           <Link to="/catalog">Catalog</Link>
         </Menu.Item>
@@ -38,8 +38,8 @@ export default props =>
         </Menu.Item>
       </Menu>
     </Layout.Header>
-    <Layout.Content className="layout__content">
-      <div className="layout__canvas">
+    <Layout.Content>
+      <div className="layout__content">
         <Route exact path="/" component={Home} />
         <Route exact path="/catalog" component={Catalog} />
         <Route exact path="/kubernetes" component={Kubernetes} />
