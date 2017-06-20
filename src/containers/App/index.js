@@ -5,8 +5,7 @@ import { Helmet } from 'react-helmet';
 import {
   Home,
   Catalog,
-  Kubernetes,
-  Counter,
+  Legacy,
 } from '../';
 
 import {
@@ -30,11 +29,8 @@ export default props =>
         <Menu.Item key="catalog">
           <Link to="/catalog">Catalog</Link>
         </Menu.Item>
-        <Menu.Item key="kubernetes">
-          <Link to="/kubernetes">Kubernetes</Link>
-        </Menu.Item>
-        <Menu.Item key="counter">
-          <Link to="/counter">Counter</Link>
+        <Menu.Item key="legacy">
+          <Link to="/legacy">Legacy</Link>
         </Menu.Item>
       </Menu>
     </Layout.Header>
@@ -42,8 +38,7 @@ export default props =>
       <div className="layout__content">
         <Route exact path="/" component={Home} />
         <Route exact path="/catalog" component={Catalog} />
-        <Route exact path="/kubernetes" component={Kubernetes} />
-        <Route exact path="/counter" component={Counter} />
+        <Route exact path="/legacy" component={Legacy} />
       </div>
     </Layout.Content>
   </Layout>;

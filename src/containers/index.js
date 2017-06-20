@@ -1,11 +1,9 @@
 import Home from './Home';
 import Catalog from './Catalog';
-import Kubernetes from './Kubernetes';
-import Counter from './Counter';
+import Legacy from './Legacy';
 
 export {
   Home,
   Catalog,
-  Kubernetes,
-  Counter,
+  Legacy,
 };

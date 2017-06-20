@@ -8,7 +8,7 @@ import {
   detachEditor,
   saveObject,
   setObjectYaml,
-} from '../../../modules/kubernetes'
+} from '../../../modules/legacy'
 
 import './index.css'
 

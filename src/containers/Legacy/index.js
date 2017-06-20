@@ -8,7 +8,7 @@ import ObjectEditor from './ObjectEditor'
 import classnames from 'classnames'
 import './index.css'
 
-class Kubernetes extends React.Component {
+class Legacy extends React.Component {
   render () {
     const {
       rootModel,
@@ -31,7 +31,7 @@ class Kubernetes extends React.Component {
   }
 }
 
-Kubernetes.propTypes = {
+Legacy.propTypes = {
   rootModel: PropTypes.object.isRequired,
   showProgressIndicator: PropTypes.bool,
 }
@@ -41,4 +41,4 @@ export default connect(
     rootModel: state.editor.rootNode,
     showProgressIndicator: state.editor.activeUserActionsCount > 0,
   }),
-)(Kubernetes)
+)(Legacy)

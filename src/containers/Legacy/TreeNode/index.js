@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 
 import {
   clickTreeNode,
-} from '../../../modules/kubernetes'
+} from '../../../modules/legacy'
 
 import classnames from 'classnames'
 import './index.css'
