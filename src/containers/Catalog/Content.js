@@ -10,7 +10,8 @@ import {
 } from '../../modules/catalog';
 
 import { Tabs } from 'antd';
-const TabPane = Tabs.TabPane;
+import Editor from './Editor';
+
 
 class Content extends React.Component {
   constructor(props) {
@@ -18,8 +19,9 @@ class Content extends React.Component {
     this.state = {
       activeKey: null,
     };
-    this.onChange = this.onChange.bind(this);
-    this.onEdit = this.onEdit.bind(this);
+    this.tabsOnChange = this.tabsOnChange.bind(this);
+    this.tabsOnEdit = this.tabsOnEdit.bind(this);
+    this.editorOnChange = this.editorOnChange.bind(this);
   }
 
   componentWillReceiveProps(props) {
@@ -38,11 +40,11 @@ class Content extends React.Component {
     }
   }
 
-  onChange(activeKey) {
+  tabsOnChange(activeKey) {
     this.setState({ activeKey });
   }
 
-  onEdit(targetKey, action) {
+  tabsOnEdit(targetKey, action) {
     const { tabClose } = this.props;
     switch (action) {
       case 'add':
@@ -55,6 +57,10 @@ class Content extends React.Component {
     }
   }
 
+  editorOnChange(value) {
+    console.log('Content.onChange', value);
+  }
+
   render() {
     const {
       props: {
@@ -64,9 +70,13 @@ class Content extends React.Component {
       state: {
         activeKey,
       },
-      onChange,
-      onEdit,
+      tabsOnChange,
+      tabsOnEdit,
+      editorOnChange,
     } = this;
+
+    const activeItem = items[activeKey];
+    const yaml = activeItem && activeItem.yaml;
     
     return (
       <div className="catalog__content">
@@ -74,22 +84,25 @@ class Content extends React.Component {
         <Tabs
           type="editable-card"
           activeKey={activeKey}
-          onChange={onChange}
-          onEdit={onEdit}>
+          onChange={tabsOnChange}
+          onEdit={tabsOnEdit}>
           {
             tabs.map(itemUid => {
-              const { metadata: { name }, yaml } = items[itemUid];
+              const { name } = items[itemUid].metadata;
               return (
-                <TabPane
+                <Tabs.TabPane
                   key={itemUid}
                   tab={name}
-                  closable>
-                  {yaml}
-                </TabPane>
+                  closable
+                />
               );
             })
           }
         </Tabs>
+        <Editor
+          value={yaml}
+          onChange={editorOnChange}
+        />
       </div>
     );
   }
