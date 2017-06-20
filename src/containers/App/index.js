@@ -1,9 +1,8 @@
 import React from 'react';
-import { Route, Link } from 'react-router-dom';
+import { Link, Route, Redirect } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 
 import {
-  Home,
   Catalog,
   Legacy,
 } from '../';
@@ -36,9 +35,9 @@ export default props =>
     </Layout.Header>
     <Layout.Content>
       <div className="layout__content">
-        <Route exact path="/" component={Home} />
         <Route exact path="/catalog" component={Catalog} />
         <Route exact path="/legacy" component={Legacy} />
+        <Redirect from="*" to="/catalog" />
       </div>
     </Layout.Content>
   </Layout>;
