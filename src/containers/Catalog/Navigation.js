@@ -11,7 +11,7 @@ import {
   groupsGet,
   resourcesGet,
   itemsGet,
-  itemGet,
+  tabOpen,
 } from '../../modules/catalog';
 
 import { Tree as TreeRoot } from 'antd';
@@ -190,8 +190,8 @@ class Navigation extends React.Component {
 
   onSelect(selectedKeys, event) {
     const { custom: { type, data } = {}} = event.node.props;
-    const { itemGet } = this.props;
-    if (type === TYPE_ITEM) itemGet(data);
+    const { tabOpen } = this.props;
+    if (type === TYPE_ITEM) tabOpen(data.metadata.uid);
   }
 
   componentWillMount() {
@@ -239,7 +239,7 @@ Navigation.propTypes = {
   groupsGet: PropTypes.func,
   resourcesGet: PropTypes.func,
   itemsGet: PropTypes.func,
-  itemGet: PropTypes.func,
+  tabOpen: PropTypes.func,
 };
 
 export default connect(
@@ -248,6 +248,6 @@ export default connect(
     groupsGet,
     resourcesGet,
     itemsGet,
-    itemGet,
+    tabOpen,
   }, dispatch),
 )(Navigation);

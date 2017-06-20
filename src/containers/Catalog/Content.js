@@ -4,34 +4,44 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-/*
 import {
-  itemPost,
-  itemDelete,
-} from '../../modules/catalog'
-*/
+  PREFIX,
+  tabClose,
+} from '../../modules/catalog';
 
 class Content extends React.Component {
   render() {
+    const {
+      items,
+      tabs,
+      tabClose,
+    } = this.props;
+    
     return (
       <div className="content">
         <h2>Content</h2>
+        {
+          tabs.map(itemUid =>
+            <div key={itemUid}>
+              <div onClick={() => tabClose(itemUid)}>{itemUid}</div>
+              <div>{items[itemUid].yaml}</div>
+            </div>
+          )
+        }
       </div>
     );
   }
 }
 
 Content.propTypes = {
-  itemPost: PropTypes.func,
-  itemDelete: PropTypes.func,
+  items: PropTypes.object,
+  tabs: PropTypes.array,
+  tabClose: PropTypes.func,
 };
 
 export default connect(
-  null,
+  state => state[PREFIX],
   dispatch => bindActionCreators({
-    /*
-    itemPost,
-    itemDelete,
-    */
+    tabClose,
   }, dispatch),
 )(Content);

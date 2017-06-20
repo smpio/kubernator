@@ -15,10 +15,6 @@ export const ITEMS_GET = `${PREFIX}/ITEMS_GET`;
 export const ITEMS_GET__S = `${PREFIX}/ITEMS_GET/S`;
 export const ITEMS_GET__F = `${PREFIX}/ITEMS_GET/F`;
 
-export const ITEM_GET = `${PREFIX}/ITEM_GET`;
-export const ITEM_GET__S = `${PREFIX}/ITEM_GET/S`;
-export const ITEM_GET__F = `${PREFIX}/ITEM_GET/F`;
-
 
 // action creators
 // -----------------
@@ -26,11 +22,6 @@ export const ITEM_GET__F = `${PREFIX}/ITEM_GET/F`;
 export const itemsGet = (resource, resolve, reject) => ({
   type: ITEMS_GET,
   payload: { resource, resolve, reject },
-});
-
-export const itemGet = item => ({
-  type: ITEM_GET,
-  payload: { item },
 });
 
 
@@ -97,9 +88,8 @@ export const itemsReducer = {
 
     // add URL to all received items
     items.forEach(item => {
-      item[URL] = item.namespace
-        ? item.metadata.selfLink
-        : `${resource[URL]}/${item.name}`;
+      const { namespace, name, selfLink } = item.metadata;
+      item[URL] = namespace ? selfLink : `${resource[URL]}/${name}`;
     });
 
     // group by namespace
