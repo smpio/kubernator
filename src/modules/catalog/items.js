@@ -4,6 +4,7 @@ import update from 'immutability-helper';
 import {
   PREFIX,
   URL,
+  UID,
   NAMESPACES,
 } from './shared';
 
@@ -86,16 +87,17 @@ export const itemsReducer = {
     const { resource } = action.meta;
     const { items } = action.payload;
 
-    // add URL to all received items
+    // add URL and UID to all received items
     items.forEach(item => {
-      const { namespace, name, selfLink } = item.metadata;
+      const { uid, namespace, name, selfLink } = item.metadata;
       item[URL] = namespace ? selfLink : `${resource[URL]}/${name}`;
+      item[UID] = uid || `[nouid]-${name}`;
     });
 
     // group by namespace
     const namespaces = items.reduce(
       (namespaces, item) => {
-        const { uid, namespace = '[nonamespace]' } = item.metadata;
+        const { [UID]: uid, metadata: { namespace = '[nonamespace]' }} = item;
         if (!namespaces[namespace]) namespaces[namespace] = [];
         namespaces[namespace].push(uid);
         return namespaces;
@@ -106,7 +108,7 @@ export const itemsReducer = {
     // save by uid
     const uids = items.reduce(
       (uids, item) => {
-        uids[item.metadata.uid] = item;
+        uids[item[UID]] = item;
         return uids;
       },
       {},

@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 
 import {
   PREFIX,
+  UID,
   KINDS,
   NAMESPACES,
   groupsGet,
@@ -191,7 +192,7 @@ class Navigation extends React.Component {
   onSelect(selectedKeys, event) {
     const { custom: { type, data } = {}} = event.node.props;
     const { tabOpen } = this.props;
-    if (type === TYPE_ITEM) tabOpen(data.metadata.uid);
+    if (type === TYPE_ITEM) tabOpen(data[UID]);
   }
 
   componentWillMount() {
