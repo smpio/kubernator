@@ -22,7 +22,7 @@ export default props =>
     </Helmet>
     <Layout.Header>
       <Link to="/">
-        <img className="layout__logo" src={logo} />
+        <img className="layout__logo" src={logo} alt="logo" />
       </Link>
       <Menu theme="dark" mode="horizontal">
         <Menu.Item key="catalog">

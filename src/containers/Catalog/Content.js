@@ -50,6 +50,8 @@ class Content extends React.Component {
       case 'remove':
         tabClose(targetKey);
         break;
+      default:
+        break;
     }
   }
 
