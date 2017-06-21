@@ -4,11 +4,45 @@
 
 .catalog__navigation {
 
+  // transparent expand icons
+  // --------------------------
+
   .ant-tree.ant-tree-show-line li span.ant-tree-switcher {
     background-color: initial;
   }
 }
 
 .catalog__content {
+  min-width: 0;
   flex-grow: 2;
+
+
+  // full-height editor
+  // --------------------
+
+  display: flex;
+  flex-direction: column;
+  & > .react-monaco-editor-container {
+    flex-grow: 2;
+  }
+
+
+  // animated show/hide for tabs and editor
+  // ----------------------------------------
+
+  $animation-duration: .3s;
+
+  & > .ant-tabs,
+  & > .react-monaco-editor-container {
+    visibility: visible;
+    opacity: 1;
+    transition: visibility 0s linear 0s, opacity ease $animation-duration;
+  }
+
+  &.hide-tabs > .ant-tabs,
+  &.hide-editor > .react-monaco-editor-container {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s linear $animation-duration, opacity ease $animation-duration;
+  }
 }

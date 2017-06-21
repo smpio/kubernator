@@ -12,6 +12,8 @@ import {
 import { Tabs } from 'antd';
 import Editor from './Editor';
 
+import classnames from 'classnames';
+
 
 class Content extends React.Component {
   constructor(props) {
@@ -46,15 +48,8 @@ class Content extends React.Component {
 
   tabsOnEdit(targetKey, action) {
     const { tabClose } = this.props;
-    switch (action) {
-      case 'add':
-        break;
-      case 'remove':
-        tabClose(targetKey);
-        break;
-      default:
-        break;
-    }
+    if (action === 'remove') tabClose(targetKey);
+    else if (action === 'add') console.log('tabsOnEdit', targetKey, action);
   }
 
   editorOnChange(value) {
@@ -79,13 +74,20 @@ class Content extends React.Component {
     const yaml = activeItem && activeItem.yaml;
     
     return (
-      <div className="catalog__content">
-        <h2>Content</h2>
+      <div
+        className={classnames(
+          'catalog__content',
+          {
+            'hide-tabs': !activeKey,
+            'hide-editor': !activeItem,
+          },
+        )}>
         <Tabs
           type="editable-card"
           activeKey={activeKey}
           onChange={tabsOnChange}
-          onEdit={tabsOnEdit}>
+          onEdit={tabsOnEdit}
+          hideAdd>
           {
             tabs.map(itemUid => {
               const { name } = items[itemUid].metadata;

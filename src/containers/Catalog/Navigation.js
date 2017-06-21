@@ -212,7 +212,6 @@ class Navigation extends React.Component {
 
     return (
       <div className="navigation">
-        <h2>Navigation</h2>
         <TreeRoot
           loadData={onLoadData}
           onSelect={onSelect}

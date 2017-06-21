@@ -15,6 +15,8 @@ export default class Editor extends React.PureComponent {
       <MonacoEditor
         requireConfig={Editor.requireConfig}
         options={Editor.options}
+        width="auto"
+        height="auto"
         language="yaml"
         value={value}
         onChange={onChange}
@@ -29,7 +31,8 @@ Editor.requireConfig = {
   paths: { 'vs': `${PUBLIC_URL}/monaco-editor/min/vs` },
 };
 
-Editor.defaultOptions = {
+Editor.options = {
+  // https://github.com/Microsoft/monaco-editor/blob/master/website/playground/monaco.d.ts.txt#L1103
   folding: true,
   wordWrap: true,
   wrappingIndent: 'same',
@@ -38,6 +41,7 @@ Editor.defaultOptions = {
   //renderWhitespace: 'boundary',
   //renderIndentGuides: true,
   //readOnly: false,
+  automaticLayout: true,
 };
 
 Editor.propTypes = {
