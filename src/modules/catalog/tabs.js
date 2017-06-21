@@ -4,6 +4,7 @@ import update from 'immutability-helper';
 import {
   PREFIX,
   URL,
+  YAML,
 } from './shared';
 
 
@@ -95,7 +96,7 @@ export const tabsReducer = {
     return update(state, {
       items: {
         [uid]: {
-          yaml: { $set: yaml },
+          [YAML]: { $set: yaml },
         },
       },
       tabs: { $push: [uid] },

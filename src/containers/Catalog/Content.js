@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 
 import {
   PREFIX,
+  YAML,
   tabClose,
 } from '../../modules/catalog';
 
@@ -97,7 +98,7 @@ class Content extends React.Component {
     } = this;
 
     const activeItem = items[activeKey];
-    const activeYaml = activeItem && activeItem.yaml;
+    const activeYaml = activeItem && activeItem[YAML];
 
     const isEdited = editedYaml && editedYaml !== activeYaml;
     const yaml = editedYaml || activeYaml;
