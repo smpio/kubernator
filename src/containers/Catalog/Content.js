@@ -9,7 +9,7 @@ import {
   tabClose,
 } from '../../modules/catalog';
 
-import { Tabs } from 'antd';
+import { Tabs, Button } from 'antd';
 import Editor from './Editor';
 
 import classnames from 'classnames';
@@ -20,9 +20,12 @@ class Content extends React.Component {
     super(props);
     this.state = {
       activeKey: null,
+      /* [activeKey]: yaml */
     };
     this.tabsOnChange = this.tabsOnChange.bind(this);
     this.tabsOnEdit = this.tabsOnEdit.bind(this);
+    this.tabOnDiscard = this.tabOnDiscard.bind(this);
+    this.tabOnSave = this.tabOnSave.bind(this);
     this.editorOnChange = this.editorOnChange.bind(this);
   }
 
@@ -52,8 +55,28 @@ class Content extends React.Component {
     else if (action === 'add') console.log('tabsOnEdit', targetKey, action);
   }
 
-  editorOnChange(value) {
-    console.log('Content.onChange', value);
+  tabOnDiscard() {
+    const { activeKey } = this.state;
+    this.setState({ [activeKey]: null });
+  }
+
+  tabOnSave() {
+    const {
+      props: {
+        items,
+      },
+      state: {
+        activeKey,
+        [activeKey]: editedYaml,
+      },
+    } = this;
+    const activeItem = items[activeKey];
+    console.log('tabOnSave', activeItem, editedYaml);
+  }
+
+  editorOnChange(yaml) {
+    const { activeKey } = this.state;
+    this.setState({ [activeKey]: yaml });
   }
 
   render() {
@@ -64,14 +87,20 @@ class Content extends React.Component {
       },
       state: {
         activeKey,
+        [activeKey]: editedYaml,
       },
       tabsOnChange,
       tabsOnEdit,
+      tabOnDiscard,
+      tabOnSave,
       editorOnChange,
     } = this;
 
     const activeItem = items[activeKey];
-    const yaml = activeItem && activeItem.yaml;
+    const activeYaml = activeItem && activeItem.yaml;
+
+    const isEdited = editedYaml && editedYaml !== activeYaml;
+    const yaml = editedYaml || activeYaml;
     
     return (
       <div
@@ -79,7 +108,7 @@ class Content extends React.Component {
           'catalog__content',
           {
             'hide-tabs': !activeKey,
-            'hide-editor': !activeItem,
+            'hide-editor': !activeYaml,
           },
         )}>
         <Tabs
@@ -87,7 +116,29 @@ class Content extends React.Component {
           activeKey={activeKey}
           onChange={tabsOnChange}
           onEdit={tabsOnEdit}
-          hideAdd>
+          hideAdd
+          tabBarExtraContent={
+            <div>
+              {
+                isEdited &&
+                <Button
+                  className="catalog__button"
+                  size="small"
+                  onClick={tabOnDiscard}>
+                  Discard
+                </Button>
+              }
+              {
+                isEdited &&
+                <Button
+                  className="catalog__button"
+                  size="small"
+                  onClick={tabOnSave}>
+                  Save
+                </Button>
+              }
+            </div>
+          }>
           {
             tabs.map(itemUid => {
               const { name } = items[itemUid].metadata;
