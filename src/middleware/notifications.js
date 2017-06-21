@@ -1,7 +1,17 @@
-import { message } from 'antd';
+import { notification } from 'antd';
 
 export default store => next => action => {
-  const { error, payload } = action;
-  error && message.error(payload ? payload.message : 'Unknown error');
+  const {
+    error,
+    payload: {
+      message = 'Unknown error',
+    } = {},
+  } = action;
+
+  error && notification.open({
+    message: 'ERROR',
+    description: message,
+  });
+
   return next(action);
 };
