@@ -1,16 +1,26 @@
 import { notification } from 'antd';
 
+const CONFIG = {
+  ERROR: {
+    message: 'ERROR',
+    duration: 0,
+    style: {
+      'backgroundColor': 'lightpink',
+    },
+  },
+};
+
 export default store => next => action => {
   const {
     error,
     payload: {
-      message = 'Unknown error',
+      message,
     } = {},
   } = action;
 
   error && notification.open({
-    message: 'ERROR',
-    description: message,
+    ...CONFIG.ERROR,
+    description: message || 'Unknown error',
   });
 
   return next(action);
