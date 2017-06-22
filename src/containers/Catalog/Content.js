@@ -7,6 +7,11 @@ import { connect } from 'react-redux';
 import {
   PREFIX,
   YAML,
+  itemGet,
+  itemPost,
+  itemPut,
+  itemDelete,
+  tabOpen,
   tabClose,
 } from '../../modules/catalog';
 
@@ -19,15 +24,20 @@ import classnames from 'classnames';
 class Content extends React.Component {
   constructor(props) {
     super(props);
+
     this.state = {
-      activeKey: null,
-      /* [activeKey]: yaml */
+      uid: null,
+      /* uid: yaml */
     };
+
     this.tabsOnChange = this.tabsOnChange.bind(this);
     this.tabsOnEdit = this.tabsOnEdit.bind(this);
-    this.tabOnDiscard = this.tabOnDiscard.bind(this);
-    this.tabOnSave = this.tabOnSave.bind(this);
-    this.editorOnChange = this.editorOnChange.bind(this);
+
+    this.onEdit = this.onEdit.bind(this);
+    this.onSave = this.onSave.bind(this);
+    this.onDelete = this.onDelete.bind(this);
+
+    this.onDiscard = this.onEdit.bind(this, null);
   }
 
   componentWillReceiveProps(props) {
@@ -37,47 +47,60 @@ class Content extends React.Component {
         tabs: tabsPrevious,
       },
       state: {
-        activeKey,
+        uid,
       },
     } = this;
 
-    if (tabs !== tabsPrevious || !tabs.includes(activeKey)) {
-      this.setState({ activeKey: tabs[tabs.length - 1] });
+    if (tabs !== tabsPrevious || !tabs.includes(uid)) {
+      this.setState({ uid: tabs[tabs.length - 1] });
     }
   }
 
-  tabsOnChange(activeKey) {
-    this.setState({ activeKey });
+  tabsOnChange(uid) {
+    this.setState({ uid });
   }
 
-  tabsOnEdit(targetKey, action) {
-    const { tabClose } = this.props;
-    if (action === 'remove') tabClose(targetKey);
-    else if (action === 'add') console.log('tabsOnEdit', targetKey, action);
+  tabsOnEdit(uid, action) {
+    const { tabOpen, tabClose } = this.props;
+    switch (action) {
+      case 'add': return tabOpen();
+      case 'remove': return tabClose(uid);
+      default: return false;
+    }
   }
 
-  tabOnDiscard() {
-    const { activeKey } = this.state;
-    this.setState({ [activeKey]: null });
+  onEdit(yaml) {
+    const { uid } = this.state;
+    this.setState({ [uid]: yaml });
   }
 
-  tabOnSave() {
+  onSave() {
     const {
       props: {
         items,
+        itemPost,
+        itemPut,
       },
       state: {
-        activeKey,
-        [activeKey]: editedYaml,
+        uid,
+        [uid]: yaml,
       },
     } = this;
-    const activeItem = items[activeKey];
-    console.log('tabOnSave', activeItem, editedYaml);
+    return items[uid]
+      ? itemPut(uid, yaml)
+      : itemPost(uid, yaml);
   }
 
-  editorOnChange(yaml) {
-    const { activeKey } = this.state;
-    this.setState({ [activeKey]: yaml });
+  onDelete() {
+    const {
+      props: {
+        itemDelete,
+      },
+      state: {
+        uid,
+      },
+    } = this;
+    return itemDelete(uid);
   }
 
   render() {
@@ -87,62 +110,80 @@ class Content extends React.Component {
         tabs,
       },
       state: {
-        activeKey,
-        [activeKey]: editedYaml,
+        uid,
+        [uid]: yamlEdited,
       },
       tabsOnChange,
       tabsOnEdit,
-      tabOnDiscard,
-      tabOnSave,
-      editorOnChange,
+      onEdit,
+      onSave,
+      onDelete,
+      onDiscard,
     } = this;
 
-    const activeItem = items[activeKey];
-    const activeYaml = activeItem && activeItem[YAML];
+    const item = items[uid];
+    const yamlOriginal = item && item[YAML];
 
-    const isEdited = editedYaml && editedYaml !== activeYaml;
-    const yaml = editedYaml || activeYaml;
-    
+    const dirty = yamlEdited && yamlEdited !== yamlOriginal;
+    const yaml = yamlEdited || yamlOriginal;
+
+    const hideTabs = false;
+    const hideEditor = !tabs.length;
+
     return (
       <div
         className={classnames(
           'catalog__content',
           {
-            'hide-tabs': !activeKey,
-            'hide-editor': !activeYaml,
+            'hide-tabs': hideTabs,
+            'hide-editor': hideEditor,
           },
         )}>
         <Tabs
           type="editable-card"
-          activeKey={activeKey}
+          activeKey={uid}
           onChange={tabsOnChange}
           onEdit={tabsOnEdit}
-          hideAdd
           tabBarExtraContent={
-            <div>
+            <span>
               {
-                isEdited &&
+                dirty &&
                 <Button
                   className="catalog__button"
                   size="small"
-                  onClick={tabOnDiscard}>
+                  type="primary"
+                  onClick={onSave}>
+                  Save
+                </Button>
+              }
+              {
+                dirty &&
+                <Button
+                  className="catalog__button"
+                  size="small"
+                  onClick={onDiscard}>
                   Discard
                 </Button>
               }
               {
-                isEdited &&
+                item &&
                 <Button
                   className="catalog__button"
                   size="small"
-                  onClick={tabOnSave}>
-                  Save
+                  type="danger"
+                  onClick={onDelete}>
+                  Delete
                 </Button>
               }
-            </div>
+            </span>
           }>
           {
             tabs.map(itemUid => {
-              const { name } = items[itemUid].metadata;
+              const {
+                metadata: {
+                  name = itemUid,
+                } = {},
+              } = items[itemUid] || {};
               return (
                 <Tabs.TabPane
                   key={itemUid}
@@ -155,7 +196,7 @@ class Content extends React.Component {
         </Tabs>
         <Editor
           value={yaml}
-          onChange={editorOnChange}
+          onChange={onEdit}
         />
       </div>
     );
@@ -164,13 +205,23 @@ class Content extends React.Component {
 
 Content.propTypes = {
   items: PropTypes.object,
-  tabs: PropTypes.array,
+  tabs: PropTypes.object,
+  itemGet: PropTypes.func,
+  itemPost: PropTypes.func,
+  itemPut: PropTypes.func,
+  itemDelete: PropTypes.func,
+  tabOpen: PropTypes.func,
   tabClose: PropTypes.func,
 };
 
 export default connect(
   state => state[PREFIX],
   dispatch => bindActionCreators({
+    itemGet,
+    itemPost,
+    itemPut,
+    itemDelete,
+    tabOpen,
     tabClose,
   }, dispatch),
 )(Content);

@@ -20,6 +20,12 @@ import {
 } from './items';
 
 import {
+  itemSaga,
+  itemState,
+  itemReducer,
+} from './item';
+
+import {
   tabsSaga,
   tabsState,
   tabsReducer,
@@ -29,6 +35,7 @@ export * from './shared';
 export * from './groups';
 export * from './resources';
 export * from './items';
+export * from './item';
 export * from './tabs';
 
 export function* saga() {
@@ -36,6 +43,7 @@ export function* saga() {
     groupsSaga(),
     resourcesSaga(),
     itemsSaga(),
+    itemSaga(),
     tabsSaga(),
   ]);
 }
@@ -45,12 +53,14 @@ export const reducer = createReducer(
     ...groupsReducer,
     ...resourcesReducer,
     ...itemsReducer,
+    ...itemReducer,
     ...tabsReducer,
   },
   {
     ...groupsState,
     ...resourcesState,
     ...itemsState,
+    ...itemState,
     ...tabsState,
   },
 );
