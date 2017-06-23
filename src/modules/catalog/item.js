@@ -4,9 +4,23 @@ import jsYaml from 'js-yaml';
 
 import {
   PREFIX,
-  URL,
+  RESOURCE,
+  ITEMS,
   YAML,
+  ID,
+  URL,
+  URL_PART_GROUP,
+  URL_PART_RESOURCE,
 } from './shared';
+
+import {
+  tabOpen,
+  tabClose,
+} from './tabs';
+
+import {
+  decorateItem,
+} from './tree';
 
 
 // action codes
@@ -32,34 +46,29 @@ export const ITEM_DELETE__F = `${PREFIX}/ITEM_DELETE/F`;
 // action creators
 // -----------------
 
-export const itemGet = uid => ({
+export const itemGet = id => ({
   type: ITEM_GET,
-  payload: { uid },
+  payload: { id },
 });
 
-export const itemPost = (uid, yaml) => ({
+export const itemPost = (id, yaml) => ({
   type: ITEM_POST,
-  payload: { uid, yaml },
+  payload: { id, yaml },
 });
 
-export const itemPut = (uid, yaml) => ({
+export const itemPut = (id, yaml) => ({
   type: ITEM_PUT,
-  payload: { uid, yaml },
+  payload: { id, yaml },
 });
 
-export const itemDelete = uid => ({
+export const itemDelete = id => ({
   type: ITEM_DELETE,
-  payload: { uid },
+  payload: { id },
 });
 
 
 // api
 // -----
-
-async function apiItemGet(url) {
-  const res = await fetch(url);
-  return res.json();
-}
 
 async function apiItemGetYaml(url) {
   const res = await fetch(
@@ -115,8 +124,26 @@ async function apiItemDelete(url) {
 // state
 // -------
 
-function stateItemGet(state, uid) {
-  return state[PREFIX].items[uid];
+function stateItemGet(state, id) {
+  return state[PREFIX].items[id];
+}
+
+function stateResourceGetByKind(state, kind) {
+  const { resources } = state[PREFIX];
+
+  // find correponding resources
+  const resourceIds = Object.keys(resources)
+    .filter(resourceId => {
+      const resource = resources[resourceId];
+      return (
+        resource.kind === kind &&
+        resource.verbs.includes('create')
+      );
+    });
+
+  // error if more than 1 result
+  if (resourceIds.length !== 1) return null;
+  else return resources[resourceIds[0]];
 }
 
 export const itemState = {};
@@ -128,14 +155,14 @@ export const itemState = {};
 function* sagaItemGet() {
   yield takeEvery(ITEM_GET, function* (action) {
     try {
-      const { uid } = action.payload;
-      const item = yield select(stateItemGet, uid);
+      const { id } = action.payload;
+      const item = yield select(stateItemGet, id);
       if (item) {
         const yaml = yield call(apiItemGetYaml, item[URL]);
         yield put({
           type: ITEM_GET__S,
           payload: { yaml },
-          meta: { uid },
+          meta: { id },
         });
       }
     } catch (error) {
@@ -151,17 +178,50 @@ function* sagaItemGet() {
 function* sagaItemPost() {
   yield takeEvery(ITEM_POST, function* (action) {
     try {
-      const { uid, yaml } = action.payload;
-      const item = jsYaml.safeLoad(yaml);
-      const { [URL]: url } = yield select(stateItemGet, uid);
-      const yaml2 = yield call(apiItemPost, url, yaml);
-      //const item = yield call(apiItemGet, url);
+      let { id, yaml } = action.payload;
+
+      // parse item
+      const { kind, metadata: { namespace } = {}} = jsYaml.safeLoad(yaml);
+      if (!kind) throw new Error('Please, specify item\'s kind.');
+
+      // find resource
+      const resource = yield select(stateResourceGetByKind, kind);
+      if (!resource) throw new Error('Can\'t find correponding resource by kind.');
+
+      // get url
+      const {
+        [URL]: resourceUrl,
+        [URL_PART_GROUP]: resourceUrlPartGroup,
+        [URL_PART_RESOURCE]: resourceUrlPartResource,
+      } = resource;
+      const url = namespace
+        ? `${resourceUrlPartGroup}/namespaces/${namespace}/${resourceUrlPartResource}`
+        : resourceUrl;
+
+      // post
+      const item = yield call(apiItemPost, url, yaml);
+      if (item.status === 'Failure') throw item;
+
+      // decorate item
+      decorateItem(resource)(item);
+
+      // update yaml
+      yaml = yield call(apiItemGetYaml, item[URL]);
+
+      //
       yield put({
         type: ITEM_POST__S,
-        payload: { item },
-        meta: { uid },
+        payload: { item, yaml },
+        meta: { resource },
       });
+
+      // update tab
+      yield put(tabClose(id));
+      yield put(tabOpen(item[ID]));
+
     } catch (error) {
+
+      //
       yield put({
         type: ITEM_POST__F,
         payload: error,
@@ -174,20 +234,23 @@ function* sagaItemPost() {
 function* sagaItemPut() {
   yield takeEvery(ITEM_PUT, function* (action) {
     try {
-      const { uid, yaml } = action.payload;
-      const { [URL]: url } = yield select(stateItemGet, uid);
+      const { id, yaml } = action.payload;
+      const { [URL]: url } = yield select(stateItemGet, id);
 
       // put
-      const res = yield call(apiItemPut, url, yaml);
-      if (res.status === 'Failure') throw res;
+      const item = yield call(apiItemPut, url, yaml);
+      if (item.status === 'Failure') throw item;
 
       //
       yield put({
         type: ITEM_PUT__S,
-        payload: { item: res },
-        meta: { uid, yaml },
+        payload: { item },
+        meta: { id, yaml },
       });
+
     } catch (error) {
+
+      //
       yield put({
         type: ITEM_PUT__F,
         payload: error,
@@ -198,17 +261,30 @@ function* sagaItemPut() {
 }
 
 function* sagaItemDelete() {
-  yield takeEvery(ITEM_POST, function* (action) {
+  yield takeEvery(ITEM_DELETE, function* (action) {
     try {
-      const { uid } = action.payload;
-      const { [URL]: url } = yield select(stateItemGet, uid);
-      const yaml = yield call(apiItemDelete, url);
+      const { id: itemId } = action.payload;
+      const {
+        [URL]: itemUrl,
+        [RESOURCE]: resourceId,
+      } = yield select(stateItemGet, itemId);
+
+      //
+      const item = yield call(apiItemDelete, itemUrl);
+      if (item.status === 'Failure') throw item;
+
+      //
       yield put({
         type: ITEM_DELETE__S,
-        payload: {},
-        meta: { uid },
+        meta: { itemId, resourceId },
       });
+
+      //
+      yield put(tabClose(itemId));
+
     } catch (error) {
+
+      //
       yield put({
         type: ITEM_DELETE__F,
         payload: error,
@@ -234,11 +310,11 @@ export function* itemSaga() {
 export const itemReducer = {
 
   [ITEM_GET__S]: (state, action) => {
-    const { uid } = action.meta;
+    const { id } = action.meta;
     const { yaml } = action.payload;
     return update(state, {
       items: {
-        [uid]: {
+        [id]: {
           $merge: {
             [YAML]: yaml,
           },
@@ -247,18 +323,51 @@ export const itemReducer = {
     });
   },
 
-  [ITEM_PUT__S]: (state, action) => {
-    const { uid, yaml } = action.meta;
-    const { item } = action.payload;
+  [ITEM_POST__S]: (state, action) => {
+    const { resource: { [ID]: resourceId }} = action.meta;
+    const { item, item: { [ID]: itemId }, yaml } = action.payload;
+
     return update(state, {
+      resources: {
+        [resourceId]: {
+          [ITEMS]: { $push: [itemId] },
+        },
+      },
       items: {
-        [uid]: {
+        [itemId]: {
           $set: {
             ...item,
             [YAML]: yaml,
           },
         },
       },
+    });
+  },
+
+  [ITEM_PUT__S]: (state, action) => {
+    const { id, yaml } = action.meta;
+    const { item } = action.payload;
+    return update(state, {
+      items: {
+        [id]: {
+          $set: {
+            ...item,
+            [YAML]: yaml,
+          },
+        },
+      },
+    });
+  },
+
+  [ITEM_DELETE__S]: (state, action) => {
+    const { itemId, resourceId } = action.meta;
+    return update(state, {
+      resources: {
+        [resourceId]: {
+          [ITEMS]: { $pop: [itemId] },
+        },
+      },
+      items: { $del: [itemId] },
     });
   },
 };

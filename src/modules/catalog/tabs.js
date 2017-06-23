@@ -16,14 +16,14 @@ export const TAB_CLOSEALL = `${PREFIX}/TAB_CLOSEALL`;
 // creators
 // ----------
 
-export const tabOpen = uid => ({
+export const tabOpen = id => ({
   type: TAB_OPEN,
-  payload: { uid },
+  payload: { id },
 });
 
-export const tabClose = uid => ({
+export const tabClose = id => ({
   type: TAB_CLOSE,
-  payload: { uid },
+  payload: { id },
 });
 
 export const tabCloseAll = () => ({
@@ -36,7 +36,7 @@ export const tabCloseAll = () => ({
 
 export const tabsState = {
   tabs: [
-    /* itemUid */
+    /* itemId */
   ],
 };
 
@@ -46,8 +46,8 @@ export const tabsState = {
 
 function* sagaTabOpen() {
   yield takeEvery(TAB_OPEN, function* (action) {
-    const { uid } = action.payload;
-    if (uid) yield put(itemGet(uid));
+    const { id } = action.payload;
+    if (id) yield put(itemGet(id));
   });
 }
 
@@ -64,16 +64,16 @@ export function* tabsSaga() {
 export const tabsReducer = {
 
   [TAB_OPEN]: (state, action) => {
-    const { uid = Date.now().toString() } = action.payload;
+    const { id = Date.now().toString() } = action.payload;
     return update(state, {
-      tabs: { $push: [uid] },
+      tabs: { $push: [id] },
     });
   },
 
   [TAB_CLOSE]: (state, action) => {
-    const { uid } = action.payload;
+    const { id } = action.payload;
     return update(state, {
-      tabs: { $pop: [uid] },
+      tabs: { $pop: [id] },
     });
   },
 

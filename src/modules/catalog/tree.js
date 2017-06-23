@@ -13,6 +13,8 @@ import {
   LOADING,
   toIdsObject,
   toIdsArray,
+  URL_PART_GROUP,
+  URL_PART_RESOURCE,
 } from './shared';
 
 
@@ -265,8 +267,49 @@ export const treeState = {
 // reducer
 // ---------
 
-const URL_PART_GROUP = Symbol('URL_PART_GROUP');
-const URL_PART_RESOURCE = Symbol('URL_PART_RESOURCE');
+export function decorateGroup() {
+  return group => {
+    group[ID] = group.name;
+    group[URL] = group[URL] || `/apis/${group.preferredVersion.groupVersion}`;
+    group[RESOURCES] = [];
+  };
+}
+
+export function decorateResource(group) {
+  const {
+    [ID]: groupId,
+    [URL]: groupUrl,
+  } = group;
+  return resource => {
+    const { name } = resource;
+
+    resource[GROUP] = groupId;
+    resource[ID] = name;
+    resource[URL] = `${groupUrl}/${name}`;
+    resource[ITEMS] = [];
+
+    // crunches for correct item urls
+    resource[URL_PART_GROUP] = groupUrl;
+    resource[URL_PART_RESOURCE] = `${name}`;
+  };
+}
+
+export function decorateItem(resource) {
+  const {
+    namespaced: resourceNamespaced,
+    [ID]: resourceId,
+    [URL_PART_GROUP]: resourceUrlPartGroup,
+    [URL_PART_RESOURCE]: resourceUrlPartResource,
+  } = resource;
+  return item => {
+    const { uid, name, namespace } = item.metadata;
+    item[RESOURCE] = resourceId;
+    item[ID] = uid || `[nouid]-${name}`;
+    item[URL] = resourceNamespaced
+      ? `${resourceUrlPartGroup}/namespaces/${namespace}/${resourceUrlPartResource}/${name}`
+      : `${resourceUrlPartGroup}/${resourceUrlPartResource}/${name}`;
+  };
+}
 
 export const treeReducer = {
 
@@ -285,13 +328,10 @@ export const treeReducer = {
 
   [ROOT_GROUPS_GET__S]: (state, action) => {
     const { groups } = action.payload;
-
-    groups.forEach(group => {
-      group[ID] = group.name;
-      group[URL] = group[URL] || `/apis/${group.preferredVersion.groupVersion}`;
-      group[RESOURCES] = [];
-    });
-
+    
+    const decorate = decorateGroup();
+    groups.forEach(group => decorate(group));
+    
     return update(state, {
       groups: { $set: toIdsObject(groups) },
     });
@@ -299,29 +339,14 @@ export const treeReducer = {
 
   [GROUP_RESOURCES_GET__S]: (state, action) => {
     const { resources } = action.payload;
-    const {
-      group: {
-        [ID]: groupId,
-        [URL]: groupUrl,
-      },
-    } = action.meta;
+    const { group } = action.meta;
 
-    resources.forEach(resource => {
-      const { name } = resource;
-
-      resource[GROUP] = groupId;
-      resource[ID] = name;
-      resource[URL] = `${groupUrl}/${name}`;
-      resource[ITEMS] = [];
-
-      // crunches for correct item urls
-      resource[URL_PART_GROUP] = groupUrl;
-      resource[URL_PART_RESOURCE] = `${name}`;
-    });
-
+    const decorate = decorateResource(group);
+    resources.forEach(resource => decorate(resource));
+    
     return update(state, {
       groups: {
-        [groupId]: {
+        [group[ID]]: {
           [RESOURCES]: { $set: toIdsArray(resources).sort() },
         },
       },
@@ -331,27 +356,14 @@ export const treeReducer = {
 
   [RESOURCE_ITEMS_GET__S]: (state, action) => {
     const { items } = action.payload;
-    const {
-      resource: {
-        namespaced: resourceNamespaced,
-        [ID]: resourceId,
-        [URL_PART_GROUP]: resourceUrlPartGroup,
-        [URL_PART_RESOURCE]: resourceUrlPartResource,
-      },
-    } = action.meta;
+    const { resource } = action.meta;
 
-    items.forEach(item => {
-      const { uid, name, namespace } = item.metadata;
-      item[RESOURCE] = resourceId;
-      item[ID] = uid || `[nouid]-${name}`;
-      item[URL] = resourceNamespaced
-        ? `${resourceUrlPartGroup}/namespaces/${namespace}/${resourceUrlPartResource}/${name}`
-        : `${resourceUrlPartGroup}/${resourceUrlPartResource}/${name}`;
-    });
+    const decorate = decorateItem(resource);
+    items.forEach(item => decorate(item));
 
     return update(state, {
       resources: {
-        [resourceId]: {
+        [resource[ID]]: {
           [ITEMS]: { $set: toIdsArray(items).sort() },
         },
       },
