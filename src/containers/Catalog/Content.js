@@ -161,13 +161,12 @@ class Content extends React.Component {
           tabBarExtraContent={
             <span>
               {
-                dirty &&
+                showCloseAll &&
                 <Button
                   className="catalog__button"
                   size="small"
-                  type="primary"
-                  onClick={onSave}>
-                  Save
+                  onClick={onCloseAll}>
+                  CloseAll
                 </Button>
               }
               {
@@ -190,12 +189,13 @@ class Content extends React.Component {
                 </Button>
               }
               {
-                showCloseAll &&
+                dirty &&
                 <Button
                   className="catalog__button"
                   size="small"
-                  onClick={onCloseAll}>
-                  CloseAll
+                  type="primary"
+                  onClick={onSave}>
+                  Save
                 </Button>
               }
             </span>

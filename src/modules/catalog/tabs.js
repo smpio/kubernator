@@ -61,10 +61,15 @@ export function* tabsSaga() {
 // reducer
 // ---------
 
+const getIndex = (function* () {
+  let index = 0;
+  while (true) yield ++index;
+})();
+
 export const tabsReducer = {
 
   [TAB_OPEN]: (state, action) => {
-    const { id = Date.now().toString() } = action.payload;
+    const { id = `Tab #${getIndex.next().value}` } = action.payload;
     return update(state, {
       tabs: { $push: [id] },
     });
