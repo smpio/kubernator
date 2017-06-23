@@ -43,8 +43,8 @@ class Content extends React.Component {
     this.onDiscard = this.onEdit.bind(this, null);
   }
 
-  shouldComponentUpdate() {
-    return !this.props[LOADING];
+  shouldComponentUpdate(props) {
+    return !props.loading;
   }
 
   componentWillReceiveProps(props) {
@@ -117,6 +117,7 @@ class Content extends React.Component {
   render() {
     const {
       props: {
+        loading,
         items,
         tabs,
       },
@@ -139,7 +140,7 @@ class Content extends React.Component {
     const dirty = yamlEdited && yamlEdited !== yamlOriginal;
     const yaml = yamlEdited || yamlOriginal;
 
-    const hideTabs = false;
+    const hideTabs = loading;
     const hideEditor = !tabs.length;
 
     const showCloseAll = !!tabs.length;
@@ -240,7 +241,10 @@ Content.propTypes = {
 };
 
 export default connect(
-  state => state[PREFIX],
+  state => ({
+    loading: state[PREFIX][LOADING], // seems like connect ignores symbols
+    ...state[PREFIX],
+  }),
   dispatch => bindActionCreators({
     itemGet,
     itemPost,
