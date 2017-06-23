@@ -48,6 +48,10 @@ class Navigation extends React.Component {
   }
 
   onExpand(expandedKeys, { expanded, node }) {
+    const { eventKey: closedKey } = node.props;
+    if (!expanded && !closedKey.includes(':')) { // hard coded crunch for the current key naming
+      expandedKeys = expandedKeys.filter(key => !key.startsWith(closedKey));
+    }
     this.setState({ expandedKeys });
   }
 
