@@ -284,7 +284,7 @@ export const treeReducer = {
     const { stage } = action.payload;
     return update(state, {
       root: {
-        stage: { $set: stage },
+        [LOADING]: { $set: stage },
       },
     });
   },

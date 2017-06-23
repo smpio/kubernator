@@ -3,25 +3,52 @@ import PropTypes from 'prop-types';
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { createSelector } from 'reselect';
 
 import {
   PREFIX,
-  UID,
-  KINDS,
-  NAMESPACES,
-  groupsGet,
-  resourcesGet,
-  itemsGet,
+  LOADING,
+  RESOURCE,
+  //UID,
+  //KINDS,
+  //NAMESPACES,
+  treeGet,
   tabOpen,
 } from '../../modules/catalog';
 
-import { Tree as TreeRoot } from 'antd';
+import { Tree as TreeRoot, Spin } from 'antd';
 const TreeNode = TreeRoot.TreeNode;
 
-const TYPE_GROUP = 'TYPE_GROUP';
-const TYPE_RESOURCE = 'TYPE_RESOURCE';
-const TYPE_ITEM = 'TYPE_ITEM';
+//const TYPE_GROUP = 'TYPE_GROUP';
+//const TYPE_RESOURCE = 'TYPE_RESOURCE';
+//const TYPE_ITEM = 'TYPE_ITEM';
 
+class Navigation extends React.Component {
+
+  componentWillMount() {
+    this.props.treeGet();
+  }
+
+  render() {
+    const {
+      loading,
+    } = this.props;
+    return (
+      <div>
+        {
+          loading &&
+          <Spin tip={loading} />
+        }
+        {
+          !loading &&
+          <span>done</span>
+        }
+      </div>
+    );
+  }
+}
+
+/*
 
 // render helpers
 // ----------------
@@ -196,10 +223,10 @@ class Navigation extends React.Component {
   }
 
   componentWillMount() {
-    this.props.groupsGet();
+    this.props.treeGet();
   }
 
-  render() {
+  render() { return null;
     const {
       props: {
         groups,
@@ -232,22 +259,105 @@ class Navigation extends React.Component {
   }
 }
 
+*/
+
+
+// connect
+// ---------
+
+const selectLoading = state => state.root[LOADING];
+const selectResources = state => state.resources;
+const selectItems = state => state.items;
+
+const selectTree = createSelector(
+  [selectLoading, selectResources, selectItems],
+  (loading, resources, items) => {
+
+    // prepare data
+    const tree = {
+      namespaces: { /* namespaceName: { kindName, ... } */ },
+      kinds: { /* kindName: { resourceId, ... } */ },
+    };
+
+    // proceed if not loading only
+    if (!loading) {
+      const { namespaces, kinds } = tree;
+      const nonamespace = '[nonamespace]';
+
+      // build tree as objects initially
+      // to save some complexity on lookup operations
+      // ----------------------------------------------
+
+      // iterate items
+      Object.keys(items).forEach(itemId => {
+
+        // get item
+        const {
+          metadata: {
+            namespace: itemNamespace,
+          },
+          [RESOURCE]: resourceId,
+        } = items[itemId];
+
+        // get resource
+        const {
+          namespaced: resourceNamespaced,
+          kind: resourceKind,
+        } = resources[resourceId];
+
+        // get namespace
+        const ns = resourceNamespaced
+          ? itemNamespace || nonamespace
+          : nonamespace;
+
+        // create namespace
+        if (!namespaces[ns]) namespaces[ns] = {};
+        namespaces[ns][resourceKind] = true;
+
+        // create kind
+        if (!kinds[resourceKind]) kinds[resourceKind] = {};
+        kinds[resourceKind][resourceId] = true;
+      });
+
+      // cast tree from objects to sorted arrays
+      // -----------------------------------------
+
+      // sort kinds in namespaces
+      Object.keys(namespaces).forEach(namespace => {
+        const kinds = Object.keys(namespaces[namespace]);
+        namespaces[namespace] = kinds.sort();
+      });
+
+      // sort resources in kinds
+      Object.keys(kinds).forEach(kind => {
+        const resources = Object.keys(kinds[kind]);
+        kinds[kind] = resources.sort();
+      });
+    }
+
+    //
+    return tree;
+  },
+);
+
 Navigation.propTypes = {
-  groups: PropTypes.object,
+  loading: PropTypes.any,
   resources: PropTypes.object,
   items: PropTypes.object,
-  groupsGet: PropTypes.func,
-  resourcesGet: PropTypes.func,
-  itemsGet: PropTypes.func,
+  tree: PropTypes.object,
+  treeGet: PropTypes.func,
   tabOpen: PropTypes.func,
 };
 
 export default connect(
-  state => state[PREFIX],
+  state => ({
+    loading: selectLoading(state[PREFIX]),
+    resources: selectResources(state[PREFIX]),
+    items: selectItems(state[PREFIX]),
+    tree: selectTree(state[PREFIX]),
+  }),
   dispatch => bindActionCreators({
-    groupsGet,
-    resourcesGet,
-    itemsGet,
+    treeGet,
     tabOpen,
   }, dispatch),
 )(Navigation);

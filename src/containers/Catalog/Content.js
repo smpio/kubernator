@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import {
   PREFIX,
   YAML,
+  LOADING,
   itemGet,
   itemPost,
   itemPut,
@@ -38,6 +39,10 @@ class Content extends React.Component {
     this.onDelete = this.onDelete.bind(this);
 
     this.onDiscard = this.onEdit.bind(this, null);
+  }
+
+  shouldComponentUpdate() {
+    return !this.props.root[LOADING];
   }
 
   componentWillReceiveProps(props) {
@@ -204,8 +209,9 @@ class Content extends React.Component {
 }
 
 Content.propTypes = {
+  root: PropTypes.object,
   items: PropTypes.object,
-  tabs: PropTypes.object,
+  tabs: PropTypes.array,
   itemGet: PropTypes.func,
   itemPost: PropTypes.func,
   itemPut: PropTypes.func,
