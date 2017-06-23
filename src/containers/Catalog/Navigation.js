@@ -28,7 +28,11 @@ const TYPE_ITEM = 'TYPE_ITEM';
 class Navigation extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      expandedKeys: [],
+    };
     this.onSelect = this.onSelect.bind(this);
+    this.onExpand = this.onExpand.bind(this);
     this.renderNode = this.renderNode.bind(this);
   }
 
@@ -40,6 +44,11 @@ class Navigation extends React.Component {
     const { custom: { type, data } = {}} = event.node.props;
     const { tabOpen } = this.props;
     if (type === TYPE_ITEM) tabOpen(data[ID]);
+    this.setState({ expandedKeys: selectedKeys });
+  }
+
+  onExpand(expandedKeys, { expanded, node }) {
+    this.setState({ expandedKeys });
   }
 
   renderNode(node) {
@@ -77,7 +86,11 @@ class Navigation extends React.Component {
         loading,
         tree,
       },
+      state: {
+        expandedKeys,
+      },
       onSelect,
+      onExpand,
       renderNode,
     } = this;
 
@@ -91,7 +104,11 @@ class Navigation extends React.Component {
         }
         {
           !loading &&
-          <TreeRoot onSelect={onSelect} showLine>
+          <TreeRoot
+            onSelect={onSelect}
+            onExpand={onExpand}
+            expandedKeys={expandedKeys}
+            showLine>
             {
               tree.map(node => renderNode(node))
             }
