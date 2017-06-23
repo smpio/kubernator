@@ -1,3 +1,4 @@
+import { delay } from 'redux-saga';
 import { all, call, put, take, takeEvery } from 'redux-saga/effects';
 import update from 'immutability-helper';
 
@@ -20,6 +21,7 @@ import {
 // --------------
 
 export const TREE_GET = `${PREFIX}/TREE_GET`;
+export const TREE_GET__PROGRESS = `${PREFIX}/TREE_GET/PROGRESS`;
 export const TREE_GET__S = `${PREFIX}/TREE_GET/S`;
 export const TREE_GET__F = `${PREFIX}/TREE_GET/F`;
 
@@ -77,43 +79,66 @@ function* sagaTreeGet() {
     const { resolve, reject } = action.payload;
     try {
 
-      // get groups
+      // progress
+      yield put({
+        type: TREE_GET__PROGRESS,
+        payload: { stage: 'groups' },
+      });
+
+      // sleep
+      yield delay(500);
+
+      // get root[GROUPS]
       yield put(rootGroupsGet());
       const { payload: { groups }} = yield take(ROOT_GROUPS_GET__S);
 
-      // for every group
-      for (let group of groups) {
+      // progress
+      yield put({
+        type: TREE_GET__PROGRESS,
+        payload: { stage: 'resources' },
+      });
 
-        // get resources
-        yield put(groupResourcesGet(group));
-        const { payload: { resources }} = yield take(GROUP_RESOURCES_GET__S);
+      // sleep
+      yield delay(500);
 
-        // for every listable resource
-        for (let resource of resources) {
-          if (resource.verbs.includes('list')) {
+      // ∀ group => get group[RESOURCES]
+      yield all(groups.map(group => put(groupResourcesGet(group))));
+      const groupResourcesGot = yield all(groups.map(() => take(GROUP_RESOURCES_GET__S)));
 
-            // get items
-            yield put(resourceItemsGet(resource));
-          }
-        }
-      }
+      // resources => merge, flatten and filter
+      let resources = Array.prototype
+        .concat.apply([], groupResourcesGot.map(action => action.payload.resources))
+        .filter(resource => resource.verbs.includes('list'));
 
-      //
+      // progress
+      yield put({
+        type: TREE_GET__PROGRESS,
+        payload: { stage: 'items' },
+      });
+
+      // sleep
+      yield delay(500);
+
+      // ∀ resource => get resource[ITEMS]
+      yield all(resources.map(resource => put(resourceItemsGet(resource))));
+      yield all(resources.map(() => take(RESOURCE_ITEMS_GET__S)));
+
+      // success
       yield put({ type: TREE_GET__S });
 
-      // resolve promise
+      // resolve
       if (resolve) yield call(resolve);
 
     } catch (error) {
 
-      //
+      // error
       yield put({
         type: TREE_GET__F,
         payload: error,
         error: true,
       });
 
-      // reject promise
+      // reject
       if (reject) yield call(reject);
     }
   });
@@ -242,12 +267,24 @@ export const treeState = {
 // reducer
 // ---------
 
+const URL_PART_GROUP = Symbol('URL_PART_GROUP');
+const URL_PART_RESOURCE = Symbol('URL_PART_RESOURCE');
+
 export const treeReducer = {
 
   [TREE_GET]: (state, action) => {
     return update(state, {
       root: {
         [LOADING]: { $set: true },
+      },
+    });
+  },
+
+  [TREE_GET__PROGRESS]: (state, action) => {
+    const { stage } = action.payload;
+    return update(state, {
+      root: {
+        stage: { $set: stage },
       },
     });
   },
@@ -278,19 +315,30 @@ export const treeReducer = {
   },
 
   [GROUP_RESOURCES_GET__S]: (state, action) => {
-    const { group } = action.meta;
     const { resources } = action.payload;
+    const {
+      group: {
+        [ID]: groupId,
+        [URL]: groupUrl,
+      },
+    } = action.meta;
 
     resources.forEach(resource => {
-      resource[GROUP] = group[ID];
-      resource[ID] = resource.name;
-      resource[URL] = `${group[URL]}/${resource.name}`;
+      const { name } = resource;
+
+      resource[GROUP] = groupId;
+      resource[ID] = name;
+      resource[URL] = `${groupUrl}/${name}`;
       resource[ITEMS] = [];
+
+      // crunches for correct item urls
+      resource[URL_PART_GROUP] = groupUrl;
+      resource[URL_PART_RESOURCE] = `${name}`;
     });
 
     return update(state, {
       groups: {
-        [group[ID]]: {
+        [groupId]: {
           [RESOURCES]: { $set: toIdsArray(resources).sort() },
         },
       },
@@ -299,19 +347,28 @@ export const treeReducer = {
   },
 
   [RESOURCE_ITEMS_GET__S]: (state, action) => {
-    const { resource } = action.meta;
     const { items } = action.payload;
+    const {
+      resource: {
+        namespaced: resourceNamespaced,
+        [ID]: resourceId,
+        [URL_PART_GROUP]: resourceUrlPartGroup,
+        [URL_PART_RESOURCE]: resourceUrlPartResource,
+      },
+    } = action.meta;
 
     items.forEach(item => {
-      const { uid, name } = item.metadata;
-      item[RESOURCE] = resource[ID];
+      const { uid, name, namespace } = item.metadata;
+      item[RESOURCE] = resourceId;
       item[ID] = uid || `[nouid]-${name}`;
-      item[URL] = `/${name}`;
+      item[URL] = resourceNamespaced
+        ? `${resourceUrlPartGroup}/namespaces/${namespace}/${resourceUrlPartResource}/${name}`
+        : `${resourceUrlPartGroup}/${resourceUrlPartResource}/${name}`;
     });
 
     return update(state, {
       resources: {
-        [resource[ID]]: {
+        [resourceId]: {
           [ITEMS]: { $set: toIdsArray(items).sort() },
         },
       },
