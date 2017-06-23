@@ -6,7 +6,6 @@ import {
   PREFIX,
   ID,
   URL,
-  GROUPS,
   GROUP,
   RESOURCE,
   RESOURCES,
@@ -257,7 +256,6 @@ export function* treeSaga() {
 // ---------
 
 export const treeState = {
-  root: {},
   groups: {},
   resources: {},
   items: {},
@@ -272,28 +270,16 @@ const URL_PART_RESOURCE = Symbol('URL_PART_RESOURCE');
 
 export const treeReducer = {
 
-  [TREE_GET]: (state, action) => {
-    return update(state, {
-      root: {
-        [LOADING]: { $set: true },
-      },
-    });
-  },
-
   [TREE_GET__PROGRESS]: (state, action) => {
     const { stage } = action.payload;
     return update(state, {
-      root: {
-        [LOADING]: { $set: stage },
-      },
+      [LOADING]: { $set: stage },
     });
   },
 
   [TREE_GET__S]: (state, action) => {
     return update(state, {
-      root: {
-        [LOADING]: { $set: false },
-      },
+      [LOADING]: { $set: null },
     });
   },
 
@@ -307,9 +293,6 @@ export const treeReducer = {
     });
 
     return update(state, {
-      root: {
-        [GROUPS]: { $set: toIdsArray(groups).sort() },
-      },
       groups: { $set: toIdsObject(groups) },
     });
   },

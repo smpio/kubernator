@@ -42,7 +42,7 @@ class Content extends React.Component {
   }
 
   shouldComponentUpdate() {
-    return !this.props.root[LOADING];
+    return !this.props[LOADING];
   }
 
   componentWillReceiveProps(props) {
@@ -209,7 +209,7 @@ class Content extends React.Component {
 }
 
 Content.propTypes = {
-  root: PropTypes.object,
+  [LOADING]: PropTypes.string,
   items: PropTypes.object,
   tabs: PropTypes.array,
   itemGet: PropTypes.func,

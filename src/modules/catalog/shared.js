@@ -4,7 +4,6 @@ export const ID = Symbol('ID');
 export const URL = Symbol('URL');
 export const YAML = Symbol('YAML');
 
-export const GROUPS = Symbol('GROUPS');
 export const GROUP = Symbol('GROUP');
 export const RESOURCE = Symbol('RESOURCE');
 export const RESOURCES = Symbol('RESOURCES');

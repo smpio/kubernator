@@ -265,7 +265,7 @@ class Navigation extends React.Component {
 // connect
 // ---------
 
-const selectLoading = state => state.root[LOADING];
+const selectLoading = state => state[LOADING];
 const selectResources = state => state.resources;
 const selectItems = state => state.items;
 
@@ -341,7 +341,7 @@ const selectTree = createSelector(
 );
 
 Navigation.propTypes = {
-  loading: PropTypes.any,
+  loading: PropTypes.string,
   resources: PropTypes.object,
   items: PropTypes.object,
   tree: PropTypes.object,
