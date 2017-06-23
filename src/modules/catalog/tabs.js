@@ -10,6 +10,7 @@ import { itemGet } from './item';
 
 export const TAB_OPEN = `${PREFIX}/TAB_OPEN`;
 export const TAB_CLOSE = `${PREFIX}/TAB_CLOSE`;
+export const TAB_CLOSEALL = `${PREFIX}/TAB_CLOSEALL`;
 
 
 // creators
@@ -23,6 +24,10 @@ export const tabOpen = uid => ({
 export const tabClose = uid => ({
   type: TAB_CLOSE,
   payload: { uid },
+});
+
+export const tabCloseAll = () => ({
+  type: TAB_CLOSEALL,
 });
 
 
@@ -69,6 +74,12 @@ export const tabsReducer = {
     const { uid } = action.payload;
     return update(state, {
       tabs: { $pop: [uid] },
+    });
+  },
+
+  [TAB_CLOSEALL]: (state, action) => {
+    return update(state, {
+      tabs: { $set: [] },
     });
   },
 };

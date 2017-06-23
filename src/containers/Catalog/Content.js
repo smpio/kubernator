@@ -14,6 +14,7 @@ import {
   itemDelete,
   tabOpen,
   tabClose,
+  tabCloseAll,
 } from '../../modules/catalog';
 
 import { Tabs, Button } from 'antd';
@@ -37,6 +38,7 @@ class Content extends React.Component {
     this.onEdit = this.onEdit.bind(this);
     this.onSave = this.onSave.bind(this);
     this.onDelete = this.onDelete.bind(this);
+    this.onCloseAll = this.onCloseAll.bind(this);
 
     this.onDiscard = this.onEdit.bind(this, null);
   }
@@ -108,6 +110,10 @@ class Content extends React.Component {
     return itemDelete(uid);
   }
 
+  onCloseAll() {
+    this.props.tabCloseAll();
+  }
+
   render() {
     const {
       props: {
@@ -123,6 +129,7 @@ class Content extends React.Component {
       onEdit,
       onSave,
       onDelete,
+      onCloseAll,
       onDiscard,
     } = this;
 
@@ -134,6 +141,8 @@ class Content extends React.Component {
 
     const hideTabs = false;
     const hideEditor = !tabs.length;
+
+    const showCloseAll = !!tabs.length;
 
     return (
       <div
@@ -180,6 +189,15 @@ class Content extends React.Component {
                   Delete
                 </Button>
               }
+              {
+                showCloseAll &&
+                <Button
+                  className="catalog__button"
+                  size="small"
+                  onClick={onCloseAll}>
+                  CloseAll
+                </Button>
+              }
             </span>
           }>
           {
@@ -218,6 +236,7 @@ Content.propTypes = {
   itemDelete: PropTypes.func,
   tabOpen: PropTypes.func,
   tabClose: PropTypes.func,
+  tabCloseAll: PropTypes.func,
 };
 
 export default connect(
@@ -229,5 +248,6 @@ export default connect(
     itemDelete,
     tabOpen,
     tabClose,
+    tabCloseAll,
   }, dispatch),
 )(Content);
