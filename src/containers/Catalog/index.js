@@ -13,8 +13,8 @@ export default class Catalog extends React.PureComponent {
         <Helmet>
           <title>Catalog</title>
         </Helmet>
-        <Navigation className="catalog__navigation" />
-        <Content className="catalog__content" />
+        <Navigation />
+        <Content />
       </div>
     );
   }

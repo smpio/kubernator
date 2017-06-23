@@ -7,11 +7,10 @@ import { createSelector } from 'reselect';
 
 import {
   PREFIX,
-  LOADING,
+  ID,
   RESOURCE,
-  //UID,
-  //KINDS,
-  //NAMESPACES,
+  ITEMS,
+  LOADING,
   treeGet,
   tabOpen,
 } from '../../modules/catalog';
@@ -19,53 +18,23 @@ import {
 import { Tree as TreeRoot, Spin } from 'antd';
 const TreeNode = TreeRoot.TreeNode;
 
-//const TYPE_GROUP = 'TYPE_GROUP';
-//const TYPE_RESOURCE = 'TYPE_RESOURCE';
-//const TYPE_ITEM = 'TYPE_ITEM';
+const TYPE_RESOURCE = 'TYPE_RESOURCE';
+const TYPE_ITEM = 'TYPE_ITEM';
 
-class Navigation extends React.Component {
-
-  componentWillMount() {
-    this.props.treeGet();
-  }
-
-  render() {
-    const {
-      loading,
-    } = this.props;
-    return (
-      <div>
-        {
-          loading &&
-          <Spin tip={loading} />
-        }
-        {
-          !loading &&
-          <span>done</span>
-        }
-      </div>
-    );
-  }
-}
-
-/*
 
 // render helpers
 // ----------------
 // not react elements because antd expects direct nesting
 
 function renderItem(props) {
-  const {
-    itemUid,
-    items,
-  } = props;
+  const { itemId, items } = props;
 
-  const item = items[itemUid];
+  const item = items[itemId];
   const { metadata: { name }} = item;
 
   return (
     <TreeNode
-      key={name}
+      key={itemId}
       title={name}
       isLeaf
       custom={{
@@ -76,59 +45,27 @@ function renderItem(props) {
   );
 }
 
-function renderNamespace(props) {
-  const {
-    namespaceName,
-    itemUids,
-    items,
-  } = props;
-
-  return (
-    <TreeNode
-      key={namespaceName}
-      title={namespaceName}>
-      {
-        itemUids.map(itemUid =>
-          renderItem({
-            itemUid,
-            items,
-          }),
-        )
-      }
-    </TreeNode>
-  );
-}
-
 function renderResource(props) {
-  const {
-    resourceName,
-    resources,
-    items,
-  } = props;
+  const { resourceId, resources } = props;
 
-  const resource = resources[resourceName];
-  const { [NAMESPACES]: namespaces, verbs } = resource;
-
-  const isExpandable = verbs.includes('list');
+  const resource = resources[resourceId];
+  const { name, [ITEMS]: items } = resource;
+  const hasItems = items.length;
 
   return (
     <TreeNode
-      key={resourceName}
-      title={resourceName}
-      disabled={!isExpandable}
-      isLeaf={!isExpandable}
+      key={resourceId}
+      title={name}
+      disabled={!hasItems}
+      isLeaf={!hasItems}
       custom={{
         type: TYPE_RESOURCE,
         data: resource,
       }}>
       {
-        isExpandable &&
-        Object.keys(namespaces).map(namespaceName =>
-          renderNamespace({
-            namespaceName,
-            itemUids: namespaces[namespaceName],
-            items,
-          }),
+        hasItems &&
+        resource[ITEMS].map(itemId =>
+          renderItem({ itemId, ...props }),
         )
       }
     </TreeNode>
@@ -136,57 +73,27 @@ function renderResource(props) {
 }
 
 function renderKind(props) {
-  const {
-    kindName,
-    resourceNames,
-    resources,
-    items,
-  } = props;
-
+  const { kindId, kinds } = props;
+  const resources = kinds[kindId];
   return (
-    <TreeNode
-      key={kindName}
-      title={kindName}>
+    <TreeNode key={kindId} title={kindId}>
       {
-        resourceNames.map(resourceName =>
-          renderResource({
-            resourceName,
-            resources,
-            items,
-          }),
+        resources.map(resourceId =>
+          renderResource({ resourceId, ...props }),
         )
       }
     </TreeNode>
   );
 }
 
-function renderGroup(props) {
-  const {
-    groupName,
-    groups,
-    resources,
-    items,
-  } = props;
-
-  const group = groups[groupName];
-  const { [KINDS]: kinds } = group;
-
+function renderNamespace(props) {
+  const { namespaceId, namespaces } = props;
+  const kinds = namespaces[namespaceId];
   return (
-    <TreeNode
-      key={groupName}
-      title={groupName}
-      custom={{
-        type: TYPE_GROUP,
-        data: group,
-      }}>
+    <TreeNode key={namespaceId} title={namespaceId}>
       {
-        Object.keys(kinds).map(kindName =>
-          renderKind({
-            kindName,
-            resourceNames: kinds[kindName],
-            resources,
-            items,
-          }),
+        kinds.map(kindId =>
+          renderKind({ kindId, ...props }),
         )
       }
     </TreeNode>
@@ -200,66 +107,51 @@ function renderGroup(props) {
 class Navigation extends React.Component {
   constructor(props) {
     super(props);
-    this.onLoadData = this.onLoadData.bind(this);
     this.onSelect = this.onSelect.bind(this);
-  }
-
-  onLoadData(treeNode) {
-    const { custom: { type, data } = {}} = treeNode.props;
-    const { resourcesGet, itemsGet } = this.props;
-    return new Promise((resolve, reject) => {
-      switch (type) {
-        case TYPE_GROUP: return resourcesGet(data, resolve, reject);
-        case TYPE_RESOURCE: return itemsGet(data, resolve, reject);
-        default: return resolve();
-      }
-    });
   }
 
   onSelect(selectedKeys, event) {
     const { custom: { type, data } = {}} = event.node.props;
     const { tabOpen } = this.props;
-    if (type === TYPE_ITEM) tabOpen(data[UID]);
+    if (type === TYPE_ITEM) tabOpen(data[ID]);
   }
 
   componentWillMount() {
     this.props.treeGet();
   }
 
-  render() { return null;
+  render() {
     const {
+      props,
       props: {
-        groups,
-        resources,
-        items,
+        loading,
+        tree,
       },
-      onLoadData,
       onSelect,
     } = this;
 
     return (
-      <div className="navigation">
-        <TreeRoot
-          loadData={onLoadData}
-          onSelect={onSelect}
-          showLine>
-          {
-            Object.keys(groups).map(groupName =>
-              renderGroup({
-                groupName,
-                groups,
-                resources,
-                items,
-              }),
-            )
-          }
-        </TreeRoot>
+      <div className="catalog__navigation">
+        {
+          loading &&
+          <div className="catalog__spinner">
+            <Spin tip={loading} />
+          </div>
+        }
+        {
+          !loading &&
+          <TreeRoot onSelect={onSelect} showLine>
+            {
+              tree.map(namespaceId =>
+                renderNamespace({ namespaceId, ...props }),
+              )
+            }
+          </TreeRoot>
+        }
       </div>
     );
   }
 }
-
-*/
 
 
 // connect
@@ -269,19 +161,19 @@ const selectLoading = state => state[LOADING];
 const selectResources = state => state.resources;
 const selectItems = state => state.items;
 
-const selectTree = createSelector(
+const selectCustomData = createSelector(
   [selectLoading, selectResources, selectItems],
   (loading, resources, items) => {
 
     // prepare data
-    const tree = {
+    const data = {
       namespaces: { /* namespaceName: { kindName, ... } */ },
       kinds: { /* kindName: { resourceId, ... } */ },
     };
 
     // proceed if not loading only
     if (!loading) {
-      const { namespaces, kinds } = tree;
+      const { namespaces, kinds } = data;
       const nonamespace = '[nonamespace]';
 
       // build tree as objects initially
@@ -336,26 +228,37 @@ const selectTree = createSelector(
     }
 
     //
-    return tree;
+    return data;
   },
+);
+
+const selectTree = createSelector(
+  selectCustomData,
+  ({ namespaces, kinds }) => Object.keys(namespaces).sort(),
 );
 
 Navigation.propTypes = {
   loading: PropTypes.string,
+  tree: PropTypes.object,
+  namespaces: PropTypes.object,
+  kinds: PropTypes.object,
   resources: PropTypes.object,
   items: PropTypes.object,
-  tree: PropTypes.object,
   treeGet: PropTypes.func,
   tabOpen: PropTypes.func,
 };
 
 export default connect(
-  state => ({
-    loading: selectLoading(state[PREFIX]),
-    resources: selectResources(state[PREFIX]),
-    items: selectItems(state[PREFIX]),
-    tree: selectTree(state[PREFIX]),
-  }),
+  state => {
+    const local = state[PREFIX];
+    return {
+      loading: selectLoading(local),
+      tree: selectTree(local),
+      ...selectCustomData(local),
+      resources: selectResources(local),
+      items: selectItems(local),
+    };
+  },
   dispatch => bindActionCreators({
     treeGet,
     tabOpen,

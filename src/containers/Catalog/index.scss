@@ -4,6 +4,12 @@
 
 .catalog__navigation {
 
+  .catalog__spinner {
+    text-align: center;
+    min-width: 10em;
+    padding: 1em 0;
+  }
+
   // transparent expand icons
   // --------------------------
 
@@ -15,6 +21,7 @@
 .catalog__content {
   min-width: 0;
   flex-grow: 2;
+  margin-left: 1em;
 
 
   // tabs
