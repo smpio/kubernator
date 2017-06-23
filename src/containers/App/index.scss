@@ -13,6 +13,7 @@
   }
 
   .ant-layout-content {
+    display: flex;
     padding: 1em;
   }
 }
@@ -25,6 +26,8 @@
 }
 
 .layout__content {
+  width: 100%;
+  height: 100%;
   background: white;
   padding: 1em;
 }
