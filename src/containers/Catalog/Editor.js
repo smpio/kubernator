@@ -6,11 +6,27 @@ const PUBLIC_URL = process.env.PUBLIC_URL;
 
 
 export default class Editor extends React.PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      editor: null,
+      monaco: null,
+    };
+    this.editorDidMount = this.editorDidMount.bind(this);
+  }
+
+  editorDidMount(editor, monaco) {
+    this.setState({ editor, monaco });
+  }
+
   render() {
     const {
-      value = '',
-      onChange,
-    } = this.props;
+      props: {
+        value = '',
+        onChange,
+      },
+      editorDidMount,
+    } = this;
     return (
       <MonacoEditor
         requireConfig={Editor.requireConfig}
@@ -20,6 +36,7 @@ export default class Editor extends React.PureComponent {
         language="yaml"
         value={value}
         onChange={onChange}
+        editorDidMount={editorDidMount}
       />
     );
   }
