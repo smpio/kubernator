@@ -44,7 +44,7 @@ class Navigation extends React.Component {
     const { custom: { type, data } = {}} = event.node.props;
     const { tabOpen } = this.props;
     if (type === TYPE_ITEM) tabOpen(data[ID]);
-    if (selectedKeys.length) this.setState({ expandedKeys: selectedKeys });
+    else if (selectedKeys.length) this.setState({ expandedKeys: selectedKeys });
   }
 
   onExpand(expandedKeys, { expanded, node }) {
