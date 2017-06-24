@@ -124,7 +124,7 @@ async function apiItemDelete(url) {
 // state
 // -------
 
-function stateItemGet(state, id) {
+export function stateItemGet(state, id) {
   return state[PREFIX].items[id];
 }
 
@@ -205,13 +205,10 @@ function* sagaItemPost() {
       // decorate item
       decorateItem(resource)(item);
 
-      // update yaml
-      yaml = yield call(apiItemGetYaml, item[URL]);
-
       //
       yield put({
         type: ITEM_POST__S,
-        payload: { item, yaml },
+        payload: { item },
         meta: { resource },
       });
 
@@ -325,7 +322,7 @@ export const itemReducer = {
 
   [ITEM_POST__S]: (state, action) => {
     const { resource: { [ID]: resourceId }} = action.meta;
-    const { item, item: { [ID]: itemId }, yaml } = action.payload;
+    const { item, item: { [ID]: itemId }} = action.payload;
 
     return update(state, {
       resources: {
@@ -334,12 +331,7 @@ export const itemReducer = {
         },
       },
       items: {
-        [itemId]: {
-          $set: {
-            ...item,
-            [YAML]: yaml,
-          },
-        },
+        [itemId]: { $set: item },
       },
     });
   },

@@ -1,9 +1,9 @@
-import { all, call, put, takeEvery } from 'redux-saga/effects';
+import { all, call, put, select, takeEvery } from 'redux-saga/effects';
 import update from 'immutability-helper';
 import jsYaml from 'js-yaml';
 
-import { PREFIX } from './shared';
-import { itemGet } from './item';
+import { PREFIX, YAML } from './shared';
+import { itemGet, stateItemGet } from './item';
 
 
 // codes
@@ -40,6 +40,10 @@ export const tabCloseAll = () => ({
 // yamls are in the local component's state
 // for performance reasons
 
+function stateTabsGet(state) {
+  return state[PREFIX].tabs;
+}
+
 export const tabsState = {
   tabs: [
     /* itemId */
@@ -61,16 +65,38 @@ function* sagaTabOpen() {
     try {
       let { id, yaml } = action.payload;
 
-      // request yaml for real items
-      if (id) yield put(itemGet(id));
+      // artificial item
+      if (!id) {
 
-      // generate ids for artificial items
-      else id = `Tab #${getIndex.next().value}`;
+        // generate it
+        id = `Tab #${getIndex.next().value}`;
 
-      // analyze and clone yaml
-      if (yaml) {
-        const item = jsYaml.safeLoad(yaml);
-        yaml = jsYaml.safeDump(item, { noRefs: true });
+        // analyze and clone yaml
+        if (yaml) {
+          const item = jsYaml.safeLoad(yaml);
+          yaml = jsYaml.safeDump(item, { noRefs: true });
+        }
+
+      // real item
+      } else {
+
+        // assert is not already opened
+        const tabs = yield select(stateTabsGet);
+        if (tabs.includes(id)) id = null;
+        else {
+
+          // find item
+          const item = yield select(stateItemGet, id);
+          if (!item) {
+            throw new Error({
+              reason: 'tabOpen',
+              message: 'Desired item wasn\'t found in the store.',
+            });
+          }
+
+          // request yaml only if needed
+          if (!item[YAML]) yield put(itemGet(id));
+        }
       }
 
       // callback
@@ -111,9 +137,12 @@ export const tabsReducer = {
 
   [TAB_OPEN__S]: (state, action) => {
     const { id } = action.payload;
-    return update(state, {
-      tabs: { $push: [id] },
-    });
+    if (!id) return state;
+    else {
+      return update(state, {
+        tabs: { $push: [id] },
+      });
+    }
   },
 
   [TAB_CLOSE]: (state, action) => {
