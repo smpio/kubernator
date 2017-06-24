@@ -4,12 +4,8 @@
   overflow-y: hidden;
 }
 
-.catalog__navigation,
-.catalog__content {
-  background-color: white;
-}
-
 .catalog__navigation {
+  background-color: white;
   padding: 0 .75em 0 .5em;
   overflow-y: auto;
 
@@ -30,9 +26,7 @@
 .catalog__content {
   min-width: 0;
   flex-grow: 2;
-
   margin-left: 1em;
-  padding: 1em;
 
 
   // tabs
@@ -41,7 +35,38 @@
   .catalog__button {
     margin-left: .25em;
   }
-  
+
+  & > .ant-tabs.ant-tabs-editable-card {
+
+    & > .ant-tabs-bar {
+      margin: 0;
+
+      .ant-tabs-tab {
+        border-color: transparent;
+        margin-right: 1px;
+      }
+
+      .ant-tabs-tab-active {
+        border-color: white;
+      }
+
+      .ant-tabs-extra-content .ant-tabs-new-tab {
+        background-color: white;
+        position: relative;
+        top: 1px;
+      }
+    }
+
+    & > .ant-tabs-content {
+      height: 2em;
+      background-color: white;
+
+      & > .ant-tabs-tabpane {
+        display: none;
+      }
+    }
+  }
+
 
   // full-height editor
   // --------------------
