@@ -28,16 +28,18 @@ export default class Editor extends React.PureComponent {
       editorDidMount,
     } = this;
     return (
-      <MonacoEditor
-        requireConfig={Editor.requireConfig}
-        options={Editor.options}
-        width="auto"
-        height="auto"
-        language="yaml"
-        value={value}
-        onChange={onChange}
-        editorDidMount={editorDidMount}
-      />
+      <div className="react-monaco-editor">
+        <MonacoEditor
+          requireConfig={Editor.requireConfig}
+          options={Editor.options}
+          width="auto"
+          height="auto"
+          language="yaml"
+          value={value}
+          onChange={onChange}
+          editorDidMount={editorDidMount}
+        />
+      </div>
     );
   }
 }

@@ -58,12 +58,16 @@
     }
 
     & > .ant-tabs-content {
+      display: none;
+      /*
+
       height: 2em;
       background-color: white;
 
       & > .ant-tabs-tabpane {
         display: none;
       }
+      */
     }
   }
 
@@ -73,8 +77,27 @@
 
   display: flex;
   flex-direction: column;
-  & > .react-monaco-editor-container {
+  & > .catalog__editor {
     flex-grow: 2;
+
+
+    // paddings around editor
+    // ------------------------
+
+    background-color: white;
+    padding: 1em 1em 1em .75em;
+
+    display: flex;
+    & > .react-monaco-editor {
+      flex: auto;
+      min-width: 0;
+
+      display: flex;
+      & > .react-monaco-editor-container {
+        flex: auto;
+        min-width: 0;
+      }
+    }
   }
 
 
@@ -84,14 +107,14 @@
   $animation-duration: .3s;
 
   & > .ant-tabs,
-  & > .react-monaco-editor-container {
+  & > .catalog__editor {
     visibility: visible;
     opacity: 1;
     transition: visibility 0s linear 0s, opacity ease $animation-duration;
   }
 
   &.hide-tabs > .ant-tabs,
-  &.hide-editor > .react-monaco-editor-container {
+  &.hide-editor > .catalog__editor {
     visibility: hidden;
     opacity: 0;
     transition: visibility 0s linear $animation-duration, opacity ease $animation-duration;
