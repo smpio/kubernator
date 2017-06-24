@@ -26,11 +26,7 @@ import classnames from 'classnames';
 class Content extends React.Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      id: null,
-      /* id: yaml */
-    };
+    this.state = { /* id: yaml */ };
 
     this.tabsOnChange = this.tabsOnChange.bind(this);
     this.tabsOnEdit = this.tabsOnEdit.bind(this);
@@ -51,47 +47,33 @@ class Content extends React.Component {
     this.props.tabOpen();
   }
 
-  componentWillReceiveProps(props) {
-    const { tabs } = props;
-    const {
-      props: {
-        tabs: tabsPrevious,
-      },
-      state: {
-        id,
-      },
-    } = this;
-
-    if (tabs !== tabsPrevious || !tabs.includes(id)) {
-      this.setState({ id: tabs[tabs.length - 1] });
-    }
-  }
-
   tabsOnChange(id) {
-    this.setState({ id });
+    this.props.tabOpen(id);
   }
 
   tabsOnEdit(id, action) {
     switch (action) {
       case 'add':
         const {
-          state: {
-            id: tabId,
-            [tabId]: tabYaml,
-          },
           props: {
-            tabOpen,
+            tabs: {
+              id: tabId,
+            },
             items: {
               [tabId]: {
                 [YAML]: itemYaml,
               } = {},
             },
+            tabOpen,
+          },
+          state: {
+            [tabId]: tabYaml,
           },
         } = this;
         return tabOpen(
-          undefined,
+          null,
           tabYaml || itemYaml,
-          ({ id, yaml }) => this.setState({ id, [id]: yaml }),
+          ({ id, yaml }) => this.setState({ [id]: yaml }),
         );
       case 'remove':
         const {
@@ -106,7 +88,7 @@ class Content extends React.Component {
   }
 
   onEdit(yaml) {
-    const { id } = this.state;
+    const { tabs: { id }} = this.props;
     this.setState({ [id]: yaml });
   }
 
@@ -114,28 +96,21 @@ class Content extends React.Component {
     const {
       props: {
         items,
+        tabs: {
+          id,
+        },
         itemPost,
         itemPut,
       },
       state: {
-        id,
         [id]: yaml,
       },
     } = this;
-    return items[id]
-      ? itemPut(id, yaml)
-      : itemPost(id, yaml);
+    return items[id] ? itemPut(id, yaml) : itemPost(id, yaml);
   }
 
   onDelete() {
-    const {
-      props: {
-        itemDelete,
-      },
-      state: {
-        id,
-      },
-    } = this;
+    const { tabs: { id }, itemDelete } = this.props;
     return itemDelete(id);
   }
 
@@ -148,10 +123,12 @@ class Content extends React.Component {
       props: {
         loading,
         items,
-        tabs,
+        tabs: {
+          id,
+          ids: tabIds,
+        },
       },
       state: {
-        id,
         [id]: yamlEdited,
       },
       tabsOnChange,
@@ -170,9 +147,9 @@ class Content extends React.Component {
     const yaml = yamlEdited || yamlOriginal;
 
     const hideTabs = loading;
-    const hideEditor = !tabs.length;
+    const hideEditor = !tabIds.length;
 
-    const showCloseAll = !!tabs.length;
+    const showCloseAll = !!tabIds.length;
 
     return (
       <div
@@ -231,15 +208,15 @@ class Content extends React.Component {
             </span>
           }>
           {
-            tabs.map(itemUid => {
+            tabIds.map(itemId => {
               const {
                 metadata: {
-                  name = itemUid,
+                  name = itemId,
                 } = {},
-              } = items[itemUid] || {};
+              } = items[itemId] || {};
               return (
                 <Tabs.TabPane
-                  key={itemUid}
+                  key={itemId}
                   tab={name}
                   closable
                 />
@@ -259,7 +236,7 @@ class Content extends React.Component {
 Content.propTypes = {
   [LOADING]: PropTypes.string,
   items: PropTypes.object,
-  tabs: PropTypes.array,
+  tabs: PropTypes.object,
   itemGet: PropTypes.func,
   itemPost: PropTypes.func,
   itemPut: PropTypes.func,

@@ -40,14 +40,13 @@ export const tabCloseAll = () => ({
 // yamls are in the local component's state
 // for performance reasons
 
-function stateTabsGet(state) {
-  return state[PREFIX].tabs;
-}
-
 export const tabsState = {
-  tabs: [
-    /* itemId */
-  ],
+  tabs: {
+    id: null,
+    ids: [
+      /* itemId */
+    ],
+  },
 };
 
 
@@ -81,23 +80,11 @@ function* sagaTabOpen() {
       // real item
       else {
 
-        // assert is not already opened
-        const tabs = yield select(stateTabsGet);
-        if (tabs.includes(id)) id = null;
-        else {
+        // find item
+        const item = yield select(stateItemGet, id);
 
-          // find item
-          const item = yield select(stateItemGet, id);
-          if (!item) {
-            throw new Error({
-              reason: 'tabOpen',
-              message: 'Desired item wasn\'t found in the store.',
-            });
-          }
-
-          // request yaml only if needed
-          if (!item[YAML]) yield put(itemGet(id));
-        }
+        // request yaml only if needed
+        if (item && !item[YAML]) yield put(itemGet(id));
       }
 
       // callback
@@ -139,24 +126,42 @@ export const tabsReducer = {
 
   [TAB_OPEN__S]: (state, action) => {
     const { id } = action.payload;
-    if (!id) return state;
-    else {
-      return update(state, {
-        tabs: { $push: [id] },
-      });
-    }
+    return update(state, {
+      tabs: {
+        id: { $set: id },
+        ids: { $pushuniq: [id] },
+      },
+    });
   },
 
   [TAB_CLOSE]: (state, action) => {
-    const { id } = action.payload;
+    const { id: idClose } = action.payload;
+    const { id: idActive, ids } = state.tabs;
+
+    // calc next active tab
+    let idNext;
+    if (idClose !== idActive) idNext = idActive;
+    else {
+      const indexClose = ids.indexOf(idClose);
+      const indexNext = indexClose !== 0 ? indexClose - 1 : indexClose + 1;
+      idNext = ids[indexNext];
+    }
+
+    //
     return update(state, {
-      tabs: { $pop: [id] },
+      tabs: {
+        id: { $set: idNext },
+        ids: { $pop: [idClose] },
+      },
     });
   },
 
   [TAB_CLOSEALL]: (state, action) => {
     return update(state, {
-      tabs: { $set: [] },
+      tabs: {
+        id: { $set: undefined },
+        ids: { $set: [] },
+      },
     });
   },
 };

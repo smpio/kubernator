@@ -26,7 +26,23 @@ update.extend('$del', function(keys, object) {
 });
 
 /**
- * Remove values form array.
+ * Add values to unique array.
+ * @param {Array|String} vals
+ * @param {Array} array
+ * @returns {Array} result
+ */
+update.extend('$pushuniq', function(vals, array) {
+  if (!Array.isArray(vals)) vals = [vals];
+  if (!array || !Array.isArray(array)) return array;
+  else {
+    const res = [...array];
+    vals.forEach(val => !res.includes(val) && res.push(val));
+    return res;
+  }
+});
+
+/**
+ * Remove values from array.
  * @param {Array|String} vals
  * @param {Array} array
  * @returns {Array} result
