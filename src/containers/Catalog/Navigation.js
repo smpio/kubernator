@@ -36,8 +36,9 @@ class Navigation extends React.Component {
     this.renderNode = this.renderNode.bind(this);
   }
 
-  componentWillMount() {
-    this.props.treeGet();
+  componentDidMount() {
+    const { tree, treeGet } = this.props;
+    if (!tree.length) treeGet();
   }
 
   onSelect(selectedKeys, event) {

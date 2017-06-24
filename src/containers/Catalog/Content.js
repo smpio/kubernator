@@ -44,7 +44,8 @@ class Content extends React.Component {
   }
 
   componentDidMount() {
-    this.props.tabOpen();
+    const { tabs: { ids }, tabOpen } = this.props;
+    if (!ids.length) tabOpen();
   }
 
   tabsOnChange(id) {
