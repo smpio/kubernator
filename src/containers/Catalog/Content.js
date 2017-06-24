@@ -47,6 +47,10 @@ class Content extends React.Component {
     return !props.loading;
   }
 
+  componentDidMount() {
+    this.props.tabOpen();
+  }
+
   componentWillReceiveProps(props) {
     const { tabs } = props;
     const {
