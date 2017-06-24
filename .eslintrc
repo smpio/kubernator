@@ -3,6 +3,7 @@
     "fbjs",
   ],
   "rules": {
-    "curly": ["error", "multi-line"]
+    "curly": ["error", "multi-line"],
+    "brace-style": ["error", "stroustrup", { "allowSingleLine": true }]
   }
 }

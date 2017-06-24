@@ -165,7 +165,9 @@ function* sagaItemGet() {
           meta: { id },
         });
       }
-    } catch (error) {
+    }
+
+    catch (error) {
       yield put({
         type: ITEM_GET__F,
         payload: error,
@@ -215,10 +217,9 @@ function* sagaItemPost() {
       // update tab
       yield put(tabClose(id));
       yield put(tabOpen(item[ID]));
+    }
 
-    } catch (error) {
-
-      //
+    catch (error) {
       yield put({
         type: ITEM_POST__F,
         payload: error,
@@ -244,10 +245,9 @@ function* sagaItemPut() {
         payload: { item },
         meta: { id, yaml },
       });
+    }
 
-    } catch (error) {
-
-      //
+    catch (error) {
       yield put({
         type: ITEM_PUT__F,
         payload: error,
@@ -278,10 +278,9 @@ function* sagaItemDelete() {
 
       //
       yield put(tabClose(itemId));
+    }
 
-    } catch (error) {
-
-      //
+    catch (error) {
       yield put({
         type: ITEM_DELETE__F,
         payload: error,

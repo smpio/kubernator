@@ -129,8 +129,9 @@ function* sagaTreeGet() {
 
       // resolve
       if (resolve) yield call(resolve);
+    }
 
-    } catch (error) {
+    catch (error) {
 
       // error
       yield put({
@@ -166,8 +167,9 @@ function* sagaRootGroupsGet() {
 
       // resolve promise
       if (resolve) yield call(resolve);
+    }
 
-    } catch (error) {
+    catch (error) {
 
       //
       yield put({
@@ -197,8 +199,9 @@ function* sagaGroupResourcesGet() {
 
       // resolve promise
       if (resolve) yield call(resolve);
+    }
 
-    } catch (error) {
+    catch (error) {
 
       //
       yield put({
@@ -228,8 +231,9 @@ function* sagaResourceItemsGet() {
 
       // resolve promise
       if (resolve) yield call(resolve);
+    }
 
-    } catch (error) {
+    catch (error) {
 
       //
       yield put({

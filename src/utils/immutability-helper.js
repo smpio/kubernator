@@ -13,9 +13,8 @@ import update from 'immutability-helper';
  */
 update.extend('$del', function(keys, object) {
   if (!Array.isArray(keys)) keys = [keys];
-  if (object === null || typeof object !== 'object') {
-    return object;
-  } else {
+  if (object === null || typeof object !== 'object') return object;
+  else {
     return keys.reduce(
       (result, key) => {
         delete result[key];

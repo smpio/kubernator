@@ -76,9 +76,10 @@ function* sagaTabOpen() {
           const item = jsYaml.safeLoad(yaml);
           yaml = jsYaml.safeDump(item, { noRefs: true });
         }
+      }
 
       // real item
-      } else {
+      else {
 
         // assert is not already opened
         const tabs = yield select(stateTabsGet);
@@ -107,8 +108,9 @@ function* sagaTabOpen() {
         type: TAB_OPEN__S,
         payload: { id },
       });
+    }
 
-    } catch (error) {
+    catch (error) {
 
       // callback
       if (reject) yield call(reject);
