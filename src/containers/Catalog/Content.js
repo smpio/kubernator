@@ -28,8 +28,8 @@ class Content extends React.Component {
     super(props);
 
     this.state = {
-      uid: null,
-      /* uid: yaml */
+      id: null,
+      /* id: yaml */
     };
 
     this.tabsOnChange = this.tabsOnChange.bind(this);
@@ -54,31 +54,56 @@ class Content extends React.Component {
         tabs: tabsPrevious,
       },
       state: {
-        uid,
+        id,
       },
     } = this;
 
-    if (tabs !== tabsPrevious || !tabs.includes(uid)) {
-      this.setState({ uid: tabs[tabs.length - 1] });
+    if (tabs !== tabsPrevious || !tabs.includes(id)) {
+      this.setState({ id: tabs[tabs.length - 1] });
     }
   }
 
-  tabsOnChange(uid) {
-    this.setState({ uid });
+  tabsOnChange(id) {
+    this.setState({ id });
   }
 
-  tabsOnEdit(uid, action) {
-    const { tabOpen, tabClose } = this.props;
+  tabsOnEdit(id, action) {
     switch (action) {
-      case 'add': return tabOpen();
-      case 'remove': return tabClose(uid);
-      default: return false;
+      case 'add':
+        const {
+          state: {
+            id: tabId,
+            [tabId]: tabYaml,
+          },
+          props: {
+            tabOpen,
+            items: {
+              [tabId]: {
+                [YAML]: itemYaml,
+              } = {},
+            },
+          },
+        } = this;
+        return tabOpen(
+          undefined,
+          tabYaml || itemYaml,
+          ({ id, yaml }) => this.setState({ id, [id]: yaml }),
+        );
+      case 'remove':
+        const {
+          props: {
+            tabClose,
+          },
+        } = this;
+        return tabClose(id);
+      default:
+        return false;
     }
   }
 
   onEdit(yaml) {
-    const { uid } = this.state;
-    this.setState({ [uid]: yaml });
+    const { id } = this.state;
+    this.setState({ [id]: yaml });
   }
 
   onSave() {
@@ -89,13 +114,13 @@ class Content extends React.Component {
         itemPut,
       },
       state: {
-        uid,
-        [uid]: yaml,
+        id,
+        [id]: yaml,
       },
     } = this;
-    return items[uid]
-      ? itemPut(uid, yaml)
-      : itemPost(uid, yaml);
+    return items[id]
+      ? itemPut(id, yaml)
+      : itemPost(id, yaml);
   }
 
   onDelete() {
@@ -104,10 +129,10 @@ class Content extends React.Component {
         itemDelete,
       },
       state: {
-        uid,
+        id,
       },
     } = this;
-    return itemDelete(uid);
+    return itemDelete(id);
   }
 
   onCloseAll() {
@@ -122,8 +147,8 @@ class Content extends React.Component {
         tabs,
       },
       state: {
-        uid,
-        [uid]: yamlEdited,
+        id,
+        [id]: yamlEdited,
       },
       tabsOnChange,
       tabsOnEdit,
@@ -134,7 +159,7 @@ class Content extends React.Component {
       onDiscard,
     } = this;
 
-    const item = items[uid];
+    const item = items[id];
     const yamlOriginal = item && item[YAML];
 
     const dirty = yamlEdited && yamlEdited !== yamlOriginal;
@@ -156,7 +181,7 @@ class Content extends React.Component {
         )}>
         <Tabs
           type="editable-card"
-          activeKey={uid}
+          activeKey={id}
           onChange={tabsOnChange}
           onEdit={tabsOnEdit}
           tabBarExtraContent={
