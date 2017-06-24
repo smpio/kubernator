@@ -4,7 +4,6 @@ import { Helmet } from 'react-helmet';
 
 import {
   Catalog,
-  Legacy,
 } from '../';
 
 import {
@@ -28,14 +27,10 @@ export default props =>
         <Menu.Item key="catalog">
           <Link to="/catalog">Catalog</Link>
         </Menu.Item>
-        <Menu.Item key="legacy">
-          <Link to="/legacy">Legacy</Link>
-        </Menu.Item>
       </Menu>
     </Layout.Header>
     <Layout.Content>
       <Route exact path="/catalog" component={Catalog} />
-      <Route exact path="/legacy" component={Legacy} />
       <Redirect from="*" to="/catalog" />
     </Layout.Content>
   </Layout>;

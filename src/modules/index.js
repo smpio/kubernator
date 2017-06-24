@@ -7,7 +7,6 @@ import {
   reducer as catalogReducer,
   saga as catalogSaga,
 } from './catalog';
-import legacy from './legacy';
 
 export function * sagas() {
   yield all([
@@ -18,5 +17,4 @@ export function * sagas() {
 export const reducers = combineReducers({
   router: routerReducer,
   [catalogPrefix]: catalogReducer,
-  editor: legacy,
 });
