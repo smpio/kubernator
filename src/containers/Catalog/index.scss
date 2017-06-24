@@ -77,9 +77,8 @@
 
   display: flex;
   flex-direction: column;
-  & > .catalog__editor {
+  & > .react-monaco-editor {
     flex-grow: 2;
-
 
     // paddings around editor
     // ------------------------
@@ -88,15 +87,9 @@
     padding: 1em 1em 1em .75em;
 
     display: flex;
-    & > .react-monaco-editor {
+    & > .react-monaco-editor-container {
       flex: auto;
       min-width: 0;
-
-      display: flex;
-      & > .react-monaco-editor-container {
-        flex: auto;
-        min-width: 0;
-      }
     }
   }
 
@@ -107,14 +100,14 @@
   $animation-duration: .3s;
 
   & > .ant-tabs,
-  & > .catalog__editor {
+  & > .react-monaco-editor {
     visibility: visible;
     opacity: 1;
     transition: visibility 0s linear 0s, opacity ease $animation-duration;
   }
 
   &.hide-tabs > .ant-tabs,
-  &.hide-editor > .catalog__editor {
+  &.hide-editor > .react-monaco-editor {
     visibility: hidden;
     opacity: 0;
     transition: visibility 0s linear $animation-duration, opacity ease $animation-duration;

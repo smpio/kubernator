@@ -224,12 +224,10 @@ class Content extends React.Component {
             })
           }
         </Tabs>
-        <div className="catalog__editor">
-          <Editor
-            value={yaml}
-            onChange={onEdit}
-          />
-        </div>
+        <Editor
+          value={yaml}
+          onChange={onEdit}
+        />
       </div>
     );
   }
