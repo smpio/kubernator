@@ -3,15 +3,15 @@
 
   .ant-layout-header {
     padding: 0 2em;
-    height: 4em;
-    line-height: 4;
+    height: 3em;
+    line-height: 3;
+    overflow: hidden;
   }
 
   .ant-menu {
-    line-height: 4;
+    line-height: 3.1;
     border: none;
     background-color: transparent;
-    font-size: 1.075em;
   }
 
   .ant-layout-content {
@@ -23,6 +23,6 @@
 .layout__logo {
   display: block;
   float: left;
-  margin: 1em 1.5em 1em 0;
+  margin: .5em 1.5em .5em 0;
   height: 2em;
 }
