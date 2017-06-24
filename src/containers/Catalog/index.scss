@@ -1,8 +1,17 @@
 .catalog {
   display: flex;
+  width: 100%;
+  overflow-y: hidden;
+}
+
+.catalog__navigation,
+.catalog__content {
+  background-color: white;
 }
 
 .catalog__navigation {
+  padding: 0 .75em 0 .5em;
+  overflow-y: auto;
 
   .catalog__spinner {
     text-align: center;
@@ -21,7 +30,9 @@
 .catalog__content {
   min-width: 0;
   flex-grow: 2;
+
   margin-left: 1em;
+  padding: 1em;
 
 
   // tabs
@@ -30,7 +41,7 @@
   .catalog__button {
     margin-left: .25em;
   }
-
+  
 
   // full-height editor
   // --------------------

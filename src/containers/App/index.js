@@ -34,10 +34,8 @@ export default props =>
       </Menu>
     </Layout.Header>
     <Layout.Content>
-      <div className="layout__content">
-        <Route exact path="/catalog" component={Catalog} />
-        <Route exact path="/legacy" component={Legacy} />
-        <Redirect from="*" to="/catalog" />
-      </div>
+      <Route exact path="/catalog" component={Catalog} />
+      <Route exact path="/legacy" component={Legacy} />
+      <Redirect from="*" to="/catalog" />
     </Layout.Content>
   </Layout>;
