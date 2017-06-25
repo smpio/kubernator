@@ -3,6 +3,11 @@ import { all, call, put, take, takeEvery } from 'redux-saga/effects';
 import update from 'immutability-helper';
 
 import {
+  toKeysObject,
+  toKeysArray,
+} from '../../utils';
+
+import {
   PREFIX,
   ID,
   URL,
@@ -11,8 +16,6 @@ import {
   RESOURCES,
   ITEMS,
   LOADING,
-  toIdsObject,
-  toIdsArray,
   URL_PART_GROUP,
   URL_PART_RESOURCE,
 } from './shared';
@@ -337,7 +340,7 @@ export const treeReducer = {
     groups.forEach(group => decorate(group));
     
     return update(state, {
-      groups: { $set: toIdsObject(groups) },
+      groups: { $set: toKeysObject(groups, ID) },
     });
   },
 
@@ -351,10 +354,10 @@ export const treeReducer = {
     return update(state, {
       groups: {
         [group[ID]]: {
-          [RESOURCES]: { $set: toIdsArray(resources).sort() },
+          [RESOURCES]: { $set: toKeysArray(resources, ID).sort() },
         },
       },
-      resources: { $merge: toIdsObject(resources) },
+      resources: { $merge: toKeysObject(resources, ID) },
     });
   },
 
@@ -368,10 +371,10 @@ export const treeReducer = {
     return update(state, {
       resources: {
         [resource[ID]]: {
-          [ITEMS]: { $set: toIdsArray(items).sort() },
+          [ITEMS]: { $set: toKeysArray(items, ID).sort() },
         },
       },
-      items: { $merge: toIdsObject(items) },
+      items: { $merge: toKeysObject(items, ID) },
     });
   },
 };
