@@ -2,10 +2,6 @@ import { all, call, put, takeEvery } from 'redux-saga/effects';
 import update from 'immutability-helper';
 
 import {
-  toKeysObject,
-} from '../../utils';
-
-import {
   PREFIX,
   ID,
   RESOURCE,
@@ -41,7 +37,7 @@ async function apiGet(url) {
 // -------
 
 export const itemsState = {
-  items: {},
+  items: [],
 };
 
 
@@ -113,7 +109,7 @@ export const itemsReducer = {
   [ITEMS_GET__S]: (state, action) => {
     const { items } = action.payload;
     return update(state, {
-      items: { $set: toKeysObject(items, ID) },
+      items: { $set: items },
     });
   },
 };
