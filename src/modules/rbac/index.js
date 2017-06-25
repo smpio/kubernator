@@ -2,25 +2,25 @@ import { all } from 'redux-saga/effects';
 import { createReducer } from '../../utils';
 
 import {
-  mainSaga,
-  mainState,
-  mainReducer,
-} from './main';
+  itemsSaga,
+  itemsState,
+  itemsReducer,
+} from './items';
 
 export * from './shared';
-export * from './main';
+export * from './items';
 
 export function* rbacSaga() {
   yield all([
-    mainSaga(),
+    itemsSaga(),
   ]);
 }
 
 export const rbacReducer = createReducer(
   {
-    ...mainReducer,
+    ...itemsReducer,
   },
   {
-    ...mainState,
+    ...itemsState,
   },
 );

@@ -9,26 +9,22 @@ import {
   PREFIX,
   ID,
   RESOURCE,
-  RESOURCE_ROLE,
-  RESOURCE_CLUSTER_ROLE,
-  RESOURCE_ROLE_BINDING,
-  RESOURCE_CLUSTER_ROLE_BINDING,
 } from './shared';
 
 
 // codes
 // -------
 
-export const RBAC_GET = `${PREFIX}/RBAC_GET`;
-export const RBAC_GET__S = `${PREFIX}/RBAC_GET/S`;
-export const RBAC_GET__F = `${PREFIX}/RBAC_GET/F`;
+export const ITEMS_GET = `${PREFIX}/ITEMS_GET`;
+export const ITEMS_GET__S = `${PREFIX}/ITEMS_GET/S`;
+export const ITEMS_GET__F = `${PREFIX}/ITEMS_GET/F`;
 
 
 // creators
 // ----------
 
-export const rbacGet = () => ({
-  type: RBAC_GET,
+export const itemsGet = () => ({
+  type: ITEMS_GET,
 });
 
 
@@ -44,17 +40,16 @@ async function apiGet(url) {
 // state
 // -------
 
-export const mainState = {
-  roles: {},
-  bindings: {},
+export const itemsState = {
+  items: {},
 };
 
 
 // saga
 // ------
 
-function* sagaRbacGet() {
-  yield takeEvery(RBAC_GET, function* (action) {
+function* sagaItemsGet() {
+  yield takeEvery(ITEMS_GET, function* (action) {
     try {
 
       // get api groups
@@ -87,25 +82,15 @@ function* sagaRbacGet() {
         [],
       );
 
-      // build result
-      const roles = toKeysObject(items.filter(item =>
-        item[RESOURCE] === RESOURCE_ROLE ||
-        item[RESOURCE] === RESOURCE_CLUSTER_ROLE
-      ), ID);
-      const bindings = toKeysObject(items.filter(item =>
-        item[RESOURCE] === RESOURCE_ROLE_BINDING ||
-        item[RESOURCE] === RESOURCE_CLUSTER_ROLE_BINDING
-      ), ID);
-
       //
       yield put({
-        type: RBAC_GET__S,
-        payload: { roles, bindings },
+        type: ITEMS_GET__S,
+        payload: { items },
       });
     }
     catch (error) {
       yield put({
-        type: RBAC_GET__F,
+        type: ITEMS_GET__F,
         payload: error,
         error: true,
       });
@@ -113,9 +98,9 @@ function* sagaRbacGet() {
   });
 }
 
-export function* mainSaga() {
+export function* itemsSaga() {
   yield all([
-    sagaRbacGet(),
+    sagaItemsGet(),
   ]);
 }
 
@@ -123,13 +108,12 @@ export function* mainSaga() {
 // reducer
 // ---------
 
-export const mainReducer = {
+export const itemsReducer = {
 
-  [RBAC_GET__S]: (state, action) => {
-    const { roles, bindings } = action.payload;
+  [ITEMS_GET__S]: (state, action) => {
+    const { items } = action.payload;
     return update(state, {
-      roles: { $set: roles },
-      bindings: { $set: bindings },
+      items: { $set: toKeysObject(items, ID) },
     });
   },
 };
