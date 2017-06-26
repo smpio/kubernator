@@ -106,7 +106,7 @@ class GraphData {
 }
 
 const selectItems = state => state.items;
-const selectGraph = createSelector(
+const selectGraphData = createSelector(
   selectItems,
   items => {
     const gd = new GraphData();
@@ -223,7 +223,7 @@ Graph.propTypes = {
 };
 
 export default connect(
-  state => selectGraph(state[PREFIX]),
+  state => selectGraphData(state[PREFIX]),
   dispatch => bindActionCreators({
     itemsGet,
   }, dispatch),
