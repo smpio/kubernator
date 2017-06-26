@@ -38,54 +38,110 @@ class Graph extends React.Component {
 // selectors
 // -----------
 
-const getId = (function() {
-  let id = 0;
-  return () => ++id;
-})();
+class GraphData {
+  constructor() {
+
+    // sequential ids
+    this.nextId = 0;
+
+    // data
+    this.nodes = {};
+    this.links = {};
+
+    // shared nodes
+    // nodeType -> nodeName -> nodeId
+    this.nodeIdsByType = {
+      Role: {},
+      User: {},
+      Group: {},
+      ServiceAccount: {},
+    };
+
+    //
+    this.getNextId = this.getNextId.bind(this);
+  }
+
+  getNextId() {
+    return ++this.nextId;
+  }
+
+  createNodeShared({ type, name }) {
+    const { nodes, nodeIdsByType, getNextId } = this;
+
+    // get nodeIds
+    const ids = nodeIdsByType[type];
+
+    // get nodeId
+    if (!ids[name]) ids[name] = getNextId();
+    const id = ids[name];
+
+    // create node if not exists
+    if (!nodes[id]) nodes[id] = { id, name };
+
+    // return nodeId
+    return id;
+  }
+
+  createNode({ name }) {
+    const { nodes, getNextId } = this;
+    const id = getNextId();
+    nodes[id] = { id, name };
+    return id;
+  }
+
+  createLink({ source, target }) {
+    const { links, getNextId } = this;
+    const id = getNextId();
+    links[id] = { id, source, target };
+    return id;
+  }
+
+  getData() {
+    const { nodes, links } = this;
+    return {
+      nodes: Object.keys(nodes).map(id => nodes[id]),
+      links: Object.keys(links).map(id => links[id]),
+    };
+  }
+}
 
 const selectItems = state => state.items;
 const selectGraph = createSelector(
   selectItems,
   items => {
-    const result = { nodes: {}, links: {} };
-    const { nodes, links } = result;
+    const gd = new GraphData();
     items.forEach(item => {
       const {
         metadata: {
-          namespace,
+          namespace = '[nonamespace]',
           name,
         },
         [RESOURCE]: resource,
       } = item;
-
-      // root
-      const rootId = getId();
-      nodes[rootId] = {
-        id: rootId,
-        name: `${namespace}:${name}`,
-      };
-
-      // children
       switch (resource) {
 
         case RESOURCE_ROLE:
         case RESOURCE_CLUSTER_ROLE:
+
+          // role
+          const roleId = gd.createNodeShared({
+            type: 'Role',
+            name: `${namespace}:${name}`,
+          });
+
+          // children
           item.rules.forEach(rule => {
 
             // rule
-            const ruleId = getId();
-            nodes[ruleId] = {
-              id: ruleId,
+            const ruleId = gd.createNode({
               name: '',
-            };
+            });
 
             // link
-            const linkId = getId();
-            links[linkId] = {
-              id: linkId,
-              source: rootId,
+            gd.createLink({
+              source: roleId,
               target: ruleId,
-            };
+            });
 
             // children
             // apiGroups, resources, verbs, etc.
@@ -93,66 +149,66 @@ const selectGraph = createSelector(
               const values = rule[key];
 
               // key
-              const keyId = getId();
-              nodes[keyId] = {
-                id: keyId,
+              const keyId = gd.createNode({
                 name: key,
-              };
+              });
 
               // link
-              const linkId = getId();
-              links[linkId] = {
-                id: linkId,
+              gd.createLink({
                 source: ruleId,
                 target: keyId,
-              };
+              });
 
               // children
               values.forEach(value => {
 
                 // value
-                const valueId = getId();
-                nodes[valueId] = {
-                  id: valueId,
+                const valueId = gd.createNode({
                   name: value,
-                };
+                });
 
                 // link
-                const linkId = getId();
-                links[linkId] = {
-                  id: linkId,
+                gd.createLink({
                   source: keyId,
                   target: valueId,
-                };
+                });
               });
             });
           });
+
+          //
           break;
 
         case RESOURCE_ROLE_BINDING:
         case RESOURCE_CLUSTER_ROLE_BINDING:
+
+          // rolebinding
+          const rolebindingId = gd.createNode({
+            name: `${namespace}:${name}`,
+          });
+
+          // children
           item.subjects.forEach(subject => {
             const { kind, name } = subject;
 
             // subject
-            const subjectId = getId();
-            nodes[subjectId] = {
-              id: subjectId,
+            const subjectId = gd.createNodeShared({
+              type: kind,
               name: `${kind}:${name}`,
-            };
+            });
 
             // link
-            const linkId = getId();
-            links[linkId] = {
-              id: linkId,
-              source: rootId,
+            gd.createLink({
+              source: rolebindingId,
               target: subjectId,
-            };
+            });
           });
+
+          //
           break;
       }
     });
-    return result;
+    return gd.getData();
   },
 );
 
@@ -161,8 +217,8 @@ const selectGraph = createSelector(
 // ---------
 
 Graph.propTypes = {
-  nodes: PropTypes.object,
-  links: PropTypes.object,
+  nodes: PropTypes.array,
+  links: PropTypes.array,
   itemsGet: PropTypes.func,
 };
 
