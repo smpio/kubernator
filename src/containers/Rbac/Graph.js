@@ -97,10 +97,33 @@ class GraphData {
   }
 
   getData() {
-    const { nodes, links } = this;
+    const {
+      nodes: nodesObj,
+      links: linksObj,
+    } = this;
+
+    // id to index mapping
+    const nodeIdToIndex = {};
+
+    // nodes
+    const nodesArr = Object.keys(nodesObj).map((id, index) => {
+      nodeIdToIndex[id] = index;
+      return nodesObj[id];
+    });
+
+    // links
+    const linksArr = Object.keys(linksObj).map(id => {
+      const link = linksObj[id];
+      return {
+        ...link,
+        source: nodeIdToIndex[link.source],
+        target: nodeIdToIndex[link.target],
+      };
+    });
+
     return {
-      nodes: Object.keys(nodes).map(id => nodes[id]),
-      links: Object.keys(links).map(id => links[id]),
+      nodes: nodesArr,
+      links: linksArr,
     };
   }
 }
