@@ -9,6 +9,7 @@ export const RESOURCE = Symbol('RESOURCE');
 export const RESOURCES = Symbol('RESOURCES');
 export const ITEMS = Symbol('ITEMS');
 
+export const READONLY = Symbol('READONLY');
 export const LOADING = Symbol('LOADING');
 
 export const URL_PART_GROUP = Symbol('URL_PART_GROUP');

@@ -3,7 +3,7 @@ import update from 'immutability-helper';
 import jsYaml from 'js-yaml';
 
 import { PREFIX, YAML } from './shared';
-import { itemGet, stateItemGet } from './item';
+import { itemGet, stateItemGet, itemRemoveReadonlyProperties } from './item';
 
 
 // codes
@@ -40,6 +40,10 @@ export const tabCloseAll = () => ({
 // yamls are in the local component's state
 // for performance reasons
 
+export function stateModelsGet(state) {
+  return state[PREFIX].models;
+}
+
 export const tabsState = {
   tabs: {
     id: null,
@@ -73,6 +77,8 @@ function* sagaTabOpen() {
         // analyze and clone yaml
         if (yaml) {
           const item = jsYaml.safeLoad(yaml);
+          const models = yield select(stateModelsGet);
+          itemRemoveReadonlyProperties(models, item, item.kind);
           yaml = jsYaml.safeDump(item, { noRefs: true });
         }
       }

@@ -10,6 +10,7 @@ import {
   RESOURCE,
   RESOURCES,
   ITEMS,
+  READONLY,
   LOADING,
   toIdsObject,
   toIdsArray,
@@ -156,6 +157,10 @@ function* sagaRootGroupsGet() {
       // as a fake group
       groups.push({
         name: '[nogroup]',
+        preferredVersion: {
+          groupVersion: '/api/v1',
+          version: 'v1',
+        },
         [URL]: '/api/v1',
       });
 
@@ -189,11 +194,41 @@ function* sagaGroupResourcesGet() {
     const { group, resolve, reject } = action.payload;
     try {
       const { resources } = yield call(apiGet, group[URL]);
+      let { models } = yield call(apiGet, `/swaggerapi/${group[URL]}`);
+
+      // process models
+      const { version } = group.preferredVersion;
+      models = Object.keys(models)
+        .filter(key => key.startsWith(version))
+        .map(key => {
+          const [, kind] = key.split('.');
+          const model = models[key];
+
+          // set id
+          delete model.id;
+          model[ID] = kind;
+
+          // rename refs
+          const { properties } = model;
+          Object.keys(properties).forEach(id => {
+            const property = properties[id];
+            const { $ref, description } = property;
+
+            // rename ref
+            if ($ref) property.$ref = $ref.split('.')[1];
+
+            // set readonly flag
+            property[READONLY] = description && description.includes('Read-only.');
+          });
+
+          //
+          return model;
+        });
 
       //
       yield put({
         type: GROUP_RESOURCES_GET__S,
-        payload: { resources },
+        payload: { resources, models },
         meta: { group },
       });
 
@@ -264,6 +299,7 @@ export function* treeSaga() {
 export const treeState = {
   groups: {},
   resources: {},
+  models: {},
   items: {},
 };
 
@@ -342,7 +378,7 @@ export const treeReducer = {
   },
 
   [GROUP_RESOURCES_GET__S]: (state, action) => {
-    const { resources } = action.payload;
+    const { resources, models } = action.payload;
     const { group } = action.meta;
 
     const decorate = decorateResource(group);
@@ -355,6 +391,7 @@ export const treeReducer = {
         },
       },
       resources: { $merge: toIdsObject(resources) },
+      models: { $merge: toIdsObject(models) },
     });
   },
 

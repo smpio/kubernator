@@ -4,6 +4,7 @@ import jsYaml from 'js-yaml';
 
 import {
   PREFIX,
+  READONLY,
   RESOURCE,
   ITEMS,
   YAML,
@@ -362,3 +363,19 @@ export const itemReducer = {
     });
   },
 };
+
+
+// helpers
+// ---------
+
+export function itemRemoveReadonlyProperties(models, item, modelId) {
+  const model = models[modelId];
+  if (model) {
+    const { properties } = model;
+    Object.keys(properties).forEach(key => {
+      const { [READONLY]: readonly, $ref } = properties[key];
+      if (readonly) delete item[key];
+      else if ($ref) itemRemoveReadonlyProperties(models, item[key], $ref);
+    });
+  }
+}
