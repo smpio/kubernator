@@ -24,7 +24,7 @@ export * from './tree';
 export * from './item';
 export * from './tabs';
 
-export function* saga() {
+export function* catalogSaga() {
   yield all([
     treeSaga(),
     itemSaga(),
@@ -32,7 +32,7 @@ export function* saga() {
   ]);
 }
 
-export const reducer = createReducer(
+export const catalogReducer = createReducer(
   {
     ...treeReducer,
     ...itemReducer,

@@ -4,17 +4,25 @@ import { all } from 'redux-saga/effects';
 
 import {
   PREFIX as catalogPrefix,
-  reducer as catalogReducer,
-  saga as catalogSaga,
+  catalogReducer,
+  catalogSaga,
 } from './catalog';
+
+import {
+  PREFIX as rbacPrefix,
+  rbacReducer,
+  rbacSaga,
+} from './rbac';
 
 export function * sagas() {
   yield all([
     catalogSaga(),
+    rbacSaga(),
   ]);
 }
 
 export const reducers = combineReducers({
   router: routerReducer,
   [catalogPrefix]: catalogReducer,
+  [rbacPrefix]: rbacReducer,
 });
