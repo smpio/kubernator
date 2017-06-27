@@ -17,7 +17,7 @@ import {
   tabCloseAll,
 } from '../../modules/catalog';
 
-import { Tabs, Button } from 'antd';
+import { Tabs, Button, Popconfirm } from 'antd';
 import Editor from './Editor';
 
 import classnames from 'classnames';
@@ -187,13 +187,18 @@ class Content extends React.Component {
               }
               {
                 item &&
-                <Button
-                  className="catalog__button"
-                  size="small"
-                  type="danger"
-                  onClick={onDelete}>
-                  Delete
-                </Button>
+                <Popconfirm
+                  placement="bottomRight"
+                  title="Are you sure to delete this item?"
+                  okText="Yes" cancelText="No"
+                  onConfirm={onDelete}>
+                  <Button
+                    className="catalog__button"
+                    size="small"
+                    type="danger">
+                    Delete
+                  </Button>
+                </Popconfirm>
               }
               {
                 dirty &&
