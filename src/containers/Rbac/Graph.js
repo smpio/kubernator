@@ -5,6 +5,8 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 
+import * as d3 from 'd3';
+
 import {
   PREFIX,
   RESOURCE,
@@ -20,17 +22,128 @@ import {
 // ------------
 
 class Graph extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = { container: null };
+    this.d3State = null; // no need fo rerender
+
+    this.getContainer = this.getContainer.bind(this);
+    this.d3Create = this.d3Create.bind(this);
+    this.d3Update = this.d3Update.bind(this);
+  }
 
   componentDidMount() {
     this.props.itemsGet();
   }
 
+  componentDidUpdate() {
+    const { d3State, d3Create, d3Update } = this;
+    if (!d3State) d3Create();
+    d3Update();
+  }
+
+  getContainer(container) {
+    this.setState({ container });
+  }
+
+  d3Create() {
+    const { container } = this.state;
+
+    // create state
+    const d3State = this.d3State = {};
+
+    // get container
+    const svg = d3State.svg = d3.select(container);
+
+    // clear svg
+    svg.selectAll('*').remove();
+
+    // get dimensions
+    const { width, height } = svg.node().getBoundingClientRect();
+    const center = { x: width / 2, y: height / 2 };
+
+    // force
+    const simulation = d3State.simulation = d3.forceSimulation()
+      .force('link', d3.forceLink())
+      .force('charge', d3.forceManyBody())
+      .force('center', d3.forceCenter(center.x, center.y));
+
+    // drag
+    d3State.drag = d3.drag()
+      .on('start', node => {
+        if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+      })
+      .on('drag', node => {
+        node.fx = d3.event.x;
+        node.fy = d3.event.y;
+      })
+      .on('end', node => {
+        if (!d3.event.active) simulation.alphaTarget(0);
+        delete node.fx;
+        delete node.fy;
+      });
+  }
+
+  d3Update() {
+    const {
+      props: {
+        nodes,
+        links,
+      },
+      d3State: {
+        svg,
+        drag,
+        simulation,
+      },
+    } = this;
+
+    let nodesSelection;
+    let linksSelection;
+
+    linksSelection = svg.selectAll('.link')
+      .data(links, link => link.id)
+      .enter()
+      .append('line')
+      .attr('class', 'link');
+
+    nodesSelection = svg.selectAll('.node')
+      .data(nodes, node => node.id)
+      .enter()
+      .append('g')
+      .attr('class', 'node')
+      .call(drag);
+
+    nodesSelection.append('circle')
+      .attr('r', 5);
+
+    nodesSelection.append('title')
+      .text(node => node.name);
+
+    nodesSelection.append('text')
+      .attr('dy', 3)
+      .text(node => node.name);
+
+    simulation
+      .nodes(nodes)
+      .on('tick', () => {
+        linksSelection
+          .attr('x1', link => link.source.x)
+          .attr('y1', link => link.source.y)
+          .attr('x2', link => link.target.x)
+          .attr('y2', link => link.target.y);
+
+        nodesSelection
+          .attr('transform', node => `translate(${node.x},${node.y})`);
+      });
+
+    simulation.force('link')
+      .links(links);
+  }
+
   render() {
-    return (
-      <div>
-        Graph
-      </div>
-    );
+    const { getContainer } = this;
+    return <svg id="graph" ref={getContainer}></svg>;
   }
 }
 
@@ -228,6 +341,9 @@ const selectGraphData = createSelector(
           });
 
           //
+          break;
+
+        default:
           break;
       }
     });
