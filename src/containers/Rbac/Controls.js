@@ -9,6 +9,7 @@ import { Radio } from 'antd';
 import {
   PREFIX,
   namespacesGet,
+  namespaceSet,
 } from '../../modules/rbac';
 
 
@@ -23,30 +24,30 @@ class Controls extends React.Component {
   }
 
   onChange(event) {
-    const namespace = event.target.value;
-    this.props.setNamespace(namespace);
+    const namespaceIndex = event.target.value;
+    this.props.namespaceSet(namespaceIndex);
   }
 
   render() {
     const {
       props: {
         namespaces,
-        namespace,
+        namespaceIndex,
       },
       onChange,
     } = this;
     return (
       <div className="rbac__controls">
         <Radio.Group
-          value={namespace}
+          value={namespaceIndex}
           onChange={onChange}>
           {
-            namespaces.map(ns =>
+            namespaces.map((namespace, index) =>
               <Radio.Button
-                key={ns}
-                value={ns}
-                checked={ns === namespace}>
-                {ns}
+                key={namespace}
+                value={index}
+                checked={index === namespaceIndex}>
+                {namespace}
               </Radio.Button>
             )
           }
@@ -58,14 +59,15 @@ class Controls extends React.Component {
 
 Controls.propTypes = {
   namespaces: PropTypes.array,
-  namespace: PropTypes.string,
+  namespaceIndex: PropTypes.number,
   namespacesGet: PropTypes.func,
-  setNamespace: PropTypes.func,
+  namespaceSet: PropTypes.func,
 };
 
 export default connect(
   state => state[PREFIX],
   dispatch => bindActionCreators({
     namespacesGet,
+    namespaceSet,
   }, dispatch),
 )(Controls);

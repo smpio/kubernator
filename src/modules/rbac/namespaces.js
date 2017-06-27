@@ -14,12 +14,19 @@ export const NAMESPACES_GET = `${PREFIX}/NAMESPACES_GET`;
 export const NAMESPACES_GET__S = `${PREFIX}/NAMESPACES_GET/S`;
 export const NAMESPACES_GET__F = `${PREFIX}/NAMESPACES_GET/F`;
 
+export const NAMESPACE_SET = `${PREFIX}/NAMESPACE_SET`;
+
 
 // creators
 // ----------
 
 export const namespacesGet = () => ({
   type: NAMESPACES_GET,
+});
+
+export const namespaceSet = namespaceIndex => ({
+  type: NAMESPACE_SET,
+  payload: { namespaceIndex },
 });
 
 
@@ -37,6 +44,7 @@ async function apiGet(url) {
 
 export const namespacesState = {
   namespaces: [],
+  namespaceIndex: 0,
 };
 
 
@@ -91,6 +99,13 @@ export const namespacesReducer = {
     const { namespaces } = action.payload;
     return update(state, {
       namespaces: { $set: namespaces },
+    });
+  },
+
+  [NAMESPACE_SET]: (state, action) => {
+    const { namespaceIndex } = action.payload;
+    return update(state, {
+      namespaceIndex: { $set: namespaceIndex },
     });
   },
 };

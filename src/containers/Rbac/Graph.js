@@ -246,7 +246,7 @@ class GraphData {
 GraphData.TYPE_ROLE = 'Role';
 GraphData.TYPE_BINDING = 'Binding';
 
-const selectNamespace = (state, props) => props.namespace;
+const selectNamespace = state => state.namespaces[state.namespaceIndex];
 const selectItems = state => state.items;
 const selectGraphData = createSelector(
   [selectNamespace, selectItems],
@@ -372,14 +372,13 @@ const selectGraphData = createSelector(
 // ---------
 
 Graph.propTypes = {
-  namespace: PropTypes.string,
   nodes: PropTypes.array,
   links: PropTypes.array,
   itemsGet: PropTypes.func,
 };
 
 export default connect(
-  (state, props) => selectGraphData(state[PREFIX], props),
+  state => selectGraphData(state[PREFIX]),
   dispatch => bindActionCreators({
     itemsGet,
   }, dispatch),
