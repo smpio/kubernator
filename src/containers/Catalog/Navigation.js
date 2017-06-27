@@ -8,9 +8,12 @@ import { createSelector } from 'reselect';
 import {
   PREFIX,
   ID,
-  RESOURCE,
-  LOADING,
+  ITEMS,
+  LISTABLE,
+  LOADING_TREE,
+  LOADING_NAMESPACE,
   treeGet,
+  namespaceItemsGet,
   tabOpen,
 } from '../../modules/catalog';
 
@@ -18,7 +21,7 @@ import { Tree as TreeRoot, Spin } from 'antd';
 const TreeNode = TreeRoot.TreeNode;
 
 const TYPE_NAMESPACE = 'TYPE_NAMESPACE';
-const TYPE_KIND = 'TYPE_KIND';
+const TYPE_RESOURCE = 'TYPE_RESOURCE';
 const TYPE_ITEM = 'TYPE_ITEM';
 
 
@@ -33,7 +36,17 @@ class Navigation extends React.Component {
     };
     this.onSelect = this.onSelect.bind(this);
     this.onExpand = this.onExpand.bind(this);
+    this.onLoadData = this.onLoadData.bind(this);
     this.renderNode = this.renderNode.bind(this);
+  }
+
+  shouldComponentUpdate(props) {
+    const { loadingTree, loadingNamespace } = props.flags;
+    const { loadingTree: loadingTreePrev } = this.props.flags;
+
+    if (loadingTree) return loadingTree !== loadingTreePrev;
+    else if (loadingNamespace) return false;
+    else return true;
   }
 
   componentDidMount() {
@@ -42,9 +55,32 @@ class Navigation extends React.Component {
   }
 
   onSelect(selectedKeys, event) {
-    const { custom: { type, data } = {}} = event.node.props;
-    const { tabOpen } = this.props;
+    const {
+      props: {
+        tabOpen,
+      },
+      onLoadData,
+    } = this;
+
+    const {
+      node,
+      node: {
+        props: {
+          custom: {
+            type,
+            data,
+          } = {},
+        },
+      },
+    } = event;
+
+    // namespace -> reload
+    if (type === TYPE_NAMESPACE) onLoadData(node);
+
+    // item -> edit
     if (type === TYPE_ITEM) tabOpen(data[ID]);
+
+    // else update keys
     else if (selectedKeys.length) this.setState({ expandedKeys: selectedKeys });
   }
 
@@ -54,6 +90,22 @@ class Navigation extends React.Component {
       expandedKeys = expandedKeys.filter(key => !key.startsWith(closedKey));
     }
     this.setState({ expandedKeys });
+  }
+
+  onLoadData(treeNode) {
+    const { namespaceItemsGet } = this.props;
+    const {
+      custom: {
+        type,
+        data: {
+          namespaced,
+          name,
+        },
+      } = {},
+    } = treeNode.props;
+
+    if (type !== TYPE_NAMESPACE) return Promise.resolve();
+    else return new Promise((resolve, reject) => namespaceItemsGet(namespaced && name, resolve, reject));
   }
 
   renderNode(node) {
@@ -69,16 +121,15 @@ class Navigation extends React.Component {
       data,
     } = node;
 
-    const hasChildren = children.length;
-
     return (
       <TreeNode 
         key={id}
         title={name}
-        isLeaf={!hasChildren}
+        isLeaf={!children}
         custom={{ type, data }}>
         {
-          hasChildren &&
+          children &&
+          children.length &&
           children.map(node => renderNode(node))
         }
       </TreeNode>
@@ -88,7 +139,9 @@ class Navigation extends React.Component {
   render() {
     const {
       props: {
-        loading,
+        flags: {
+          loadingTree,
+        },
         tree,
       },
       state: {
@@ -96,22 +149,24 @@ class Navigation extends React.Component {
       },
       onSelect,
       onExpand,
+      onLoadData,
       renderNode,
     } = this;
 
     return (
       <div className="catalog__navigation">
         {
-          loading &&
+          loadingTree &&
           <div className="catalog__spinner">
-            <Spin tip={loading} />
+            <Spin tip={loadingTree} />
           </div>
         }
         {
-          !loading &&
+          !loadingTree &&
           <TreeRoot
             onSelect={onSelect}
             onExpand={onExpand}
+            loadData={onLoadData}
             expandedKeys={expandedKeys}
             showLine>
             {
@@ -128,111 +183,137 @@ class Navigation extends React.Component {
 // custom tree selectors
 // -----------------------
 
-function analyzeItems(resources, items) {
-  const nonamespace = '[nonamespace]';
-  const namespaces = { /* namespaceId: { kindId, ... } */ };
-  const kinds = { /* kindId: { itemId, ... } */ };
-  Object.keys(items).forEach(itemId => {
+const sortByName = (a, b) =>
+  (a.name > b.name) ? 1 : (a.name === b.name) ? 0 : -1;
 
-    // get item
-    const {
-      metadata: {
-        namespace: itemNamespace,
-      },
-      [RESOURCE]: resourceId,
-    } = items[itemId];
+function buildItems(argsGlobal, argsLocal) {
+  const { items } = argsGlobal;
+  const {
+    namespace: {
+      namespaced: namespaceNamespaced,
+      name: namespaceName,
+    },
+    itemIds,
+  } = argsLocal;
+  return itemIds
 
-    // get resource
-    const {
-      namespaced: resourceNamespaced,
-      kind: resourceKind,
-    } = resources[resourceId];
+    .filter(id => {
+      const { metadata: { namespace: itemNamespace }} = items[id];
+      if (namespaceNamespaced) return itemNamespace === namespaceName;
+      else return !itemNamespace;
+    })
 
-    // get namespace
-    const ns = resourceNamespaced
-      ? itemNamespace || nonamespace
-      : nonamespace;
-
-    // get kind
-    // prefix to not mix items
-    const kind = `${ns}:${resourceKind}`;
-
-    // create namespace
-    if (!namespaces[ns]) namespaces[ns] = {};
-    namespaces[ns][kind] = true;
-
-    // create kind
-    if (!kinds[kind]) kinds[kind] = {};
-    kinds[kind][itemId] = true;
-  });
-  return {
-    namespaces,
-    kinds,
-  };
-}
-
-function sortByName(a, b) {
-  const aname = a.name;
-  const bname = b.name;
-  return (aname > bname) ? 1 : (aname === bname) ? 0 : -1;
-}
-
-function buildItems(itemIds, items) {
-  return Object.keys(itemIds)
-    .map(itemId => {
-      const item = items[itemId];
-      const { metadata: { name: itemName }} = item;
+    .map(id => {
+      const item = items[id];
+      const { metadata: { name }} = item;
       return {
         type: TYPE_ITEM,
-        id: itemId,
-        name: itemName,
-        children: [],
+        id,
+        name,
+        children: null,
         data: item,
       };
     })
+
     .sort(sortByName);
 }
 
-function buildKinds(kindIds, kinds, ...args) {
-  return Object.keys(kindIds)
-    .map(nsKindId => {
-      const kindId = nsKindId.split(':')[1];
+function buildKinds(argsGlobal, argsLocal) {
+  const { resources, items } = argsGlobal;
+  const {
+    namespace,
+    namespace: {
+      namespaced: namespaceNamespaced,
+      name: namespaceName,
+    },
+  } = argsLocal;
+  return Object.keys(resources)
+
+    .filter(id => {
+      const {
+        namespaced,
+        [ITEMS]: itemIds,
+        [LISTABLE]: listable,
+      } = resources[id];
+      return (
+        listable &&
+        namespaced === !!namespaceNamespaced &&
+        itemIds.some(id => {
+          const { metadata: { namespace: itemNamespace }} = items[id];
+          if (namespaceNamespaced) return itemNamespace === namespaceName;
+          else return !itemNamespace;
+        })
+      );
+    })
+
+    .map(id => {
+      const resource = resources[id];
+      const { kind, [ITEMS]: itemIds } = resource;
       return {
-        type: TYPE_KIND,
-        id: nsKindId,
-        name: kindId,
-        children: buildItems(kinds[nsKindId], ...args),
-        data: {},
+        type: TYPE_RESOURCE,
+        id: `${namespaceName}:${kind}`,
+        name: kind,
+        children: buildItems(argsGlobal, { namespace, itemIds }),
+        data: resource,
       };
     })
+
     .sort(sortByName);
 }
 
-function buildNamespaces(namespaces, ...args) {
-  return Object.keys(namespaces)
-    .sort()
-    .map(namespaceId => ({
-      type: TYPE_NAMESPACE,
-      id: namespaceId,
-      name: namespaceId,
-      children: buildKinds(namespaces[namespaceId], ...args),
-      data: {},
-    }));
+function buildNamespaces(argsGlobal) {
+  const { resources, items } = argsGlobal;
+
+  // get namespaces
+  const namespaces = resources.namespaces[ITEMS].map(id => ({
+    name: items[id].metadata.name,
+    namespaced: true,
+  }));
+
+  // append nonamespace
+  namespaces.unshift({ name: '[nonamespace]' });
+
+  //
+  return namespaces
+
+    .map(namespace => {
+      const { name } = namespace;
+      return {
+        type: TYPE_NAMESPACE,
+        id: name,
+        name,
+        children: buildKinds(argsGlobal, { namespace }),
+        data: namespace,
+      };
+    })
+
+    .sort(sortByName);
 }
 
-const selectLoading = state => state[LOADING];
+const selectFlags = state => ({
+  loadingTree: state.flags[LOADING_TREE],
+  loadingNamespace: state.flags[LOADING_NAMESPACE],
+});
+
 const selectResources = state => state.resources;
 const selectItems = state => state.items;
 
 const selectTree = createSelector(
-  [selectLoading, selectResources, selectItems],
-  (loading, resources, items) => {
-    if (loading) return [];
-    else {
-      const { namespaces, kinds } = analyzeItems(resources, items);
-      return buildNamespaces(namespaces, kinds, items);
-    }
+  [selectFlags, selectResources, selectItems],
+  (flags, resources, items) => {
+    if (flags.loadingTree || !Object.keys(resources).length) return [];
+    else return buildNamespaces({ resources, items });
   },
+);
+
+const selectAll = createSelector(
+  [selectFlags, selectResources, selectItems, selectTree],
+  (flags, resources, items, tree) => ({
+    flags,
+    resources,
+    items,
+    tree,
+  }),
 );
 
 
@@ -240,26 +321,20 @@ const selectTree = createSelector(
 // ---------
 
 Navigation.propTypes = {
-  loading: PropTypes.string,
+  flags: PropTypes.object,
   resources: PropTypes.object,
   items: PropTypes.object,
   tree: PropTypes.array,
   treeGet: PropTypes.func,
+  namespaceItemsGet: PropTypes.func,
   tabOpen: PropTypes.func,
 };
 
 export default connect(
-  state => {
-    const local = state[PREFIX];
-    return {
-      loading: selectLoading(local),
-      resources: selectResources(local),
-      items: selectItems(local),
-      tree: selectTree(local),
-    };
-  },
+  state => selectAll(state[PREFIX]),
   dispatch => bindActionCreators({
     treeGet,
+    namespaceItemsGet,
     tabOpen,
   }, dispatch),
 )(Navigation);

@@ -1,5 +1,5 @@
 import { delay } from 'redux-saga';
-import { all, call, put, take, takeEvery } from 'redux-saga/effects';
+import { all, call, put, select, take, takeEvery } from 'redux-saga/effects';
 import update from 'immutability-helper';
 
 import {
@@ -16,7 +16,9 @@ import {
   RESOURCES,
   ITEMS,
   READONLY,
-  LOADING,
+  LISTABLE,
+  LOADING_TREE,
+  LOADING_NAMESPACE,
   URL_PART_GROUP,
   URL_PART_RESOURCE,
 } from './shared';
@@ -37,6 +39,10 @@ export const ROOT_GROUPS_GET__F = `${PREFIX}/ROOT_GROUPS_GET/F`;
 export const GROUP_RESOURCES_GET = `${PREFIX}/GROUP_RESOURCES_GET`;
 export const GROUP_RESOURCES_GET__S = `${PREFIX}/GROUP_RESOURCES_GET/S`;
 export const GROUP_RESOURCES_GET__F = `${PREFIX}/GROUP_RESOURCES_GET/F`;
+
+export const NAMESPACE_ITEMS_GET = `${PREFIX}/NAMESPACE_ITEMS_GET`;
+export const NAMESPACE_ITEMS_GET__S = `${PREFIX}/NAMESPACE_ITEMS_GET/S`;
+export const NAMESPACE_ITEMS_GET__F = `${PREFIX}/NAMESPACE_ITEMS_GET/F`;
 
 export const RESOURCE_ITEMS_GET = `${PREFIX}/RESOURCE_ITEMS_GET`;
 export const RESOURCE_ITEMS_GET__S = `${PREFIX}/RESOURCE_ITEMS_GET/S`;
@@ -61,9 +67,14 @@ export const groupResourcesGet = (group, resolve, reject) => ({
   payload: { group, resolve, reject },
 });
 
-export const resourceItemsGet = (resource, resolve, reject) => ({
+export const namespaceItemsGet = (namespace, resolve, reject) => ({
+  type: NAMESPACE_ITEMS_GET,
+  payload: { namespace, resolve, reject },
+});
+
+export const resourceItemsGet = (resource, namespace, resolve, reject) => ({
   type: RESOURCE_ITEMS_GET,
-  payload: { resource, resolve, reject },
+  payload: { resource, namespace, resolve, reject },
 });
 
 
@@ -74,6 +85,22 @@ async function apiGet(url) {
   const res = await fetch(url);
   return res.json();
 }
+
+
+// state
+// ---------
+
+function stateResourcesGet(state) {
+  return state[PREFIX].resources;
+}
+
+export const treeState = {
+  flags: {},
+  groups: {},
+  resources: {},
+  models: {},
+  items: {},
+};
 
 
 // saga
@@ -109,24 +136,21 @@ function* sagaTreeGet() {
       // ∀ group => get group[RESOURCES]
       yield all(groups.map(group => put(groupResourcesGet(group))));
       const groupResourcesGot = yield all(groups.map(() => take(GROUP_RESOURCES_GET__S)));
-
-      // resources => merge, flatten and filter
-      let resources = Array.prototype
-        .concat.apply([], groupResourcesGot.map(action => action.payload.resources))
-        .filter(resource => resource.verbs.includes('list'));
+      let resources = Array.prototype.concat.apply([], groupResourcesGot.map(action => action.payload.resources));
 
       // progress
       yield put({
         type: TREE_GET__PROGRESS,
-        payload: { stage: 'items' },
+        payload: { stage: 'namespaces' },
       });
 
       // sleep
       yield delay(500);
 
-      // ∀ resource => get resource[ITEMS]
-      yield all(resources.map(resource => put(resourceItemsGet(resource))));
-      yield all(resources.map(() => take(RESOURCE_ITEMS_GET__S)));
+      // get namespaces
+      const namespaces = resources.find(resource => resource.name === 'namespaces');
+      yield put(resourceItemsGet(namespaces));
+      yield take(RESOURCE_ITEMS_GET__S);
 
       // success
       yield put({ type: TREE_GET__S });
@@ -254,17 +278,63 @@ function* sagaGroupResourcesGet() {
   });
 }
 
+function* sagaNamespaceItemsGet() {
+  yield takeEvery(NAMESPACE_ITEMS_GET, function* (action) {
+    const { namespace, resolve, reject } = action.payload;
+    try {
+
+      // get all resources
+      const resources = yield select(stateResourcesGet);
+
+      // filter correctly namespaced resources
+      const namespaced = !!namespace;
+      const targetResources = Object.keys(resources).filter(id => {
+        const resource = resources[id];
+        return resource[LISTABLE] && resource.namespaced === namespaced;
+      });
+
+      // ∀ resource => request resource[ITEMS]
+      yield all(targetResources.map(id => put(resourceItemsGet(resources[id], namespace))));
+      yield all(targetResources.map(() => take(RESOURCE_ITEMS_GET__S)));
+
+      //
+      yield put({
+        type: NAMESPACE_ITEMS_GET__S,
+      });
+
+      // resolve promise
+      if (resolve) yield call(resolve);
+    }
+
+    catch (error) {
+
+      //
+      yield put({
+        type: NAMESPACE_ITEMS_GET__F,
+        payload: error,
+        error: true,
+      });
+
+      // reject promise
+      if (reject) yield call(reject);
+    }
+  });
+}
+
 function* sagaResourceItemsGet() {
   yield takeEvery(RESOURCE_ITEMS_GET, function* (action) {
-    const { resource, resolve, reject } = action.payload;
+    const { resource, namespace, resolve, reject } = action.payload;
     try {
-      const { items } = yield call(apiGet, resource[URL]);
+
+      // get items
+      const resourceUrl = resourceGetUrl(resource, namespace);
+      const { items } = yield call(apiGet, resourceUrl);
 
       //
       yield put({
         type: RESOURCE_ITEMS_GET__S,
         payload: { items },
-        meta: { resource },
+        meta: { resource, namespace },
       });
 
       // resolve promise
@@ -291,20 +361,10 @@ export function* treeSaga() {
     sagaTreeGet(),
     sagaRootGroupsGet(),
     sagaGroupResourcesGet(),
+    sagaNamespaceItemsGet(),
     sagaResourceItemsGet(),
   ]);
 }
-
-
-// state
-// ---------
-
-export const treeState = {
-  groups: {},
-  resources: {},
-  models: {},
-  items: {},
-};
 
 
 // reducer
@@ -324,12 +384,13 @@ export function decorateResource(group) {
     [URL]: groupUrl,
   } = group;
   return resource => {
-    const { name } = resource;
+    const { name, verbs } = resource;
 
     resource[GROUP] = groupId;
     resource[ID] = name;
     resource[URL] = `${groupUrl}/${name}`;
     resource[ITEMS] = [];
+    resource[LISTABLE] = verbs.includes('list');
 
     // crunches for correct item urls
     resource[URL_PART_GROUP] = groupUrl;
@@ -338,19 +399,13 @@ export function decorateResource(group) {
 }
 
 export function decorateItem(resource) {
-  const {
-    namespaced: resourceNamespaced,
-    [ID]: resourceId,
-    [URL_PART_GROUP]: resourceUrlPartGroup,
-    [URL_PART_RESOURCE]: resourceUrlPartResource,
-  } = resource;
+  const { [ID]: resourceId } = resource;
   return item => {
     const { uid, name, namespace } = item.metadata;
+    const resourceUrl = resourceGetUrl(resource, namespace);
     item[RESOURCE] = resourceId;
     item[ID] = uid || `[nouid]-${name}`;
-    item[URL] = resourceNamespaced
-      ? `${resourceUrlPartGroup}/namespaces/${namespace}/${resourceUrlPartResource}/${name}`
-      : `${resourceUrlPartGroup}/${resourceUrlPartResource}/${name}`;
+    item[URL] = `${resourceUrl}/${name}`;
   };
 }
 
@@ -359,13 +414,17 @@ export const treeReducer = {
   [TREE_GET__PROGRESS]: (state, action) => {
     const { stage } = action.payload;
     return update(state, {
-      [LOADING]: { $set: stage },
+      flags: {
+        [LOADING_TREE]: { $set: stage },
+      },
     });
   },
 
   [TREE_GET__S]: (state, action) => {
     return update(state, {
-      [LOADING]: { $set: null },
+      flags: {
+        [LOADING_TREE]: { $set: null },
+      },
     });
   },
 
@@ -390,7 +449,7 @@ export const treeReducer = {
     return update(state, {
       groups: {
         [group[ID]]: {
-          [RESOURCES]: { $set: toKeysArray(resources, ID).sort() },
+          [RESOURCES]: { $set: toKeysArray(resources, ID) },
         },
       },
       resources: { $merge: toKeysObject(resources, ID) },
@@ -398,20 +457,55 @@ export const treeReducer = {
     });
   },
 
+  [NAMESPACE_ITEMS_GET]: (state, action) => {
+    return update(state, {
+      flags: {
+        [LOADING_NAMESPACE]: { $set: true },
+      },
+    });
+  },
+
+  [NAMESPACE_ITEMS_GET__S]: (state, action) => {
+    return update(state, {
+      flags: {
+        [LOADING_NAMESPACE]: { $set: false },
+      },
+    });
+  },
+
   [RESOURCE_ITEMS_GET__S]: (state, action) => {
     const { items } = action.payload;
-    const { resource } = action.meta;
+    const { resource, namespace } = action.meta;
 
+    // decorate items
     const decorate = decorateItem(resource);
     items.forEach(item => decorate(item));
 
+    // merge items
+    const idsNew = toKeysArray(items, ID);
+    const idsMerge = idsOld => {
+      const { items } = state;
+      return idsOld
+        .filter(id => items[id].metadata.namespace !== namespace)
+        .concat(idsNew);
+    };
+
+    //
     return update(state, {
       resources: {
         [resource[ID]]: {
-          [ITEMS]: { $set: toKeysArray(items, ID).sort() },
+          [ITEMS]: { $apply: idsMerge },
         },
       },
       items: { $merge: toKeysObject(items, ID) },
     });
   },
 };
+
+
+// helpers
+// ---------
+
+export const resourceGetUrl = (resource, namespace) => namespace
+  ? `${resource[URL_PART_GROUP]}/namespaces/${namespace}/${resource[URL_PART_RESOURCE]}`
+  : resource[URL];

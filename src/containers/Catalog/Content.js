@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import {
   PREFIX,
   YAML,
-  LOADING,
+  LOADING_TREE,
   itemGet,
   itemPost,
   itemPut,
@@ -40,7 +40,7 @@ class Content extends React.Component {
   }
 
   shouldComponentUpdate(props) {
-    return !props.loading;
+    return !props.flags[LOADING_TREE];
   }
 
   componentDidMount() {
@@ -122,7 +122,6 @@ class Content extends React.Component {
   render() {
     const {
       props: {
-        loading,
         items,
         tabs: {
           id,
@@ -147,7 +146,7 @@ class Content extends React.Component {
     const dirty = yamlEdited && yamlEdited !== yamlOriginal;
     const yaml = yamlEdited || yamlOriginal;
 
-    const hideTabs = loading;
+    const hideTabs = false;
     const hideEditor = !tabIds.length;
 
     const showCloseAll = !!tabIds.length;
@@ -235,7 +234,7 @@ class Content extends React.Component {
 }
 
 Content.propTypes = {
-  [LOADING]: PropTypes.string,
+  flags: PropTypes.object,
   items: PropTypes.object,
   tabs: PropTypes.object,
   itemGet: PropTypes.func,
@@ -248,10 +247,7 @@ Content.propTypes = {
 };
 
 export default connect(
-  state => ({
-    loading: state[PREFIX][LOADING], // seems like connect ignores symbols
-    ...state[PREFIX],
-  }),
+  state => state[PREFIX],
   dispatch => bindActionCreators({
     itemGet,
     itemPost,

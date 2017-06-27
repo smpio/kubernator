@@ -10,8 +10,6 @@ import {
   YAML,
   ID,
   URL,
-  URL_PART_GROUP,
-  URL_PART_RESOURCE,
 } from './shared';
 
 import {
@@ -21,6 +19,7 @@ import {
 
 import {
   decorateItem,
+  resourceGetUrl,
 } from './tree';
 
 
@@ -192,14 +191,7 @@ function* sagaItemPost() {
       if (!resource) throw new Error('Can\'t find correponding resource by kind.');
 
       // get url
-      const {
-        [URL]: resourceUrl,
-        [URL_PART_GROUP]: resourceUrlPartGroup,
-        [URL_PART_RESOURCE]: resourceUrlPartResource,
-      } = resource;
-      const url = namespace
-        ? `${resourceUrlPartGroup}/namespaces/${namespace}/${resourceUrlPartResource}`
-        : resourceUrl;
+      const url = resourceGetUrl(resource, namespace);
 
       // post
       const item = yield call(apiItemPost, url, yaml);
