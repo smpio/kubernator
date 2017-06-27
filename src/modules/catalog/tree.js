@@ -18,7 +18,6 @@ import {
   READONLY,
   LISTABLE,
   LOADING_TREE,
-  LOADING_NAMESPACE,
   URL_PART_GROUP,
   URL_PART_RESOURCE,
 } from './shared';
@@ -116,9 +115,7 @@ function* sagaTreeGet() {
         type: TREE_GET__PROGRESS,
         payload: { stage: 'groups' },
       });
-
-      // sleep
-      yield delay(500);
+      yield delay(0);
 
       // get root[GROUPS]
       yield put(rootGroupsGet());
@@ -129,9 +126,7 @@ function* sagaTreeGet() {
         type: TREE_GET__PROGRESS,
         payload: { stage: 'resources' },
       });
-
-      // sleep
-      yield delay(500);
+      yield delay(0);
 
       // ∀ group => get group[RESOURCES]
       yield all(groups.map(group => put(groupResourcesGet(group))));
@@ -143,9 +138,7 @@ function* sagaTreeGet() {
         type: TREE_GET__PROGRESS,
         payload: { stage: 'namespaces' },
       });
-
-      // sleep
-      yield delay(500);
+      yield delay(0);
 
       // get namespaces
       const namespaces = resources.find(resource => resource.name === 'namespaces');
@@ -294,13 +287,14 @@ function* sagaNamespaceItemsGet() {
       });
 
       // ∀ resource => request resource[ITEMS]
-      yield all(targetResources.map(id => put(resourceItemsGet(resources[id], namespace))));
-      yield all(targetResources.map(() => take(RESOURCE_ITEMS_GET__S)));
+      for (let id of targetResources) {
+        yield put(resourceItemsGet(resources[id], namespace));
+        yield take(RESOURCE_ITEMS_GET__S);
+        yield delay(0);
+      }
 
       //
-      yield put({
-        type: NAMESPACE_ITEMS_GET__S,
-      });
+      yield put({ type: NAMESPACE_ITEMS_GET__S });
 
       // resolve promise
       if (resolve) yield call(resolve);
@@ -454,22 +448,6 @@ export const treeReducer = {
       },
       resources: { $merge: toKeysObject(resources, ID) },
       models: { $merge: toKeysObject(models, ID) },
-    });
-  },
-
-  [NAMESPACE_ITEMS_GET]: (state, action) => {
-    return update(state, {
-      flags: {
-        [LOADING_NAMESPACE]: { $set: true },
-      },
-    });
-  },
-
-  [NAMESPACE_ITEMS_GET__S]: (state, action) => {
-    return update(state, {
-      flags: {
-        [LOADING_NAMESPACE]: { $set: false },
-      },
     });
   },
 

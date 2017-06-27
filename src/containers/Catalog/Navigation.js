@@ -11,7 +11,6 @@ import {
   ITEMS,
   LISTABLE,
   LOADING_TREE,
-  LOADING_NAMESPACE,
   treeGet,
   namespaceItemsGet,
   resourceItemsGet,
@@ -42,11 +41,10 @@ class Navigation extends React.Component {
   }
 
   shouldComponentUpdate(props) {
-    const { loadingTree, loadingNamespace } = props.flags;
+    const { loadingTree } = props.flags;
     const { loadingTree: loadingTreePrev } = this.props.flags;
 
     if (loadingTree) return loadingTree !== loadingTreePrev;
-    else if (loadingNamespace) return false;
     else return true;
   }
 
@@ -301,7 +299,6 @@ function buildNamespaces(argsGlobal) {
 
 const selectFlags = state => ({
   loadingTree: state.flags[LOADING_TREE],
-  loadingNamespace: state.flags[LOADING_NAMESPACE],
 });
 
 const selectResources = state => state.resources;
