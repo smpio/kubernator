@@ -1,12 +1,30 @@
 .rbac {
   flex: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.rbac__controls,
+.rbac__graph {
   padding: 1em;
   background-color: white;
 }
 
-#graph {
+.rbac__controls {
+  align-self: flex-start;
+}
+
+.rbac__graph {
+  margin-top: 1em;
+  flex: auto;
+
   width: 100%;
   height: 100%;
+
+  & > svg {
+    width: 100%;
+    height: 100%;
+  }
 }
 
 .link {

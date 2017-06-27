@@ -53,10 +53,8 @@ class Graph extends React.Component {
     // create state
     const d3State = this.d3State = {};
 
-    // get container
+    // get svg
     const svg = d3State.svg = d3.select(container);
-
-    // clear svg
     svg.selectAll('*').remove();
 
     // get dimensions
@@ -143,7 +141,11 @@ class Graph extends React.Component {
 
   render() {
     const { getContainer } = this;
-    return <svg id="graph" ref={getContainer}></svg>;
+    return (
+      <div className="rbac__graph">
+        <svg ref={getContainer} />
+      </div>
+    );
   }
 }
 
@@ -241,11 +243,17 @@ class GraphData {
   }
 }
 
+GraphData.TYPE_ROLE = 'Role';
+GraphData.TYPE_BINDING = 'Binding';
+
+const selectNamespace = (state, props) => props.namespace;
 const selectItems = state => state.items;
 const selectGraphData = createSelector(
-  selectItems,
-  items => {
+  [selectNamespace, selectItems],
+  (namespace, items) => {
     const gd = new GraphData();
+
+    // process individual items
     items.forEach(item => {
       const {
         metadata: {
@@ -261,8 +269,9 @@ const selectGraphData = createSelector(
 
           // role
           const roleId = gd.createNodeShared({
-            type: 'Role',
-            name: `${namespace}:${name}`,
+            type: GraphData.TYPE_ROLE,
+            namespace,
+            name,
           });
 
           // children
@@ -320,7 +329,9 @@ const selectGraphData = createSelector(
 
           // rolebinding
           const rolebindingId = gd.createNode({
-            name: `${namespace}:${name}`,
+            type: GraphData.TYPE_BINDING,
+            namespace,
+            name,
           });
 
           // children
@@ -347,6 +358,11 @@ const selectGraphData = createSelector(
           break;
       }
     });
+
+    // add rolebinding -> role links
+
+
+    //
     return gd.getData();
   },
 );
@@ -356,13 +372,14 @@ const selectGraphData = createSelector(
 // ---------
 
 Graph.propTypes = {
+  namespace: PropTypes.string,
   nodes: PropTypes.array,
   links: PropTypes.array,
   itemsGet: PropTypes.func,
 };
 
 export default connect(
-  state => selectGraphData(state[PREFIX]),
+  (state, props) => selectGraphData(state[PREFIX], props),
   dispatch => bindActionCreators({
     itemsGet,
   }, dispatch),
