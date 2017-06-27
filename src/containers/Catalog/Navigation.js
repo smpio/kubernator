@@ -14,6 +14,7 @@ import {
   LOADING_NAMESPACE,
   treeGet,
   namespaceItemsGet,
+  resourceItemsGet,
   tabOpen,
 } from '../../modules/catalog';
 
@@ -68,19 +69,19 @@ class Navigation extends React.Component {
         props: {
           custom: {
             type,
-            data,
+            payload,
           } = {},
         },
       },
     } = event;
 
-    // namespace -> reload
-    if (type === TYPE_NAMESPACE) onLoadData(node);
+    // namespace || resource -> reload
+    if (type === TYPE_NAMESPACE || type === TYPE_RESOURCE) onLoadData(node);
 
     // item -> edit
-    if (type === TYPE_ITEM) tabOpen(data[ID]);
+    if (type === TYPE_ITEM) tabOpen(payload.item[ID]);
 
-    // else update keys
+    // not item -> update keys
     else if (selectedKeys.length) this.setState({ expandedKeys: selectedKeys });
   }
 
@@ -93,19 +94,27 @@ class Navigation extends React.Component {
   }
 
   onLoadData(treeNode) {
-    const { namespaceItemsGet } = this.props;
-    const {
-      custom: {
-        type,
-        data: {
-          namespaced,
-          name,
-        },
-      } = {},
-    } = treeNode.props;
+    const { namespaceItemsGet, resourceItemsGet } = this.props;
+    const { custom: { type, payload } = {}} = treeNode.props;
 
-    if (type !== TYPE_NAMESPACE) return Promise.resolve();
-    else return new Promise((resolve, reject) => namespaceItemsGet(namespaced && name, resolve, reject));
+    // namespace
+    if (type === TYPE_NAMESPACE) {
+      const { namespace: { namespaced, name }} = payload;
+      return new Promise(
+        (resolve, reject) => namespaceItemsGet(namespaced && name, resolve, reject)
+      );
+    }
+
+    // resource
+    else if (type === TYPE_RESOURCE) {
+      const { resource, namespace: { namespaced, name }} = payload;
+      return new Promise(
+        (resolve, reject) => resourceItemsGet(resource, namespaced && name, resolve, reject)
+      );
+    }
+
+    //
+    else return Promise.resolve();
   }
 
   renderNode(node) {
@@ -118,7 +127,7 @@ class Navigation extends React.Component {
       id,
       name,
       children,
-      data,
+      payload,
     } = node;
 
     return (
@@ -126,7 +135,7 @@ class Navigation extends React.Component {
         key={id}
         title={name}
         isLeaf={!children}
-        custom={{ type, data }}>
+        custom={{ type, payload }}>
         {
           children &&
           children.length &&
@@ -211,7 +220,7 @@ function buildItems(argsGlobal, argsLocal) {
         id,
         name,
         children: null,
-        data: item,
+        payload: { item },
       };
     })
 
@@ -254,7 +263,7 @@ function buildKinds(argsGlobal, argsLocal) {
         id: `${namespaceName}:${kind}`,
         name: kind,
         children: buildItems(argsGlobal, { namespace, itemIds }),
-        data: resource,
+        payload: { resource, namespace },
       };
     })
 
@@ -283,7 +292,7 @@ function buildNamespaces(argsGlobal) {
         id: name,
         name,
         children: buildKinds(argsGlobal, { namespace }),
-        data: namespace,
+        payload: { namespace },
       };
     })
 
@@ -327,6 +336,7 @@ Navigation.propTypes = {
   tree: PropTypes.array,
   treeGet: PropTypes.func,
   namespaceItemsGet: PropTypes.func,
+  resourceItemsGet: PropTypes.func,
   tabOpen: PropTypes.func,
 };
 
@@ -335,6 +345,7 @@ export default connect(
   dispatch => bindActionCreators({
     treeGet,
     namespaceItemsGet,
+    resourceItemsGet,
     tabOpen,
   }, dispatch),
 )(Navigation);
