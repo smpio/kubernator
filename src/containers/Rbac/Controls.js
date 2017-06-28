@@ -38,20 +38,22 @@ class Controls extends React.Component {
     } = this;
     return (
       <div className="rbac__controls">
-        <Radio.Group
-          value={namespaceIndex}
-          onChange={onChange}>
-          {
-            namespaces.map((namespace, index) =>
-              <Radio.Button
-                key={namespace}
-                value={index}
-                checked={index === namespaceIndex}>
-                {namespace}
-              </Radio.Button>
-            )
-          }
-        </Radio.Group>
+        <div className="rbac__controls-inner">
+          <Radio.Group
+            value={namespaceIndex}
+            onChange={onChange}>
+            {
+              namespaces.map((namespace, index) =>
+                <Radio.Button
+                  key={namespace}
+                  value={index}
+                  checked={index === namespaceIndex}>
+                  {namespace}
+                </Radio.Button>
+              )
+            }
+          </Radio.Group>
+        </div>
       </div>
     );
   }

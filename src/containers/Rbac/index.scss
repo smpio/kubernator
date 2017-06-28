@@ -2,6 +2,7 @@
   flex: auto;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .rbac__controls,
@@ -12,6 +13,19 @@
 
 .rbac__controls {
   align-self: flex-start;
+  width: 100%;
+
+  & > .rbac__controls-inner {
+    overflow-x: auto;
+
+    & > .ant-radio-group {
+      display: flex;
+
+      & > .ant-radio-button-wrapper {
+        white-space: nowrap;
+      }
+    }
+  }
 }
 
 .rbac__graph {
