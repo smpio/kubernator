@@ -64,7 +64,8 @@ svg {
   height: 100%;
 
   .link {
-    stroke: #aaa;
+    line { stroke: gray; }
+    text { fill: gray; }
   }
 
   .node {
@@ -99,9 +100,7 @@ svg {
     }
 
     &.undefined {
-      text {
-        fill: gray;
-      }
+      text { fill: gray; }
       circle {
         fill: lightgray;
         stroke: gray;

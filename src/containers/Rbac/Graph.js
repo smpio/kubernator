@@ -120,13 +120,21 @@ class Graph extends React.Component {
     let nodesSelection;
     let linksSelection;
 
-    linksSelection = linksGroup.selectAll('.link')
+    linksSelection = linksGroup
+      .selectAll('.link')
       .data(links, link => link.id)
       .enter()
-      .append('line')
+      .append('g')
       .attr('class', 'link');
 
-    nodesSelection = nodesGroup.selectAll('.node')
+    linksSelection.append('line');
+    linksSelection.append('text')
+      .attr('dx', 4)
+      .attr('dy', 4)
+      .text(link => link.name);
+
+    nodesSelection = nodesGroup
+      .selectAll('.node')
       .data(nodes, node => node.id)
       .enter()
       .append('g')
@@ -135,9 +143,6 @@ class Graph extends React.Component {
 
     nodesSelection.append('circle')
       .attr('r', 7);
-
-    nodesSelection.append('title')
-      .text(node => node.name);
 
     nodesSelection.append('text')
       .attr('dx', 10)
@@ -148,10 +153,16 @@ class Graph extends React.Component {
       .nodes(nodes)
       .on('tick', () => {
         linksSelection
+          .selectAll('line')
           .attr('x1', link => link.source.x)
           .attr('y1', link => link.source.y)
           .attr('x2', link => link.target.x)
           .attr('y2', link => link.target.y);
+
+        linksSelection
+          .selectAll('text')
+          .attr('x', link => (link.source.x + link.target.x) / 2)
+          .attr('y', link => (link.source.y + link.target.y) / 2);
 
         nodesSelection
           .attr('transform', node => `translate(${node.x},${node.y})`);
@@ -285,12 +296,16 @@ const selectGraphData = createSelector(
         );
       })
       .forEach(item => {
-        const { subjects, roleRef: { kind, name }} = item;
+        const {
+          metadata: { name: itemName },
+          subjects,
+          roleRef: { kind, name },
+        } = item;
         const roleId = gd.findNode({ kind, name });
         roleId && subjects.forEach(subject => {
           const { kind, name } = subject;
           const subjectId = gd.createNode({ kind, name });
-          gd.createLink({ source: subjectId, target: roleId });
+          gd.createLink({ name: itemName, source: subjectId, target: roleId });
         });
       });
 
