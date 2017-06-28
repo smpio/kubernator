@@ -69,8 +69,9 @@ class Graph extends React.Component {
     const center = { x: width / 2, y: height / 2 };
 
     // create groups
-    d3State.linksGroup = svg.append('g');
-    d3State.nodesGroup = svg.append('g');
+    const canvas = svg.append('g');
+    d3State.linksGroup = canvas.append('g');
+    d3State.nodesGroup = canvas.append('g');
 
     // force
     const simulation = d3State.simulation = d3.forceSimulation()
@@ -94,6 +95,12 @@ class Graph extends React.Component {
         delete node.fx;
         delete node.fy;
       });
+
+    // zoom
+    const zoom = d3.zoom()
+      .scaleExtent([0.1, 2])
+      .on('zoom', () => canvas.attr('transform', d3.event.transform));
+    svg.call(zoom);
   }
 
   d3Update() {
