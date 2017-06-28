@@ -68,6 +68,10 @@ class Graph extends React.Component {
     const { width, height } = svg.node().getBoundingClientRect();
     const center = { x: width / 2, y: height / 2 };
 
+    // create groups
+    d3State.linksGroup = svg.append('g');
+    d3State.nodesGroup = svg.append('g');
+
     // force
     const simulation = d3State.simulation = d3.forceSimulation()
       .force('link', d3.forceLink())
@@ -97,7 +101,8 @@ class Graph extends React.Component {
         links,
       },
       d3State: {
-        svg,
+        linksGroup,
+        nodesGroup,
         drag,
         simulation,
       },
@@ -106,13 +111,13 @@ class Graph extends React.Component {
     let nodesSelection;
     let linksSelection;
 
-    linksSelection = svg.selectAll('.link')
+    linksSelection = linksGroup.selectAll('.link')
       .data(links, link => link.id)
       .enter()
       .append('line')
       .attr('class', 'link');
 
-    nodesSelection = svg.selectAll('.node')
+    nodesSelection = nodesGroup.selectAll('.node')
       .data(nodes, node => node.id)
       .enter()
       .append('g')
@@ -120,13 +125,14 @@ class Graph extends React.Component {
       .call(drag);
 
     nodesSelection.append('circle')
-      .attr('r', 5);
+      .attr('r', 7);
 
     nodesSelection.append('title')
       .text(node => node.name);
 
     nodesSelection.append('text')
-      .attr('dy', 3)
+      .attr('dx', 10)
+      .attr('dy', 4)
       .text(node => node.name);
 
     simulation
