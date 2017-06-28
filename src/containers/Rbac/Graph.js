@@ -14,6 +14,7 @@ import {
   RESOURCE_CLUSTER_ROLE,
   RESOURCE_ROLE_BINDING,
   RESOURCE_CLUSTER_ROLE_BINDING,
+  NONAMESPACE,
   itemsGet,
 } from '../../modules/rbac';
 
@@ -38,9 +39,8 @@ class Graph extends React.Component {
   }
 
   componentDidUpdate() {
-    const { d3State, d3Create, d3Update } = this;
-    if (!d3State) d3Create();
-    d3Update();
+    this.d3Create();
+    this.d3Update();
   }
 
   getContainer(container) {
@@ -252,112 +252,111 @@ const selectGraphData = createSelector(
   [selectNamespace, selectItems],
   (namespace, items) => {
     const gd = new GraphData();
+    items
 
-    // process individual items
-    items.forEach(item => {
-      const {
-        metadata: {
-          namespace = '[nonamespace]',
-          name,
-        },
-        [RESOURCE]: resource,
-      } = item;
-      switch (resource) {
+      // filter correct namespace
+      .filter(item => {
+        const { namespace: itemNamespace = NONAMESPACE } = item.metadata;
+        return itemNamespace === namespace;
+      })
 
-        case RESOURCE_ROLE:
-        case RESOURCE_CLUSTER_ROLE:
+      // build nodes and links
+      .forEach(item => {
+        const { metadata: { name }, [RESOURCE]: resource } = item;
+        switch (resource) {
 
-          // role
-          const roleId = gd.createNodeShared({
-            type: GraphData.TYPE_ROLE,
-            namespace,
-            name,
-          });
+          case RESOURCE_ROLE:
+          case RESOURCE_CLUSTER_ROLE:
 
-          // children
-          item.rules.forEach(rule => {
-
-            // rule
-            const ruleId = gd.createNode({
-              name: '',
-            });
-
-            // link
-            gd.createLink({
-              source: roleId,
-              target: ruleId,
+            // role
+            const roleId = gd.createNodeShared({
+              type: GraphData.TYPE_ROLE,
+              name,
             });
 
             // children
-            // apiGroups, resources, verbs, etc.
-            Object.keys(rule).forEach(key => {
-              const values = rule[key];
+            item.rules.forEach(rule => {
 
-              // key
-              const keyId = gd.createNode({
-                name: key,
+              // rule
+              const ruleId = gd.createNode({
+                name: '',
               });
 
               // link
               gd.createLink({
-                source: ruleId,
-                target: keyId,
+                source: roleId,
+                target: ruleId,
               });
 
               // children
-              values.forEach(value => {
+              // apiGroups, resources, verbs, etc.
+              Object.keys(rule).forEach(key => {
+                const values = rule[key];
 
-                // value
-                const valueId = gd.createNode({
-                  name: value,
+                // key
+                const keyId = gd.createNode({
+                  name: key,
                 });
 
                 // link
                 gd.createLink({
-                  source: keyId,
-                  target: valueId,
+                  source: ruleId,
+                  target: keyId,
+                });
+
+                // children
+                values.forEach(value => {
+
+                  // value
+                  const valueId = gd.createNode({
+                    name: value,
+                  });
+
+                  // link
+                  gd.createLink({
+                    source: keyId,
+                    target: valueId,
+                  });
                 });
               });
             });
-          });
 
-          //
-          break;
+            //
+            break;
 
-        case RESOURCE_ROLE_BINDING:
-        case RESOURCE_CLUSTER_ROLE_BINDING:
+          case RESOURCE_ROLE_BINDING:
+          case RESOURCE_CLUSTER_ROLE_BINDING:
 
-          // rolebinding
-          const rolebindingId = gd.createNode({
-            type: GraphData.TYPE_BINDING,
-            namespace,
-            name,
-          });
-
-          // children
-          item.subjects.forEach(subject => {
-            const { kind, name } = subject;
-
-            // subject
-            const subjectId = gd.createNodeShared({
-              type: kind,
-              name: `${kind}:${name}`,
+            // rolebinding
+            const rolebindingId = gd.createNode({
+              type: GraphData.TYPE_BINDING,
+              name,
             });
 
-            // link
-            gd.createLink({
-              source: rolebindingId,
-              target: subjectId,
+            // children
+            item.subjects.forEach(subject => {
+              const { kind, name } = subject;
+
+              // subject
+              const subjectId = gd.createNodeShared({
+                type: kind,
+                name: `${kind}:${name}`,
+              });
+
+              // link
+              gd.createLink({
+                source: rolebindingId,
+                target: subjectId,
+              });
             });
-          });
 
-          //
-          break;
+            //
+            break;
 
-        default:
-          break;
-      }
-    });
+          default:
+            break;
+        }
+      });
 
     // add rolebinding -> role links
 
