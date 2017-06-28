@@ -36,6 +36,10 @@
 
     & > .rbac__controls-legend {
       margin-left: 2em;
+
+      & > .ant-checkbox-wrapper {
+        white-space: nowrap;
+      }
     }
   }
 }
