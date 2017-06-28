@@ -31,8 +31,39 @@
 
     .node {
 
-      circle {
-        stroke: black;
+      &.Role,
+      &.ClusterRole {
+        circle {
+          fill: cornflowerblue;
+          stroke: darkblue;
+        }
+      }
+
+      &.User,
+      &.Group,
+      &.ServiceAccount {
+        circle {
+          fill: yellowgreen;
+          stroke: darkgreen;
+        }
+      }
+
+      &.undefined,
+      &.value {
+        circle {
+          fill: gray;
+          stroke: black;
+        }
+      }
+
+      &.RoleBinding,
+      &.ClusterRoleBinding,
+      &.rule,
+      &.key {
+        circle {
+          fill: lightgray;
+          stroke: gray;
+        }
       }
     }
   }

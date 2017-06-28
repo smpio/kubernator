@@ -121,7 +121,7 @@ class Graph extends React.Component {
       .data(nodes, node => node.id)
       .enter()
       .append('g')
-      .attr('class', 'node')
+      .attr('class', node => `node ${node.type}`)
       .call(drag);
 
     nodesSelection.append('circle')
@@ -333,6 +333,7 @@ const selectGraphData = createSelector(
 
               // rule
               const ruleId = gd.createNode({
+                type: 'rule',
                 name: '',
               });
 
@@ -349,6 +350,7 @@ const selectGraphData = createSelector(
 
                 // key
                 const keyId = gd.createNode({
+                  type: 'key',
                   name: key,
                 });
 
@@ -363,6 +365,7 @@ const selectGraphData = createSelector(
 
                   // value
                   const valueId = gd.createNode({
+                    type: 'value',
                     name: value,
                   });
 
