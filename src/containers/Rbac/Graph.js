@@ -188,8 +188,9 @@ class GraphData {
     return ++this.nextId;
   }
 
-  createNodeShared({ type, name }) {
+  createNodeShared(node) {
     const { nodes, nodeIdsByType, getNextId } = this;
+    const { type, name } = node;
 
     // get nodeIds
     const ids = nodeIdsByType[type];
@@ -199,16 +200,16 @@ class GraphData {
     const id = ids[name];
 
     // create node if not exists
-    if (!nodes[id]) nodes[id] = { id, type, name };
+    if (!nodes[id]) nodes[id] = { ...node, id };
 
     // return nodeId
     return id;
   }
 
-  createNode({ type, name, roleRef }) {
+  createNode(node) {
     const { nodes, getNextId } = this;
     const id = getNextId();
-    nodes[id] = { id, type, name, roleRef };
+    nodes[id] = { ...node, id };
     return id;
   }
 
