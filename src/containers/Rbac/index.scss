@@ -6,14 +6,19 @@
 }
 
 .rbac__controls,
+.rbac__legend,
 .rbac__graph {
   padding: 1em;
   background-color: white;
 }
 
-.rbac__controls {
+.rbac__controls,
+.rbac__legend {
   align-self: flex-start;
-  width: 100%;
+  max-width: 100%;
+}
+
+.rbac__controls {
 
   & > .rbac__controls-inner {
     overflow-x: auto;
@@ -28,12 +33,16 @@
   }
 }
 
-.rbac__legend {
+.rbac__legend,
+.rbac__graph {
   margin-top: 1em;
 }
 
+.rbac__legend {
+  width: 680px
+}
+
 .rbac__graph {
-  margin-top: 1em;
   flex: auto;
   width: 100%;
   height: 100%;
