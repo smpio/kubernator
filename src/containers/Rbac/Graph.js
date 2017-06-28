@@ -317,6 +317,7 @@ const selectGraphData = createSelector(
           case RESOURCE_CLUSTER_ROLE: type = ITEM_CLUSTER_ROLE; break;
           case RESOURCE_ROLE_BINDING: type = ITEM_ROLE_BINDING; break;
           case RESOURCE_CLUSTER_ROLE_BINDING: type = ITEM_CLUSTER_ROLE_BINDING; break;
+          default: break;
         }
 
         //
@@ -366,7 +367,7 @@ const selectGraphData = createSelector(
                   // value
                   const valueId = gd.createNode({
                     type: 'value',
-                    name: value,
+                    name: value || '[empty]',
                   });
 
                   // link
@@ -394,7 +395,7 @@ const selectGraphData = createSelector(
               // subject
               const subjectId = gd.createNodeShared({
                 type: kind,
-                name: `${kind}:${name}`,
+                name,
               });
 
               // link
