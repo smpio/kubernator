@@ -4,7 +4,10 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import { Radio } from 'antd';
+import {
+  Radio,
+  Checkbox,
+} from 'antd';
 
 import {
   PREFIX,
@@ -16,16 +19,22 @@ import {
 class Controls extends React.Component {
   constructor(props) {
     super(props);
-    this.onChange = this.onChange.bind(this);
+    this.onChangeNamespace = this.onChangeNamespace.bind(this);
+    this.onChangeLegend = this.onChangeLegend.bind(this);
   }
 
   componentDidMount() {
     this.props.namespacesGet();
   }
 
-  onChange(event) {
+  onChangeNamespace(event) {
     const namespaceIndex = event.target.value;
     this.props.namespaceSet(namespaceIndex);
+  }
+
+  onChangeLegend(event) {
+    const value = event.target.checked;
+    this.props.onChangeLegend(value);
   }
 
   render() {
@@ -34,14 +43,15 @@ class Controls extends React.Component {
         namespaces,
         namespaceIndex,
       },
-      onChange,
+      onChangeNamespace,
+      onChangeLegend,
     } = this;
     return (
       <div className="rbac__controls">
         <div className="rbac__controls-inner">
           <Radio.Group
             value={namespaceIndex}
-            onChange={onChange}>
+            onChange={onChangeNamespace}>
             {
               namespaces.map((namespace, index) =>
                 <Radio.Button
@@ -53,6 +63,9 @@ class Controls extends React.Component {
               )
             }
           </Radio.Group>
+          <div className="rbac__controls-legend">
+            <Checkbox onChange={onChangeLegend}>Legend</Checkbox>
+          </div>
         </div>
       </div>
     );
@@ -64,6 +77,7 @@ Controls.propTypes = {
   namespaceIndex: PropTypes.number,
   namespacesGet: PropTypes.func,
   namespaceSet: PropTypes.func,
+  onChangeLegend: PropTypes.func,
 };
 
 export default connect(

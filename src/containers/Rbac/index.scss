@@ -23,12 +23,19 @@
   & > .rbac__controls-inner {
     overflow-x: auto;
 
+    display: flex;
+    align-items: center;
+
     & > .ant-radio-group {
       display: flex;
 
       & > .ant-radio-button-wrapper {
         white-space: nowrap;
       }
+    }
+
+    & > .rbac__controls-legend {
+      margin-left: 2em;
     }
   }
 }
