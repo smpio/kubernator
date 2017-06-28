@@ -10,10 +10,17 @@ import * as d3 from 'd3';
 import {
   PREFIX,
   RESOURCE,
+
   RESOURCE_ROLE,
   RESOURCE_CLUSTER_ROLE,
   RESOURCE_ROLE_BINDING,
   RESOURCE_CLUSTER_ROLE_BINDING,
+
+  ITEM_ROLE,
+  ITEM_CLUSTER_ROLE,
+  ITEM_ROLE_BINDING,
+  ITEM_CLUSTER_ROLE_BINDING,
+
   NONAMESPACE,
   itemsGet,
 } from '../../modules/rbac';
@@ -166,7 +173,8 @@ class GraphData {
     // shared nodes
     // nodeType -> nodeName -> nodeId
     this.nodeIdsByType = {
-      Role: {},
+      [ITEM_ROLE]: {},
+      [ITEM_CLUSTER_ROLE]: {},
       User: {},
       Group: {},
       ServiceAccount: {},
@@ -191,16 +199,16 @@ class GraphData {
     const id = ids[name];
 
     // create node if not exists
-    if (!nodes[id]) nodes[id] = { id, name };
+    if (!nodes[id]) nodes[id] = { id, type, name };
 
     // return nodeId
     return id;
   }
 
-  createNode({ name }) {
+  createNode({ type, name, roleRef }) {
     const { nodes, getNextId } = this;
     const id = getNextId();
-    nodes[id] = { id, name };
+    nodes[id] = { id, type, name, roleRef };
     return id;
   }
 
@@ -209,6 +217,34 @@ class GraphData {
     const id = getNextId();
     links[id] = { id, source, target };
     return id;
+  }
+
+  linkBindingsWithRoles() {
+    const { nodes } = this;
+
+    const nodesRoles = Object.keys(nodes).filter(id => {
+      const { type } = nodes[id];
+      return type === ITEM_ROLE || type === ITEM_CLUSTER_ROLE;
+    });
+
+    const nodesRoleBindings = Object.keys(nodes).filter(id => {
+      const { type } = nodes[id];
+      return type === ITEM_ROLE_BINDING || type === ITEM_CLUSTER_ROLE_BINDING;
+    });
+
+    nodesRoleBindings.forEach(id => {
+      const { kind, name } = nodes[id].roleRef;
+      const roleId = nodesRoles.find(id => {
+        const { type: nodeType, name: nodeName } = nodes[id];
+        return nodeType === kind && nodeName === name;
+      });
+      if (roleId) {
+        this.createLink({
+          source: id,
+          target: roleId,
+        });
+      }
+    });
   }
 
   getData() {
@@ -243,9 +279,6 @@ class GraphData {
   }
 }
 
-GraphData.TYPE_ROLE = 'Role';
-GraphData.TYPE_BINDING = 'Binding';
-
 const selectNamespace = state => state.namespaces[state.namespaceIndex];
 const selectItems = state => state.items;
 const selectGraphData = createSelector(
@@ -262,17 +295,31 @@ const selectGraphData = createSelector(
 
       // build nodes and links
       .forEach(item => {
-        const { metadata: { name }, [RESOURCE]: resource } = item;
-        switch (resource) {
+        const {
+          metadata: {
+            name,
+          },
+          roleRef,
+          [RESOURCE]: resource,
+        } = item;
 
-          case RESOURCE_ROLE:
-          case RESOURCE_CLUSTER_ROLE:
+        // get item type
+        let type;
+        switch (resource) {
+          case RESOURCE_ROLE: type = ITEM_ROLE; break;
+          case RESOURCE_CLUSTER_ROLE: type = ITEM_CLUSTER_ROLE; break;
+          case RESOURCE_ROLE_BINDING: type = ITEM_ROLE_BINDING; break;
+          case RESOURCE_CLUSTER_ROLE_BINDING: type = ITEM_CLUSTER_ROLE_BINDING; break;
+        }
+
+        //
+        switch (type) {
+
+          case ITEM_ROLE:
+          case ITEM_CLUSTER_ROLE:
 
             // role
-            const roleId = gd.createNodeShared({
-              type: GraphData.TYPE_ROLE,
-              name,
-            });
+            const roleId = gd.createNodeShared({ type, name });
 
             // children
             item.rules.forEach(rule => {
@@ -324,14 +371,11 @@ const selectGraphData = createSelector(
             //
             break;
 
-          case RESOURCE_ROLE_BINDING:
-          case RESOURCE_CLUSTER_ROLE_BINDING:
+          case ITEM_ROLE_BINDING:
+          case ITEM_CLUSTER_ROLE_BINDING:
 
             // rolebinding
-            const rolebindingId = gd.createNode({
-              type: GraphData.TYPE_BINDING,
-              name,
-            });
+            const rolebindingId = gd.createNode({ type, name, roleRef });
 
             // children
             item.subjects.forEach(subject => {
@@ -359,7 +403,7 @@ const selectGraphData = createSelector(
       });
 
     // add rolebinding -> role links
-
+    gd.linkBindingsWithRoles();
 
     //
     return gd.getData();
