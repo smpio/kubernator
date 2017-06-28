@@ -30,6 +30,8 @@
     }
 
     .node {
+      text { fill: black; }
+      circle { transform-origin: center; }
 
       &.Role,
       &.ClusterRole {
@@ -53,6 +55,7 @@
         circle {
           fill: gray;
           stroke: black;
+          transform: scale(.75);
         }
       }
 
@@ -60,9 +63,13 @@
       &.ClusterRoleBinding,
       &.rule,
       &.key {
+        text {
+          fill: gray;
+        }
         circle {
           fill: lightgray;
           stroke: gray;
+          transform: scale(.5);
         }
       }
     }
