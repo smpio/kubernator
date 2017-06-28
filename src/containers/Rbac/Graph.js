@@ -130,7 +130,7 @@ class Graph extends React.Component {
       .data(nodes, node => node.id)
       .enter()
       .append('g')
-      .attr('class', node => `node ${node.type}`)
+      .attr('class', node => `node ${node.kind}`)
       .call(drag);
 
     nodesSelection.append('circle')
@@ -176,122 +176,74 @@ class Graph extends React.Component {
 // -----------
 
 class GraphData {
+
   constructor() {
-
-    // sequential ids
-    this.nextId = 0;
-
-    // data
-    this.nodes = {};
-    this.links = {};
-
-    // shared nodes
-    // nodeType -> nodeName -> nodeId
-    this.nodeIdsByType = {
-      [ITEM_ROLE]: {},
-      [ITEM_CLUSTER_ROLE]: {},
-      User: {},
-      Group: {},
-      ServiceAccount: {},
+    this.nId = 0;
+    this.oKinds = {
+      [RESOURCE_ROLE]: ITEM_ROLE,
+      [RESOURCE_CLUSTER_ROLE]: ITEM_CLUSTER_ROLE,
+      [RESOURCE_ROLE_BINDING]: ITEM_ROLE_BINDING,
+      [RESOURCE_CLUSTER_ROLE_BINDING]: ITEM_CLUSTER_ROLE_BINDING,
     };
 
-    //
-    this.getNextId = this.getNextId.bind(this);
+    this.oNodes = {};
+    this.aLinks = [];
+
+    this.getId = this.getId.bind(this);
+    this.getKind = this.getKind.bind(this);
+    this.getKey = this.getKey.bind(this);
   }
 
-  getNextId() {
-    return ++this.nextId;
+  getId() {
+    return ++this.nId;
   }
 
-  createNodeShared(node) {
-    const { nodes, nodeIdsByType, getNextId } = this;
-    const { type, name } = node;
+  getKind(resource) {
+    return this.oKinds[resource];
+  }
 
-    // get nodeIds
-    const ids = nodeIdsByType[type];
-
-    // get nodeId
-    if (!ids[name]) ids[name] = getNextId();
-    const id = ids[name];
-
-    // create node if not exists
-    if (!nodes[id]) nodes[id] = { ...node, id };
-
-    // return nodeId
-    return id;
+  getKey(node) {
+    const { kind, name } = node;
+    return `${kind}:${name}`;
   }
 
   createNode(node) {
-    const { nodes, getNextId } = this;
-    const id = getNextId();
-    nodes[id] = { ...node, id };
-    return id;
+    const { oNodes, getId, getKey } = this;
+    const key = getKey(node);
+    if (!oNodes[key]) oNodes[key] = { ...node, id: getId() };
+    return key;
   }
 
-  createLink({ source, target }) {
-    const { links, getNextId } = this;
-    const id = getNextId();
-    links[id] = { id, source, target };
-    return id;
+  createLink(link) {
+    const { aLinks, getId } = this;
+    aLinks.push({ ...link, id: getId() });
   }
 
-  linkBindingsWithRoles() {
-    const { nodes } = this;
-
-    const nodesRoles = Object.keys(nodes).filter(id => {
-      const { type } = nodes[id];
-      return type === ITEM_ROLE || type === ITEM_CLUSTER_ROLE;
-    });
-
-    const nodesRoleBindings = Object.keys(nodes).filter(id => {
-      const { type } = nodes[id];
-      return type === ITEM_ROLE_BINDING || type === ITEM_CLUSTER_ROLE_BINDING;
-    });
-
-    nodesRoleBindings.forEach(id => {
-      const { kind, name } = nodes[id].roleRef;
-      const roleId = nodesRoles.find(id => {
-        const { type: nodeType, name: nodeName } = nodes[id];
-        return nodeType === kind && nodeName === name;
-      });
-      if (roleId) {
-        this.createLink({
-          source: id,
-          target: roleId,
-        });
-      }
-    });
+  findNode(node) {
+    const { oNodes, getKey } = this;
+    const key = getKey(node);
+    return oNodes[key] && key;
   }
 
   getData() {
-    const {
-      nodes: nodesObj,
-      links: linksObj,
-    } = this;
-
-    // id to index mapping
-    const nodeIdToIndex = {};
+    const { oNodes, aLinks } = this;
 
     // nodes
-    const nodesArr = Object.keys(nodesObj).map((id, index) => {
-      nodeIdToIndex[id] = index;
-      return nodesObj[id];
+    const oKeyToIndex = {};
+    const nodes = Object.keys(oNodes).map((key, index) => {
+      oKeyToIndex[key] = index;
+      return oNodes[key];
     });
 
     // links
-    const linksArr = Object.keys(linksObj).map(id => {
-      const link = linksObj[id];
-      return {
-        ...link,
-        source: nodeIdToIndex[link.source],
-        target: nodeIdToIndex[link.target],
-      };
-    });
+    const links = aLinks.map(link => ({
+      ...link,
+      source: oKeyToIndex[link.source],
+      target: oKeyToIndex[link.target],
+    }));
 
-    return {
-      nodes: nodesArr,
-      links: linksArr,
-    };
+    //
+    return { nodes, links };
   }
 }
 
@@ -301,129 +253,46 @@ const selectGraphData = createSelector(
   [selectNamespace, selectItems],
   (namespace, items) => {
     const gd = new GraphData();
-    items
 
-      // filter correct namespace
+    // filter namespace
+    const itemsNamespace = items.filter(item => {
+      const { namespace: itemNamespace = NONAMESPACE } = item.metadata;
+      return itemNamespace === namespace;
+    });
+
+    // add roles
+    itemsNamespace
       .filter(item => {
-        const { namespace: itemNamespace = NONAMESPACE } = item.metadata;
-        return itemNamespace === namespace;
+        const { [RESOURCE]: resource } = item;
+        return (
+          resource === RESOURCE_ROLE ||
+          resource === RESOURCE_CLUSTER_ROLE
+        );
       })
-
-      // build nodes and links
       .forEach(item => {
-        const {
-          metadata: {
-            name,
-          },
-          roleRef,
-          [RESOURCE]: resource,
-        } = item;
-
-        // get item type
-        let type;
-        switch (resource) {
-          case RESOURCE_ROLE: type = ITEM_ROLE; break;
-          case RESOURCE_CLUSTER_ROLE: type = ITEM_CLUSTER_ROLE; break;
-          case RESOURCE_ROLE_BINDING: type = ITEM_ROLE_BINDING; break;
-          case RESOURCE_CLUSTER_ROLE_BINDING: type = ITEM_CLUSTER_ROLE_BINDING; break;
-          default: break;
-        }
-
-        //
-        switch (type) {
-
-          case ITEM_ROLE:
-          case ITEM_CLUSTER_ROLE:
-
-            // role
-            const roleId = gd.createNodeShared({ type, name });
-
-            // children
-            item.rules.forEach(rule => {
-
-              // rule
-              const ruleId = gd.createNode({
-                type: 'rule',
-                name: '',
-              });
-
-              // link
-              gd.createLink({
-                source: roleId,
-                target: ruleId,
-              });
-
-              // children
-              // apiGroups, resources, verbs, etc.
-              Object.keys(rule).forEach(key => {
-                const values = rule[key];
-
-                // key
-                const keyId = gd.createNode({
-                  type: 'key',
-                  name: key,
-                });
-
-                // link
-                gd.createLink({
-                  source: ruleId,
-                  target: keyId,
-                });
-
-                // children
-                values.forEach(value => {
-
-                  // value
-                  const valueId = gd.createNode({
-                    type: 'value',
-                    name: value || '[empty]',
-                  });
-
-                  // link
-                  gd.createLink({
-                    source: keyId,
-                    target: valueId,
-                  });
-                });
-              });
-            });
-
-            //
-            break;
-
-          case ITEM_ROLE_BINDING:
-          case ITEM_CLUSTER_ROLE_BINDING:
-
-            // rolebinding
-            const rolebindingId = gd.createNode({ type, name, roleRef });
-
-            // children
-            item.subjects.forEach(subject => {
-              const { kind, name } = subject;
-
-              // subject
-              const subjectId = gd.createNodeShared({
-                type: kind,
-                name,
-              });
-
-              // link
-              gd.createLink({
-                source: rolebindingId,
-                target: subjectId,
-              });
-            });
-
-            //
-            break;
-
-          default:
-            break;
-        }
+        const { metadata: { name }, [RESOURCE]: resource } = item;
+        gd.createNode({ kind: gd.getKind(resource), name });
       });
 
-    // add rolebinding -> role links
-    gd.linkBindingsWithRoles();
+    // add subjects
+    // User, Group, ServiceAccount
+    itemsNamespace
+      .filter(item => {
+        const { [RESOURCE]: resource } = item;
+        return (
+          resource === RESOURCE_ROLE_BINDING ||
+          resource === RESOURCE_CLUSTER_ROLE_BINDING
+        );
+      })
+      .forEach(item => {
+        const { subjects, roleRef: { kind, name }} = item;
+        const roleId = gd.findNode({ kind, name });
+        roleId && subjects.forEach(subject => {
+          const { kind, name } = subject;
+          const subjectId = gd.createNode({ kind, name });
+          gd.createLink({ source: subjectId, target: roleId });
+        });
+      });
 
     //
     return gd.getData();

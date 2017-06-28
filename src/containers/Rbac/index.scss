@@ -50,7 +50,7 @@
 }
 
 .rbac__legend {
-  width: 680px
+  width: 600px
 }
 
 .rbac__graph {
@@ -71,14 +71,6 @@ svg {
     text { fill: black; }
     circle { transform-origin: center; }
 
-    &.Role,
-    &.ClusterRole {
-      circle {
-        fill: cornflowerblue;
-        stroke: darkblue;
-      }
-    }
-
     &.User,
     &.Group,
     &.ServiceAccount {
@@ -88,8 +80,17 @@ svg {
       }
     }
 
-    &.undefined,
-    &.value {
+    &.Role,
+    &.ClusterRole {
+      circle {
+        fill: cornflowerblue;
+        stroke: darkblue;
+        transform: scale(.75);
+      }
+    }
+
+    &.RoleBinding,
+    &.ClusterRoleBinding {
       circle {
         fill: gray;
         stroke: black;
@@ -97,10 +98,7 @@ svg {
       }
     }
 
-    &.RoleBinding,
-    &.ClusterRoleBinding,
-    &.rule,
-    &.key {
+    &.undefined {
       text {
         fill: gray;
       }
