@@ -4,7 +4,7 @@ import {
   compose,
 } from 'redux';
 
-import createHistory from 'history/createBrowserHistory';
+import createHistory from 'history/createHashHistory';
 
 import { routerMiddleware } from 'react-router-redux';
 import createSagaMiddleware from 'redux-saga';
