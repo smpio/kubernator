@@ -13,7 +13,7 @@ export default class Legend extends React.PureComponent {
             <circle r="7" />
             <text dx="12" dy="4">Role, ClusterRole</text>
           </g>
-          <g className="link" transform="translate(355,10)">
+          <g className="link RoleBinding" transform="translate(355,10)">
             <line x1="0" y1="0" x2="20" y2="0"></line>
             <text dx="28" dy="4">RoleBinding, ClusterRoleBinding</text>
           </g>
