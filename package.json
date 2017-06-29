@@ -17,6 +17,7 @@
     "react-router": "^4.1.1",
     "react-router-dom": "^4.1.1",
     "react-router-redux": "next",
+    "react-throttle-render": "^2.0.0",
     "redux": "^3.6.0",
     "redux-saga": "^0.15.3",
     "redux-thunk": "^2.2.0",

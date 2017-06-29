@@ -287,11 +287,8 @@ function* sagaNamespaceItemsGet() {
       });
 
       // ∀ resource => request resource[ITEMS]
-      for (let id of targetResources) {
-        yield put(resourceItemsGet(resources[id], namespace));
-        yield take(RESOURCE_ITEMS_GET__S);
-        yield delay(0);
-      }
+      yield all(targetResources.map(id => put(resourceItemsGet(resources[id], namespace))));
+      yield all(targetResources.map(() => take(RESOURCE_ITEMS_GET__S)));
 
       //
       yield put({ type: NAMESPACE_ITEMS_GET__S });

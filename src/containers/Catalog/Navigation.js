@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
+import throttle from 'react-throttle-render';
 
 import {
   PREFIX,
@@ -345,4 +346,4 @@ export default connect(
     resourceItemsGet,
     tabOpen,
   }, dispatch),
-)(Navigation);
+)(throttle(100)(Navigation));
