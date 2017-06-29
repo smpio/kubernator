@@ -4,26 +4,17 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
+import throttle from 'react-throttle-render';
 
 import * as d3 from 'd3';
 
 import {
   PREFIX,
-  RESOURCE,
-
-  RESOURCE_ROLE,
-  RESOURCE_CLUSTER_ROLE,
-  RESOURCE_ROLE_BINDING,
-  RESOURCE_CLUSTER_ROLE_BINDING,
-
-  ITEM_ROLE,
-  ITEM_CLUSTER_ROLE,
-  ITEM_ROLE_BINDING,
-  ITEM_CLUSTER_ROLE_BINDING,
-
-  NONAMESPACE,
-  itemsGet,
-} from '../../modules/rbac';
+  RESOURCE_ID,
+  NO_NAMESPACE,
+  rbacGet,
+  tabOpen,
+} from '../../modules/k8s';
 
 
 // main class
@@ -39,15 +30,23 @@ class Graph extends React.Component {
     this.getContainer = this.getContainer.bind(this);
     this.d3Create = this.d3Create.bind(this);
     this.d3Update = this.d3Update.bind(this);
+
+    this.itemEdit = this.itemEdit.bind(this);
   }
 
   componentDidMount() {
-    this.props.itemsGet();
+    this.props.rbacGet();
   }
 
   componentDidUpdate() {
     this.d3Create();
     this.d3Update();
+  }
+
+  itemEdit(id) {
+    const { historyPush, tabOpen } = this.props;
+    historyPush('/catalog');
+    setImmediate(() => tabOpen(id));
   }
 
   getContainer(container) {
@@ -115,6 +114,7 @@ class Graph extends React.Component {
         drag,
         simulation,
       },
+      itemEdit,
     } = this;
 
     let nodesSelection;
@@ -125,7 +125,8 @@ class Graph extends React.Component {
       .data(links, link => link.id)
       .enter()
       .append('g')
-      .attr('class', 'link');
+      .attr('class', link => `link ${link.kind}`)
+      .on('click', link => itemEdit(link.uid));
 
     linksSelection.append('line');
     linksSelection.append('text')
@@ -139,6 +140,7 @@ class Graph extends React.Component {
       .enter()
       .append('g')
       .attr('class', node => `node ${node.kind}`)
+      .on('click', node => node.uid && itemEdit(node.uid))
       .call(drag);
 
     nodesSelection.append('circle')
@@ -186,15 +188,20 @@ class Graph extends React.Component {
 // selectors
 // -----------
 
+const RESOURCE_ROLE = 'roles';
+const RESOURCE_CLUSTER_ROLE = 'clusterroles';
+const RESOURCE_ROLE_BINDING = 'rolebindings';
+const RESOURCE_CLUSTER_ROLE_BINDING = 'clusterrolebindings';
+
 class GraphData {
 
   constructor() {
     this.nId = 0;
     this.oKinds = {
-      [RESOURCE_ROLE]: ITEM_ROLE,
-      [RESOURCE_CLUSTER_ROLE]: ITEM_CLUSTER_ROLE,
-      [RESOURCE_ROLE_BINDING]: ITEM_ROLE_BINDING,
-      [RESOURCE_CLUSTER_ROLE_BINDING]: ITEM_CLUSTER_ROLE_BINDING,
+      [RESOURCE_ROLE]: 'Role',
+      [RESOURCE_CLUSTER_ROLE]: 'ClusterRole',
+      [RESOURCE_ROLE_BINDING]: 'RoleBinding',
+      [RESOURCE_CLUSTER_ROLE_BINDING]: 'ClusterRoleBinding',
     };
 
     this.oNodes = {};
@@ -258,38 +265,40 @@ class GraphData {
   }
 }
 
-const selectNamespace = state => state.namespaces[state.namespaceIndex];
+const selectNamespace = (state, props) => state.namespaces[props.namespaceIndex];
 const selectItems = state => state.items;
 const selectGraphData = createSelector(
   [selectNamespace, selectItems],
-  (namespace, items) => {
+  (namespaceName, items) => {
     const gd = new GraphData();
 
     // filter namespace
-    const itemsNamespace = items.filter(item => {
-      const { namespace: itemNamespace = NONAMESPACE } = item.metadata;
-      return itemNamespace === namespace;
-    });
+    const itemsNamespace = Object.keys(items)
+      .filter(id => {
+        const { namespace = NO_NAMESPACE } = items[id].metadata;
+        return namespace === namespaceName;
+      })
+      .map(id => items[id]);
 
     // add roles
     itemsNamespace
       .filter(item => {
-        const { [RESOURCE]: resource } = item;
+        const { [RESOURCE_ID]: resource } = item;
         return (
           resource === RESOURCE_ROLE ||
           resource === RESOURCE_CLUSTER_ROLE
         );
       })
       .forEach(item => {
-        const { metadata: { name }, [RESOURCE]: resource } = item;
-        gd.createNode({ kind: gd.getKind(resource), name });
+        const { metadata: { uid, name }, [RESOURCE_ID]: resource } = item;
+        gd.createNode({ kind: gd.getKind(resource), name, uid });
       });
 
     // add subjects
     // User, Group, ServiceAccount
     itemsNamespace
       .filter(item => {
-        const { [RESOURCE]: resource } = item;
+        const { [RESOURCE_ID]: resource } = item;
         return (
           resource === RESOURCE_ROLE_BINDING ||
           resource === RESOURCE_CLUSTER_ROLE_BINDING
@@ -297,15 +306,43 @@ const selectGraphData = createSelector(
       })
       .forEach(item => {
         const {
-          metadata: { name: itemName },
+          metadata: {
+            uid: itemUid,
+            name: itemName,
+          },
           subjects,
-          roleRef: { kind, name },
+          roleRef: {
+            kind: roleKind,
+            name: roleName,
+          },
+          [RESOURCE_ID]: resource,
         } = item;
-        const roleId = gd.findNode({ kind, name });
+
+        // role
+        const roleId = gd.findNode({
+          kind: roleKind,
+          name: roleName,
+        });
+
+        //
         roleId && subjects.forEach(subject => {
           const { kind, name } = subject;
-          const subjectId = gd.createNode({ kind, name });
-          gd.createLink({ name: itemName, source: subjectId, target: roleId });
+
+          // subject
+          const subjectId = gd.createNode({
+            kind,
+            name,
+            uid: null,
+          });
+
+          // link
+          gd.createLink({
+            source: subjectId,
+            target: roleId,
+            kind: gd.getKind(resource),
+            name: itemName,
+            uid: itemUid,
+          });
         });
       });
 
@@ -321,12 +358,16 @@ const selectGraphData = createSelector(
 Graph.propTypes = {
   nodes: PropTypes.array,
   links: PropTypes.array,
-  itemsGet: PropTypes.func,
+  namespaces: PropTypes.array,
+  namespaceIndex: PropTypes.number,
+  rbacGet: PropTypes.func,
+  historyPush: PropTypes.func,
 };
 
 export default connect(
-  state => selectGraphData(state[PREFIX]),
+  (state, props) => selectGraphData(state[PREFIX], props),
   dispatch => bindActionCreators({
-    itemsGet,
+    rbacGet,
+    tabOpen,
   }, dispatch),
-)(Graph);
+)(throttle(100)(Graph));

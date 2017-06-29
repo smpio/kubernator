@@ -63,13 +63,33 @@ svg {
   width: 100%;
   height: 100%;
 
+  .link, .node {
+    circle, line, text {
+      transition: all .1s linear;
+    }
+  }
+
   .link {
-    line { stroke: gray; }
-    text { fill: gray; }
+
+    &.RoleBinding,
+    &.ClusterRoleBinding {
+      line { stroke: gray; }
+      text { fill: gray; }
+      &:hover {
+        cursor: pointer;
+        line { stroke: black; }
+        text { fill: black; }
+      }
+    }
+
+    &.undefined {
+      line { stroke: lightgray; }
+      text { fill: lightgray; }
+    }
   }
 
   .node {
-    text { fill: black; }
+    cursor: move;
     circle { transform-origin: center; }
 
     &.User,
@@ -83,24 +103,20 @@ svg {
 
     &.Role,
     &.ClusterRole {
+      cursor: pointer;
       circle {
         fill: cornflowerblue;
         stroke: darkblue;
         transform: scale(.75);
       }
-    }
-
-    &.RoleBinding,
-    &.ClusterRoleBinding {
-      circle {
-        fill: gray;
-        stroke: black;
-        transform: scale(.75);
+      &:hover {
+        text { fill: black; }
+        circle { transform: none; }
       }
     }
 
     &.undefined {
-      text { fill: gray; }
+      text { fill: lightgray; }
       circle {
         fill: lightgray;
         stroke: gray;

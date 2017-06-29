@@ -2,8 +2,16 @@ import { all, call, put, select, takeEvery } from 'redux-saga/effects';
 import update from 'immutability-helper';
 import jsYaml from 'js-yaml';
 
-import { PREFIX, YAML } from './shared';
-import { itemGet, stateItemGet, itemRemoveReadonlyProperties } from './item';
+import {
+  PREFIX,
+  YAML,
+} from './shared';
+
+import {
+  itemGet,
+  itemSelect,
+  itemRemoveReadonlyProperties,
+} from './items';
 
 
 // codes
@@ -87,7 +95,10 @@ function* sagaTabOpen() {
       else {
 
         // find item
-        const item = yield select(stateItemGet, id);
+        const item = yield select(itemSelect, id);
+
+        // request item if needed
+        //if (!item) yield put();
 
         // request yaml only if needed
         if (item && !item[YAML]) yield put(itemGet(id));

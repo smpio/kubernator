@@ -3,17 +3,12 @@ import PropTypes from 'prop-types';
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-
-import {
-  Radio,
-  Checkbox,
-} from 'antd';
+import { Radio, Checkbox } from 'antd';
 
 import {
   PREFIX,
   namespacesGet,
-  namespaceSet,
-} from '../../modules/rbac';
+} from '../../modules/k8s';
 
 
 class Controls extends React.Component {
@@ -29,7 +24,7 @@ class Controls extends React.Component {
 
   onChangeNamespace(event) {
     const namespaceIndex = event.target.value;
-    this.props.namespaceSet(namespaceIndex);
+    this.props.onChangeNamespace(namespaceIndex);
   }
 
   onChangeLegend(event) {
@@ -74,16 +69,15 @@ class Controls extends React.Component {
 
 Controls.propTypes = {
   namespaces: PropTypes.array,
-  namespaceIndex: PropTypes.number,
   namespacesGet: PropTypes.func,
-  namespaceSet: PropTypes.func,
+  namespaceIndex: PropTypes.number,
   onChangeLegend: PropTypes.func,
+  onChangeNamespace: PropTypes.func,
 };
 
 export default connect(
   state => state[PREFIX],
   dispatch => bindActionCreators({
     namespacesGet,
-    namespaceSet,
   }, dispatch),
 )(Controls);

@@ -3,26 +3,18 @@ import { routerReducer } from 'react-router-redux';
 import { all } from 'redux-saga/effects';
 
 import {
-  PREFIX as catalogPrefix,
-  catalogReducer,
-  catalogSaga,
-} from './catalog';
-
-import {
-  PREFIX as rbacPrefix,
-  rbacReducer,
-  rbacSaga,
-} from './rbac';
+  PREFIX as k8sPrefix,
+  reducer as k8sReducer,
+  saga as k8sSaga,
+} from './k8s';
 
 export function * sagas() {
   yield all([
-    catalogSaga(),
-    rbacSaga(),
+    k8sSaga(),
   ]);
 }
 
 export const reducers = combineReducers({
   router: routerReducer,
-  [catalogPrefix]: catalogReducer,
-  [rbacPrefix]: rbacReducer,
+  [k8sPrefix]: k8sReducer,
 });

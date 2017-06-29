@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import {
   PREFIX,
   YAML,
-  LOADING_TREE,
+  IS_LOADING_CATALOG,
   itemGet,
   itemPost,
   itemPut,
@@ -15,7 +15,7 @@ import {
   tabOpen,
   tabClose,
   tabCloseAll,
-} from '../../modules/catalog';
+} from '../../modules/k8s';
 
 import { Tabs, Button, Popconfirm } from 'antd';
 import Editor from './Editor';
@@ -40,12 +40,12 @@ class Content extends React.Component {
   }
 
   shouldComponentUpdate(props) {
-    return !props.flags[LOADING_TREE];
+    return !props.flags[IS_LOADING_CATALOG];
   }
 
   componentDidMount() {
-    const { tabs: { ids }, tabOpen } = this.props;
-    if (!ids.length) tabOpen();
+    const { defaultTab, tabs: { ids }, tabOpen } = this.props;
+    if (defaultTab || !ids.length) tabOpen(defaultTab);
   }
 
   tabsOnChange(id) {
@@ -249,6 +249,7 @@ Content.propTypes = {
   tabOpen: PropTypes.func,
   tabClose: PropTypes.func,
   tabCloseAll: PropTypes.func,
+  defaultTab: PropTypes.string,
 };
 
 export default connect(

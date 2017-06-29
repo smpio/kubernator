@@ -3,28 +3,39 @@ import update from 'immutability-helper';
 import jsYaml from 'js-yaml';
 
 import {
+  toKeysObject,
+  toKeysArray,
+} from '../../utils';
+
+import {
   PREFIX,
-  READONLY,
-  RESOURCE,
-  ITEMS,
-  YAML,
   ID,
   URL,
+  YAML,
+  RESOURCE_ID,
+  ITEM_IDS,
+  IS_READONLY,
+  NO_UID,
+  apiGet,
 } from './shared';
+
+import {
+  resourceGetUrl,
+  resourceSelectByKind,
+} from './resources';
 
 import {
   tabOpen,
   tabClose,
 } from './tabs';
 
-import {
-  decorateItem,
-  resourceGetUrl,
-} from './tree';
-
 
 // action codes
 // --------------
+
+export const ITEMS_GET = `${PREFIX}/ITEMS_GET`;
+export const ITEMS_GET__S = `${PREFIX}/ITEMS_GET/S`;
+export const ITEMS_GET__F = `${PREFIX}/ITEMS_GET/F`;
 
 export const ITEM_GET = `${PREFIX}/ITEM_GET`;
 export const ITEM_GET__S = `${PREFIX}/ITEM_GET/S`;
@@ -45,6 +56,11 @@ export const ITEM_DELETE__F = `${PREFIX}/ITEM_DELETE/F`;
 
 // action creators
 // -----------------
+
+export const itemsGet = (resource, namespace) => ({
+  type: ITEMS_GET,
+  payload: { resource, namespace: namespace || undefined },
+});
 
 export const itemGet = id => ({
   type: ITEM_GET,
@@ -68,9 +84,9 @@ export const itemDelete = id => ({
 
 
 // api
-// -----
+// ------
 
-async function apiItemGetYaml(url) {
+async function itemApiGetYaml(url) {
   const res = await fetch(
     url,
     {
@@ -82,7 +98,7 @@ async function apiItemGetYaml(url) {
   return res.text();
 }
 
-async function apiItemPost(url, yaml) {
+async function itemApiPost(url, yaml) {
   const res = await fetch(
     url,
     {
@@ -96,7 +112,7 @@ async function apiItemPost(url, yaml) {
   return res.json();
 }
 
-async function apiItemPut(url, yaml) {
+async function itemApiPut(url, yaml) {
   const res = await fetch(
     url,
     {
@@ -110,7 +126,7 @@ async function apiItemPut(url, yaml) {
   return res.json();
 }
 
-async function apiItemDelete(url) {
+async function itemApiDelete(url) {
   const res = await fetch(
     url,
     {
@@ -122,43 +138,58 @@ async function apiItemDelete(url) {
 
 
 // state
-// -------
+// ---------
 
-export function stateItemGet(state, id) {
+export function itemSelect(state, id) {
   return state[PREFIX].items[id];
 }
 
-function stateResourceGetByKind(state, kind) {
-  const { resources } = state[PREFIX];
-
-  // find correponding resources
-  const resourceIds = Object.keys(resources)
-    .filter(resourceId => {
-      const resource = resources[resourceId];
-      return (
-        resource.kind === kind &&
-        resource.verbs.includes('create')
-      );
-    });
-
-  // error if more than 1 result
-  if (resourceIds.length !== 1) return null;
-  else return resources[resourceIds[0]];
-}
-
-export const itemState = {};
+export const itemsState = {
+  items: {},
+};
 
 
 // saga
 // ------
 
+function* sagaItemsGet() {
+  yield takeEvery(ITEMS_GET, function* (action) {
+    try {
+      const { resource, namespace } = action.payload;
+
+      // get
+      const url = resourceGetUrl(resource, namespace);
+      const { items } = yield call(apiGet, url);
+
+      // decorate
+      const decorate = itemDecorate(resource);
+      items.forEach(item => decorate(item));
+
+      //
+      yield put({
+        type: ITEMS_GET__S,
+        payload: { items },
+        meta: { resource, namespace },
+      });
+    }
+
+    catch (error) {
+      yield put({
+        type: ITEMS_GET__F,
+        payload: error,
+        error: true,
+      });
+    }
+  });
+}
+
 function* sagaItemGet() {
   yield takeEvery(ITEM_GET, function* (action) {
     try {
       const { id } = action.payload;
-      const item = yield select(stateItemGet, id);
+      const item = yield select(itemSelect, id);
       if (item) {
-        const yaml = yield call(apiItemGetYaml, item[URL]);
+        const yaml = yield call(itemApiGetYaml, item[URL]);
         yield put({
           type: ITEM_GET__S,
           payload: { yaml },
@@ -187,18 +218,18 @@ function* sagaItemPost() {
       if (!kind) throw new Error('Please, specify item\'s kind.');
 
       // find resource
-      const resource = yield select(stateResourceGetByKind, kind);
+      const resource = yield select(resourceSelectByKind, kind);
       if (!resource) throw new Error('Can\'t find correponding resource by kind.');
 
       // get url
       const url = resourceGetUrl(resource, namespace);
 
       // post
-      const item = yield call(apiItemPost, url, yaml);
+      const item = yield call(itemApiPost, url, yaml);
       if (item.status === 'Failure') throw item;
 
       // decorate item
-      decorateItem(resource)(item);
+      itemDecorate(resource)(item);
 
       //
       yield put({
@@ -226,10 +257,10 @@ function* sagaItemPut() {
   yield takeEvery(ITEM_PUT, function* (action) {
     try {
       const { id, yaml } = action.payload;
-      const { [URL]: url } = yield select(stateItemGet, id);
+      const { [URL]: url } = yield select(itemSelect, id);
 
       // put
-      const item = yield call(apiItemPut, url, yaml);
+      const item = yield call(itemApiPut, url, yaml);
       if (item.status === 'Failure') throw item;
 
       //
@@ -256,11 +287,11 @@ function* sagaItemDelete() {
       const { id: itemId } = action.payload;
       const {
         [URL]: itemUrl,
-        [RESOURCE]: resourceId,
-      } = yield select(stateItemGet, itemId);
+        [RESOURCE_ID]: resourceId,
+      } = yield select(itemSelect, itemId);
 
       //
-      const item = yield call(apiItemDelete, itemUrl);
+      const item = yield call(itemApiDelete, itemUrl);
       if (item.status === 'Failure') throw item;
 
       //
@@ -283,8 +314,9 @@ function* sagaItemDelete() {
   });
 }
 
-export function* itemSaga() {
+export function* itemsSaga() {
   yield all([
+    sagaItemsGet(),
     sagaItemGet(),
     sagaItemPost(),
     sagaItemPut(),
@@ -296,7 +328,31 @@ export function* itemSaga() {
 // reducer
 // ---------
 
-export const itemReducer = {
+export const itemsReducer = {
+
+  [ITEMS_GET__S]: (state, action) => {
+    const { items } = action.payload;
+    const { resource, namespace } = action.meta;
+
+    // merge items
+    const idsNew = toKeysArray(items, ID);
+    const idsMerge = idsOld => {
+      const { items } = state;
+      return idsOld
+        .filter(id => items[id].metadata.namespace !== namespace)
+        .concat(idsNew);
+    };
+
+    //
+    return update(state, {
+      resources: {
+        [resource[ID]]: {
+          [ITEM_IDS]: { $apply: idsMerge },
+        },
+      },
+      items: { $merge: toKeysObject(items, ID) },
+    });
+  },
 
   [ITEM_GET__S]: (state, action) => {
     const { id } = action.meta;
@@ -319,7 +375,7 @@ export const itemReducer = {
     return update(state, {
       resources: {
         [resourceId]: {
-          [ITEMS]: { $push: [itemId] },
+          [ITEM_IDS]: { $push: [itemId] },
         },
       },
       items: {
@@ -348,7 +404,7 @@ export const itemReducer = {
     return update(state, {
       resources: {
         [resourceId]: {
-          [ITEMS]: { $pop: [itemId] },
+          [ITEM_IDS]: { $pop: [itemId] },
         },
       },
       items: { $del: [itemId] },
@@ -360,12 +416,23 @@ export const itemReducer = {
 // helpers
 // ---------
 
+export function itemDecorate(resource) {
+  const { [ID]: resourceId } = resource;
+  return item => {
+    const { uid, name, namespace } = item.metadata;
+    const resourceUrl = resourceGetUrl(resource, namespace);
+    item[RESOURCE_ID] = resourceId;
+    item[ID] = uid || `${NO_UID}-${name}`;
+    item[URL] = `${resourceUrl}/${name}`;
+  };
+}
+
 export function itemRemoveReadonlyProperties(models, item, modelId) {
   const model = models[modelId];
   if (model) {
     const { properties } = model;
     Object.keys(properties).forEach(key => {
-      const { [READONLY]: readonly, $ref } = properties[key];
+      const { [IS_READONLY]: readonly, $ref } = properties[key];
       if (readonly) delete item[key];
       else if ($ref) itemRemoveReadonlyProperties(models, item[key], $ref);
     });

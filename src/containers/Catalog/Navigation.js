@@ -9,14 +9,15 @@ import throttle from 'react-throttle-render';
 import {
   PREFIX,
   ID,
-  ITEMS,
-  LISTABLE,
-  LOADING_TREE,
-  treeGet,
+  ITEM_IDS,
+  IS_LISTABLE,
+  IS_LOADING_CATALOG,
+  NO_NAMESPACE,
+  catalogGet,
   namespaceItemsGet,
-  resourceItemsGet,
+  itemsGet,
   tabOpen,
-} from '../../modules/catalog';
+} from '../../modules/k8s';
 
 import { Tree as TreeRoot, Spin } from 'antd';
 const TreeNode = TreeRoot.TreeNode;
@@ -42,16 +43,16 @@ class Navigation extends React.Component {
   }
 
   shouldComponentUpdate(props) {
-    const { loadingTree } = props.flags;
-    const { loadingTree: loadingTreePrev } = this.props.flags;
+    const { loadingCatalog } = props.flags;
+    const { loadingCatalog: loadingCatalogPrev } = this.props.flags;
 
-    if (loadingTree) return loadingTree !== loadingTreePrev;
+    if (loadingCatalog) return loadingCatalog !== loadingCatalogPrev;
     else return true;
   }
 
   componentDidMount() {
-    const { tree, treeGet } = this.props;
-    if (!tree.length) treeGet();
+    const { namespaces, catalog, catalogGet } = this.props;
+    if (!catalog.length || catalog.length !== namespaces.length) catalogGet();
   }
 
   onSelect(selectedKeys, event) {
@@ -93,7 +94,7 @@ class Navigation extends React.Component {
   }
 
   onLoadData(treeNode) {
-    const { namespaceItemsGet, resourceItemsGet } = this.props;
+    const { namespaceItemsGet, itemsGet } = this.props;
     const { custom: { type, payload } = {}} = treeNode.props;
 
     // namespace
@@ -108,7 +109,7 @@ class Navigation extends React.Component {
     else if (type === TYPE_RESOURCE) {
       const { resource, namespace: { namespaced, name }} = payload;
       return new Promise(
-        (resolve, reject) => resourceItemsGet(resource, namespaced && name, resolve, reject)
+        (resolve, reject) => itemsGet(resource, namespaced && name, resolve, reject)
       );
     }
 
@@ -148,9 +149,9 @@ class Navigation extends React.Component {
     const {
       props: {
         flags: {
-          loadingTree,
+          loadingCatalog,
         },
-        tree,
+        catalog,
       },
       state: {
         expandedKeys,
@@ -164,13 +165,13 @@ class Navigation extends React.Component {
     return (
       <div className="catalog__navigation">
         {
-          loadingTree &&
+          loadingCatalog &&
           <div className="catalog__spinner">
-            <Spin tip={loadingTree} />
+            <Spin tip={loadingCatalog} />
           </div>
         }
         {
-          !loadingTree &&
+          !loadingCatalog &&
           <TreeRoot
             onSelect={onSelect}
             onExpand={onExpand}
@@ -178,7 +179,7 @@ class Navigation extends React.Component {
             expandedKeys={expandedKeys}
             showLine>
             {
-              tree.map(node => renderNode(node))
+              catalog.map(node => renderNode(node))
             }
           </TreeRoot>
         }
@@ -188,8 +189,8 @@ class Navigation extends React.Component {
 }
 
 
-// custom tree selectors
-// -----------------------
+// selectors
+// -----------
 
 const sortByName = (a, b) =>
   (a.name > b.name) ? 1 : (a.name === b.name) ? 0 : -1;
@@ -231,8 +232,8 @@ function buildKinds(argsGlobal, argsLocal) {
   const {
     namespace,
     namespace: {
-      namespaced: namespaceNamespaced,
       name: namespaceName,
+      namespaced: namespaceNamespaced,
     },
   } = argsLocal;
   return Object.keys(resources)
@@ -240,8 +241,8 @@ function buildKinds(argsGlobal, argsLocal) {
     .filter(id => {
       const {
         namespaced,
-        [ITEMS]: itemIds,
-        [LISTABLE]: listable,
+        [ITEM_IDS]: itemIds,
+        [IS_LISTABLE]: listable,
       } = resources[id];
       return (
         listable &&
@@ -256,7 +257,7 @@ function buildKinds(argsGlobal, argsLocal) {
 
     .map(id => {
       const resource = resources[id];
-      const { kind, [ITEMS]: itemIds } = resource;
+      const { kind, [ITEM_IDS]: itemIds } = resource;
       return {
         type: TYPE_RESOURCE,
         id: `${namespaceName}:${kind}`,
@@ -270,26 +271,18 @@ function buildKinds(argsGlobal, argsLocal) {
 }
 
 function buildNamespaces(argsGlobal) {
-  const { resources, items } = argsGlobal;
-
-  // get namespaces
-  const namespaces = resources.namespaces[ITEMS].map(id => ({
-    name: items[id].metadata.name,
-    namespaced: true,
-  }));
-
-  // append nonamespace
-  namespaces.unshift({ name: '[nonamespace]' });
-
-  //
+  const { namespaces } = argsGlobal;
   return namespaces
 
-    .map(namespace => {
-      const { name } = namespace;
+    .map(namespaceName => {
+      const namespace = {
+        name: namespaceName,
+        namespaced: namespaceName !== NO_NAMESPACE,
+      };
       return {
         type: TYPE_NAMESPACE,
-        id: name,
-        name,
+        id: namespaceName,
+        name: namespaceName,
         children: buildKinds(argsGlobal, { namespace }),
         payload: { namespace },
       };
@@ -299,27 +292,29 @@ function buildNamespaces(argsGlobal) {
 }
 
 const selectFlags = state => ({
-  loadingTree: state.flags[LOADING_TREE],
+  loadingCatalog: state.flags[IS_LOADING_CATALOG],
 });
 
+const selectNamespaces = state => state.namespaces;
 const selectResources = state => state.resources;
 const selectItems = state => state.items;
 
-const selectTree = createSelector(
-  [selectFlags, selectResources, selectItems],
-  (flags, resources, items) => {
-    if (flags.loadingTree || !Object.keys(resources).length) return [];
-    else return buildNamespaces({ resources, items });
+const selectCatalog = createSelector(
+  [selectFlags, selectResources, selectItems, selectNamespaces],
+  (flags, resources, items, namespaces) => {
+    if (flags.loadingCatalog || !namespaces.length || !Object.keys(resources).length) return [];
+    else return buildNamespaces({ namespaces, resources, items });
   },
 );
 
 const selectAll = createSelector(
-  [selectFlags, selectResources, selectItems, selectTree],
-  (flags, resources, items, tree) => ({
+  [selectFlags, selectResources, selectItems, selectNamespaces, selectCatalog],
+  (flags, resources, items, namespaces, catalog) => ({
     flags,
     resources,
     items,
-    tree,
+    namespaces,
+    catalog,
   }),
 );
 
@@ -331,19 +326,20 @@ Navigation.propTypes = {
   flags: PropTypes.object,
   resources: PropTypes.object,
   items: PropTypes.object,
-  tree: PropTypes.array,
-  treeGet: PropTypes.func,
+  namespaces: PropTypes.array,
+  catalog: PropTypes.array,
+  catalogGet: PropTypes.func,
   namespaceItemsGet: PropTypes.func,
-  resourceItemsGet: PropTypes.func,
+  itemsGet: PropTypes.func,
   tabOpen: PropTypes.func,
 };
 
 export default connect(
   state => selectAll(state[PREFIX]),
   dispatch => bindActionCreators({
-    treeGet,
+    catalogGet,
     namespaceItemsGet,
-    resourceItemsGet,
+    itemsGet,
     tabOpen,
   }, dispatch),
 )(throttle(100)(Navigation));
