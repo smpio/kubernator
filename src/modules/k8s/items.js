@@ -57,9 +57,9 @@ export const ITEM_DELETE__F = `${PREFIX}/ITEM_DELETE/F`;
 // action creators
 // -----------------
 
-export const itemsGet = (resource, namespace) => ({
+export const itemsGet = (resource, namespace, resolve, reject) => ({
   type: ITEMS_GET,
-  payload: { resource, namespace: namespace || undefined },
+  payload: { resource, namespace: namespace || undefined, resolve, reject },
 });
 
 export const itemGet = id => ({
@@ -154,6 +154,7 @@ export const itemsState = {
 
 function* sagaItemsGet() {
   yield takeEvery(ITEMS_GET, function* (action) {
+    const { resolve, reject } = action.payload;
     try {
       const { resource, namespace } = action.payload;
 
@@ -171,14 +172,22 @@ function* sagaItemsGet() {
         payload: { items },
         meta: { resource, namespace },
       });
+
+      //
+      if (resolve) resolve();
     }
 
     catch (error) {
+
+      //
       yield put({
         type: ITEMS_GET__F,
         payload: error,
         error: true,
       });
+
+      //
+      if (reject) reject();
     }
   });
 }

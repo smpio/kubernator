@@ -64,9 +64,9 @@ export const namespacesGet = () => ({
   type: NAMESPACES_GET,
 });
 
-export const namespaceItemsGet = namespaceName => ({
+export const namespaceItemsGet = (namespaceName, resolve, reject) => ({
   type: NAMESPACE_ITEMS_GET,
-  payload: { namespaceName },
+  payload: { namespaceName, resolve, reject },
 });
 
 
@@ -222,6 +222,7 @@ function* sagaNamespacesGet() {
 
 function* sagaNamespaceItemsGet() {
   yield takeEvery(NAMESPACE_ITEMS_GET, function* (action) {
+    const { resolve, reject } = action.payload;
     try {
       const { namespaceName } = action.payload;
 
@@ -236,14 +237,22 @@ function* sagaNamespaceItemsGet() {
       yield put({
         type: NAMESPACE_ITEMS_GET__S,
       });
+
+      //
+      if (resolve) resolve();
     }
 
     catch (error) {
+
+      //
       yield put({
         type: NAMESPACE_ITEMS_GET__F,
         payload: error,
         error: true,
       });
+
+      //
+      if (reject) reject();
     }
   });
 }
