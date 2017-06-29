@@ -61,7 +61,7 @@ class Graph extends React.Component {
     const d3State = this.d3State = {};
 
     // get svg
-    const svg = d3State.svg = d3.select(container);
+    const svg = d3.select(container);
     svg.selectAll('*').remove();
 
     // get dimensions
@@ -75,16 +75,16 @@ class Graph extends React.Component {
 
     // force
     const simulation = d3State.simulation = d3.forceSimulation()
-      .force('link', d3.forceLink())
-      .force('collide', d3.forceCollide(20 /* radius */))
-      .force('charge', d3.forceManyBody().strength(node => -50 /* default is -30 */))
       .force('center', d3.forceCenter(center.x, center.y))
-      .velocityDecay(0.1);
+      .force('collide', d3.forceCollide(40 /* r */).strength(0.25 /* def 0.7 */))
+      .force('charge', d3.forceManyBody().strength(100 /* def -30 */))
+      .force('link', d3.forceLink())
+      .velocityDecay(0.4);
 
     // drag
     d3State.drag = d3.drag()
       .on('start', node => {
-        if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+        if (!d3.event.active) simulation.alphaTarget(0.1).restart();
       })
       .on('drag', node => {
         node.fx = d3.event.x;
@@ -98,7 +98,7 @@ class Graph extends React.Component {
 
     // zoom
     const zoom = d3.zoom()
-      .scaleExtent([0.1, 2])
+      .scaleExtent([0.2, 2])
       .on('zoom', () => canvas.attr('transform', d3.event.transform));
     svg.call(zoom);
   }
