@@ -12,6 +12,7 @@ import {
   PREFIX,
   RESOURCE_ID,
   NO_NAMESPACE,
+  UI_THROTTLE,
   rbacGet,
   tabOpen,
 } from '../../modules/k8s';
@@ -370,4 +371,4 @@ export default connect(
     rbacGet,
     tabOpen,
   }, dispatch),
-)(throttle(100)(Graph));
+)(throttle(UI_THROTTLE)(Graph));

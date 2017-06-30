@@ -23,6 +23,8 @@ export const NO_GROUP = '[nogroup]';
 export const NO_NAMESPACE = '[nonamespace]';
 export const NO_UID = '[nouid]';
 
+export const UI_THROTTLE = 1000;
+
 export async function apiGet(url) {
   const res = await fetch(url);
   return res.json();

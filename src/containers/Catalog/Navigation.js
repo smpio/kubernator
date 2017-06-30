@@ -13,6 +13,7 @@ import {
   IS_LISTABLE,
   IS_LOADING_CATALOG,
   NO_NAMESPACE,
+  UI_THROTTLE,
   catalogGet,
   namespaceItemsGet,
   itemsGet,
@@ -342,4 +343,4 @@ export default connect(
     itemsGet,
     tabOpen,
   }, dispatch),
-)(throttle(100)(Navigation));
+)(throttle(UI_THROTTLE)(Navigation));
