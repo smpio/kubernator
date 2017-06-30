@@ -18,6 +18,7 @@ import {
   URL_PART_GROUP,
   URL_PART_RESOURCE,
   apiGet,
+  selectArrOptional,
 } from './shared';
 
 
@@ -41,11 +42,12 @@ export const resourcesGet = group => ({
 // state
 // ---------
 
-export function resourcesSelect(state) {
-  return state[PREFIX].resources;
+export function resourcesSelectByGroup(state, group) {
+  const { resources } = state[PREFIX];
+  return selectArrOptional(group[RESOURCE_IDS].map(id => resources[id]));
 }
 
-export function resourcesSelectNamespaced(state, namespaced) {
+export function resourcesSelectByNamespaced(state, namespaced) {
   const { resources } = state[PREFIX];
   return Object.keys(resources)
     .filter(id => {
@@ -78,6 +80,10 @@ export function resourceSelectByKind(state, kind) {
   // error if more than 1 result
   if (resourceIds.length !== 1) return null;
   else return resources[resourceIds[0]];
+}
+
+export function modelsSelect(state) {
+  return state[PREFIX].models;
 }
 
 export const resourcesState = {

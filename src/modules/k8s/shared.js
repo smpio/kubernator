@@ -45,3 +45,11 @@ export function* putTake(actionPut, actionTake) {
   //
   return action;
 }
+
+export function selectArrOptional(arr) {
+  return arr.length ? arr : null;
+}
+
+export function selectArr(obj = {}) {
+  return selectArrOptional(Object.keys(obj).map(key => obj[key]));
+}

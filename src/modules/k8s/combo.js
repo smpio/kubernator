@@ -9,18 +9,23 @@ import {
   NO_GROUP,
   NO_NAMESPACE,
   putTake,
+  selectArr,
 } from './shared';
 
 import {
   GROUPS_GET__S,
+  GROUP_GET__S,
   groupsGet,
+  groupGet,
+  groupsSelectArr,
   groupSelect,
 } from './groups';
 
 import {
   RESOURCES_GET__S,
   resourcesGet,
-  resourcesSelectNamespaced,
+  resourcesSelectByGroup,
+  resourcesSelectByNamespaced,
   resourceSelect,
 } from './resources';
 
@@ -75,6 +80,10 @@ export const namespaceItemsGet = (namespaceName, resolve, reject) => ({
 // state
 // ---------
 
+function namespacesSelectArr(state) {
+  return selectArr(state[PREFIX].namespaces);
+}
+
 export const comboState = {
   flags: {},
   namespaces: [],
@@ -96,8 +105,10 @@ function* sagaCatalogGet() {
       });
       yield delay(0);
 
-      // get groups
-      const { payload: { groups }} = yield putTake(groupsGet(), GROUPS_GET__S);
+      // groups [cache]
+      const groups =
+        (yield select(groupsSelectArr)) ||
+        (yield putTake(groupsGet(), GROUPS_GET__S)).payload.groups;
 
       //
       yield put({
@@ -106,8 +117,11 @@ function* sagaCatalogGet() {
       });
       yield delay(0);
 
-      // get resources
-      yield all(groups.map(group => putTake(resourcesGet(group), RESOURCES_GET__S)));
+      // resources [cache]
+      yield all(groups
+        .filter(group => !group[RESOURCE_IDS].length)
+        .map(group => putTake(resourcesGet(group), RESOURCES_GET__S))
+      );
 
       //
       yield put({
@@ -116,8 +130,9 @@ function* sagaCatalogGet() {
       });
       yield delay(0);
 
-      // get namespaces
-      yield putTake(namespacesGet(), NAMESPACES_GET__S);
+      // namespaces [cache]
+      (yield select(namespacesSelectArr)) ||
+      (yield putTake(namespacesGet(), NAMESPACES_GET__S));
 
       //
       yield put({
@@ -140,19 +155,21 @@ function* sagaRbacGet() {
     try {
       const { meta } = action;
 
-      // group
+      // group [cache]
       const id = 'rbac.authorization.k8s.io';
-      let group = yield select(groupSelect, id);
-      if (!group) {
-        yield putTake(groupsGet(), GROUPS_GET__S);
-        group = yield select(groupSelect, id);
-      }
+      const group =
+        (yield select(groupSelect, id)) ||
+        (yield putTake(groupGet(id), GROUP_GET__S)).payload.group;
 
-      // resources
-      const { payload: { resources }} = yield putTake(resourcesGet(group), RESOURCES_GET__S);
+      // resources [cache]
+      const resources =
+        (yield select(resourcesSelectByGroup, group)) ||
+        (yield putTake(resourcesGet(group), RESOURCES_GET__S)).payload.resources;
 
       // items
-      yield all(resources.map(resource => putTake(itemsGet(resource), ITEMS_GET__S)));
+      yield all(resources.map(resource =>
+        putTake(itemsGet(resource), ITEMS_GET__S)
+      ));
       
       //
       yield put({
@@ -175,34 +192,36 @@ function* sagaNamespacesGet() {
     try {
       const { meta } = action;
 
-      // resource
-      const id = 'namespaces';
-      let resource = yield select(resourceSelect, id);
-      if (!resource) {
+      // namespaces [cache]
+      let namespaces = yield select(namespacesSelectArr);
+      if (!namespaces) {
 
-        // group
-        let group = yield select(groupSelect, NO_GROUP);
-        if (!group) {
-          yield putTake(groupsGet(), GROUPS_GET__S);
-          group = yield select(groupSelect, NO_GROUP);
+        // resource [cache]
+        const id = 'namespaces';
+        let resource = yield select(resourceSelect, id);
+        if (!resource) {
+
+          // group [cache]
+          const group =
+            (yield select(groupSelect, NO_GROUP)) ||
+            (yield putTake(groupGet(NO_GROUP), GROUP_GET__S)).payload.group;
+
+          // resources [cache]
+          (yield select(resourcesSelectByGroup, group)) ||
+          (yield putTake(resourcesGet(group), RESOURCES_GET__S));
+
+          //
+          resource = yield select(resourceSelect, id);
         }
 
-        // resources
-        if (!group[RESOURCE_IDS].length) {
-          yield putTake(resourcesGet(group), RESOURCES_GET__S);
-        }
+        // items
+        const items = (yield putTake(itemsGet(resource), ITEMS_GET__S)).payload.items;
 
-        //
-        resource = yield select(resourceSelect, id);
+        // namespaces
+        namespaces = items.map(item => item.metadata.name);
+        namespaces.unshift(NO_NAMESPACE);
+        namespaces.sort();
       }
-
-      // items
-      const { payload: { items }} = yield putTake(itemsGet(resource), ITEMS_GET__S);
-
-      // namespaces
-      const namespaces = items.map(item => item.metadata.name);
-      namespaces.unshift(NO_NAMESPACE);
-      namespaces.sort();
 
       //
       yield put({
@@ -229,8 +248,8 @@ function* sagaNamespaceItemsGet() {
       const { payload, meta } = action;
       const { namespaceName } = payload;
 
-      // resources
-      const resources = yield select(resourcesSelectNamespaced, !!namespaceName);
+      // resources [cache]
+      const resources = yield select(resourcesSelectByNamespaced, !!namespaceName);
 
       // items
       yield all(resources.map(resource =>

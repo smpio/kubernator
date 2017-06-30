@@ -8,6 +8,10 @@ import {
 } from './shared';
 
 import {
+  modelsSelect,
+} from './resources';
+
+import {
   itemGet,
   itemSelect,
   itemRemoveReadonlyProperties,
@@ -48,10 +52,6 @@ export const tabCloseAll = () => ({
 // yamls are in the local component's state
 // for performance reasons
 
-export function stateModelsGet(state) {
-  return state[PREFIX].models;
-}
-
 export const tabsState = {
   tabs: {
     id: null,
@@ -86,7 +86,7 @@ function* sagaTabOpen() {
         // analyze and clone yaml
         if (yaml) {
           const item = jsYaml.safeLoad(yaml);
-          const models = yield select(stateModelsGet);
+          const models = yield select(modelsSelect);
           itemRemoveReadonlyProperties(models, item, item.kind);
           yaml = jsYaml.safeDump(item, { noRefs: true });
         }
