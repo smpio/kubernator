@@ -92,7 +92,8 @@ export const resourcesState = {
 function* sagaResourcesGet() {
   yield takeEvery(RESOURCES_GET, function* (action) {
     try {
-      const { group } = action.payload;
+      const { payload, meta } = action;
+      const { group } = payload;
 
       // resources
       const { resources } = yield call(apiGet, group[URL]);
@@ -133,7 +134,7 @@ function* sagaResourcesGet() {
       yield put({
         type: RESOURCES_GET__S,
         payload: { resources, models },
-        meta: { group },
+        meta: { ...meta, group },
       });
     }
 

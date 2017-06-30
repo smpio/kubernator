@@ -74,7 +74,8 @@ function* sagaTabOpen() {
   yield takeEvery(TAB_OPEN, function* (action) {
     const { resolve, reject } = action.payload;
     try {
-      let { id, yaml } = action.payload;
+      const { payload, meta } = action;
+      let { id, yaml } = payload;
 
       // artificial item
       if (!id) {
@@ -111,6 +112,7 @@ function* sagaTabOpen() {
       yield put({
         type: TAB_OPEN__S,
         payload: { id },
+        meta,
       });
     }
 

@@ -49,6 +49,9 @@ export const groupsState = {
 function* sagaGroupsGet() {
   yield takeEvery(GROUPS_GET, function* (action) {
     try {
+      const { meta } = action;
+
+      //
       const { groups } = yield call(apiGet, '/apis');
 
       // add general api
@@ -70,6 +73,7 @@ function* sagaGroupsGet() {
       yield put({
         type: GROUPS_GET__S,
         payload: { groups },
+        meta,
       });
     }
 

@@ -1,3 +1,5 @@
+import { put, take } from 'redux-saga/effects';
+
 export const PREFIX = 'k8s';
 
 export const ID = Symbol('ID');
@@ -24,4 +26,22 @@ export const NO_UID = '[nouid]';
 export async function apiGet(url) {
   const res = await fetch(url);
   return res.json();
+}
+
+export function* putTake(actionPut, actionTake) {
+  const $id = Date.now();
+
+  // put
+  if (!actionPut.meta) actionPut.meta = {};
+  actionPut.meta.$id = $id;
+  yield put(actionPut);
+
+  // take
+  let action = { meta: { $id: null }};
+  while (action.meta.$id !== $id) {
+    action = yield take(actionTake);
+  }
+
+  //
+  return action;
 }

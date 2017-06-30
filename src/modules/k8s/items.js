@@ -156,7 +156,8 @@ function* sagaItemsGet() {
   yield takeEvery(ITEMS_GET, function* (action) {
     const { resolve, reject } = action.payload;
     try {
-      const { resource, namespace } = action.payload;
+      const { payload, meta } = action;
+      const { resource, namespace } = payload;
 
       // get
       const url = resourceGetUrl(resource, namespace);
@@ -170,7 +171,7 @@ function* sagaItemsGet() {
       yield put({
         type: ITEMS_GET__S,
         payload: { items },
-        meta: { resource, namespace },
+        meta: { ...meta, resource, namespace },
       });
 
       //
@@ -195,14 +196,16 @@ function* sagaItemsGet() {
 function* sagaItemGet() {
   yield takeEvery(ITEM_GET, function* (action) {
     try {
-      const { id } = action.payload;
+      const { payload, meta } = action;
+      const { id } = payload;
+
       const item = yield select(itemSelect, id);
       if (item) {
         const yaml = yield call(itemApiGetYaml, item[URL]);
         yield put({
           type: ITEM_GET__S,
           payload: { yaml },
-          meta: { id },
+          meta: { ...meta, id },
         });
       }
     }
@@ -220,7 +223,8 @@ function* sagaItemGet() {
 function* sagaItemPost() {
   yield takeEvery(ITEM_POST, function* (action) {
     try {
-      let { id, yaml } = action.payload;
+      const { payload, meta } = action;
+      let { id, yaml } = payload;
 
       // parse item
       const { kind, metadata: { namespace } = {}} = jsYaml.safeLoad(yaml);
@@ -244,7 +248,7 @@ function* sagaItemPost() {
       yield put({
         type: ITEM_POST__S,
         payload: { item },
-        meta: { resource },
+        meta: { ...meta, resource },
       });
 
       // update tab
@@ -265,7 +269,10 @@ function* sagaItemPost() {
 function* sagaItemPut() {
   yield takeEvery(ITEM_PUT, function* (action) {
     try {
-      const { id, yaml } = action.payload;
+      const { payload, meta } = action;
+      const { id, yaml } = payload;
+
+      //
       const { [URL]: url } = yield select(itemSelect, id);
 
       // put
@@ -276,7 +283,7 @@ function* sagaItemPut() {
       yield put({
         type: ITEM_PUT__S,
         payload: { item },
-        meta: { id, yaml },
+        meta: { ...meta, id, yaml },
       });
     }
 
@@ -293,7 +300,10 @@ function* sagaItemPut() {
 function* sagaItemDelete() {
   yield takeEvery(ITEM_DELETE, function* (action) {
     try {
-      const { id: itemId } = action.payload;
+      const { payload, meta } = action;
+      const { id: itemId } = payload;
+
+      //
       const {
         [URL]: itemUrl,
         [RESOURCE_ID]: resourceId,
@@ -306,7 +316,7 @@ function* sagaItemDelete() {
       //
       yield put({
         type: ITEM_DELETE__S,
-        meta: { itemId, resourceId },
+        meta: { ...meta, itemId, resourceId },
       });
 
       //
