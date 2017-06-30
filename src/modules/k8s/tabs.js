@@ -5,6 +5,7 @@ import jsYaml from 'js-yaml';
 import {
   PREFIX,
   YAML,
+  putTake,
 } from './shared';
 
 import {
@@ -12,6 +13,7 @@ import {
 } from './resources';
 
 import {
+  ITEM_GET__S,
   itemGet,
   itemSelect,
   itemRemoveReadonlyProperties,
@@ -102,11 +104,8 @@ function* sagaTabOpen() {
         //if (!item) yield put();
 
         // request yaml only if needed
-        if (item && !item[YAML]) yield put(itemGet(id));
+        if (item && !item[YAML]) yield putTake(itemGet(id), ITEM_GET__S);
       }
-
-      // callback
-      if (resolve) yield call(resolve, { id, yaml });
 
       //
       yield put({
@@ -114,12 +113,12 @@ function* sagaTabOpen() {
         payload: { id },
         meta,
       });
+
+      // callback
+      if (resolve) yield call(resolve, { id, yaml });
     }
 
     catch (error) {
-
-      // callback
-      if (reject) yield call(reject);
 
       //
       yield put({
@@ -127,6 +126,9 @@ function* sagaTabOpen() {
         payload: error,
         error: true,
       });
+
+      // callback
+      if (reject) yield call(reject);
     }
   });
 }
