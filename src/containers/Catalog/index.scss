@@ -46,14 +46,14 @@
         margin-right: 1px;
 
         .catalog__tab-modified { color: brown; }
-        .catalog__tab-detached { color: darkgreen; }
+        .catalog__tab-detached { color: green; }
       }
 
       .ant-tabs-tab-active {
         border-color: white;
 
         .catalog__tab-modified { color: lighten(brown, 10%); }
-        .catalog__tab-detached { color: lighten(darkgreen, 10%); }
+        .catalog__tab-detached { color: lighten(green, 10%); }
       }
 
       .ant-tabs-extra-content .ant-tabs-new-tab {
