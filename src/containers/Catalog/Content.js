@@ -129,6 +129,7 @@ class Content extends React.Component {
           ids: tabIds,
         },
       },
+      state,
       state: {
         [id]: yamlEdited,
       },
@@ -215,16 +216,26 @@ class Content extends React.Component {
           }>
           {
             tabIds.map(itemId => {
+              const item = items[itemId];
+              const yaml = state[itemId];
               const {
                 metadata: {
                   name = itemId,
                   namespace = NO_NAMESPACE,
                 } = {},
-              } = items[itemId] || {};
+              } = item || {};
               return (
                 <Tabs.TabPane
                   key={itemId}
-                  tab={`${namespace} / ${name}`}
+                  tab={
+                    <span
+                      className={classnames({
+                        'catalog__tab-modified': item && yaml,
+                        'catalog__tab-detached': !item,
+                      })}>
+                      {`${namespace} / ${name}`}
+                    </span>
+                  }
                   closable
                 />
               );

@@ -44,10 +44,16 @@
       .ant-tabs-tab {
         border-color: transparent;
         margin-right: 1px;
+
+        .catalog__tab-modified { color: brown; }
+        .catalog__tab-detached { color: darkgreen; }
       }
 
       .ant-tabs-tab-active {
         border-color: white;
+
+        .catalog__tab-modified { color: lighten(brown, 10%); }
+        .catalog__tab-detached { color: lighten(darkgreen, 10%); }
       }
 
       .ant-tabs-extra-content .ant-tabs-new-tab {
@@ -59,15 +65,6 @@
 
     & > .ant-tabs-content {
       display: none;
-      /*
-
-      height: 2em;
-      background-color: white;
-
-      & > .ant-tabs-tabpane {
-        display: none;
-      }
-      */
     }
   }
 
