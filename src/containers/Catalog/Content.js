@@ -45,8 +45,8 @@ class Content extends React.Component {
   }
 
   componentDidMount() {
-    const { defaultTab, tabs: { ids }, tabOpen } = this.props;
-    if (defaultTab || !ids.length) tabOpen(defaultTab);
+    const { defaultTab, tabOpen } = this.props;
+    if (defaultTab) tabOpen(defaultTab);
   }
 
   tabsOnChange(id) {
