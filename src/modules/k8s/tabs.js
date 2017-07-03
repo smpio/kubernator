@@ -100,9 +100,6 @@ function* sagaTabOpen() {
         // find item
         const item = yield select(itemSelect, id);
 
-        // request item if needed
-        //if (!item) yield put();
-
         // request yaml only if needed
         if (item && !item[YAML]) yield putTake(itemGet(id), ITEM_GET__S);
       }

@@ -447,13 +447,15 @@ export function itemDecorate(resource) {
 }
 
 export function itemRemoveReadonlyProperties(models, item, modelId) {
-  const model = models[modelId];
-  if (model) {
-    const { properties } = model;
-    Object.keys(properties).forEach(key => {
-      const { [IS_READONLY]: readonly, $ref } = properties[key];
-      if (readonly) delete item[key];
-      else if ($ref) itemRemoveReadonlyProperties(models, item[key], $ref);
-    });
+  if (item) {
+    const model = models[modelId];
+    if (model) {
+      const { properties } = model;
+      Object.keys(properties).forEach(key => {
+        const { [IS_READONLY]: readonly, $ref } = properties[key];
+        if (readonly) delete item[key];
+        else if ($ref) itemRemoveReadonlyProperties(models, item[key], $ref);
+      });
+    }
   }
 }
