@@ -76,10 +76,9 @@ class Graph extends React.Component {
     // force
     const simulation = d3State.simulation = d3.forceSimulation()
       .force('center', d3.forceCenter(center.x, center.y))
-      .force('collide', d3.forceCollide(40 /* r */).strength(0.25 /* def 0.7 */))
-      .force('charge', d3.forceManyBody().strength(100 /* def -30 */))
+      .force('collide', d3.forceCollide(65 /* r */).strength(0.2 /* def 0.7 */))
       .force('link', d3.forceLink())
-      .velocityDecay(0.4);
+      .velocityDecay(0.5);
 
     // drag
     d3State.drag = d3.drag()
