@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Radio, Checkbox } from 'antd';
+import { Radio, Checkbox, Spin } from 'antd';
 
 import {
   PREFIX,
@@ -44,6 +44,10 @@ class Controls extends React.Component {
     return (
       <div className="rbac__controls">
         <div className="rbac__controls-inner">
+          {
+            (!namespaces || !namespaces.length) &&
+            <Spin />
+          }
           <Radio.Group
             value={namespaceIndex}
             onChange={onChangeNamespace}>
