@@ -8,6 +8,7 @@ import {
   PREFIX,
   YAML,
   IS_LOADING_CATALOG,
+  NO_NAMESPACE,
   itemGet,
   itemPost,
   itemPut,
@@ -217,12 +218,13 @@ class Content extends React.Component {
               const {
                 metadata: {
                   name = itemId,
+                  namespace = NO_NAMESPACE,
                 } = {},
               } = items[itemId] || {};
               return (
                 <Tabs.TabPane
                   key={itemId}
-                  tab={name}
+                  tab={`${namespace} / ${name}`}
                   closable
                 />
               );
