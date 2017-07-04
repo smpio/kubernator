@@ -8,7 +8,7 @@ import { Radio, Checkbox, Spin } from 'antd';
 import {
   PREFIX,
   namespacesGet,
-} from '../../modules/k8s';
+} from '../../../modules/k8s';
 
 
 class Controls extends React.Component {

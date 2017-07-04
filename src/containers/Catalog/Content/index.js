@@ -16,10 +16,10 @@ import {
   tabOpen,
   tabClose,
   tabCloseAll,
-} from '../../modules/k8s';
+} from '../../../modules/k8s';
 
 import { Tabs, Button, Popconfirm } from 'antd';
-import Editor from './Editor';
+import Editor from '../Editor';
 
 import classnames from 'classnames';
 

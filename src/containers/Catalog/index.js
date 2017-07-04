@@ -7,6 +7,7 @@ import Content from './Content';
 
 import './index.css';
 
+
 export default class Catalog extends React.PureComponent {
   render() {
     const item = this.props.location.state;
