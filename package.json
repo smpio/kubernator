@@ -22,7 +22,8 @@
     "redux-saga": "^0.15.3",
     "redux-thunk": "^2.2.0",
     "reselect": "^3.0.1",
-    "sanitize.css": "^5.0.0"
+    "sanitize.css": "^5.0.0",
+    "store": "^2.0.12"
   },
   "devDependencies": {
     "babel-eslint": "^7.2.3",
@@ -48,5 +49,5 @@
     "watch-css": "npm run build-css && node-sass-chokidar --include-path ./src --include-path ./node_modules src/ -o src/ --watch --recursive"
   },
   "proxy": "http://localhost:8001",
-  "homepage" : "http://localhost:8001/api/v1/namespaces/kube-system/services/k8s-browser-new/proxy"
+  "homepage": "http://localhost:8001/api/v1/namespaces/kube-system/services/k8s-browser-new/proxy"
 }

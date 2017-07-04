@@ -10,7 +10,7 @@ import {
   ID,
   URL,
   IS_READONLY,
-  apiGet,
+  cacheGet,
 } from './shared';
 
 
@@ -53,7 +53,7 @@ function* sagaModelsGet() {
       const { group } = payload;
 
       // models
-      let { models } = yield call(apiGet, `/swaggerapi${group[URL]}`);
+      let { models } = yield call(cacheGet, `/swaggerapi${group[URL]}`);
       const { version } = group.preferredVersion;
       models = Object.keys(models)
         .filter(key => key.startsWith(version))

@@ -1,4 +1,5 @@
 import { put, take } from 'redux-saga/effects';
+import store from 'store';
 
 export const PREFIX = 'k8s';
 
@@ -28,6 +29,24 @@ export const UI_THROTTLE = 500;
 export async function apiGet(url) {
   const res = await fetch(url);
   return res.json();
+}
+
+(async function cacheInit() {
+  const version = await apiGet('/version');
+  const buildDate = store.get('version.buildDate');
+  if (buildDate !== version.buildDate) {
+    store.clearAll();
+    store.set('version.buildDate', version.buildDate);
+  }
+})();
+
+export async function cacheGet(url) {
+  let result = store.get(url);
+  if (!result) {
+    result = await apiGet(url);
+    store.set(url, result);
+  }
+  return Promise.resolve(result);
 }
 
 export function* putTake(actionPut, actionTake) {
