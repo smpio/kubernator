@@ -32,6 +32,7 @@ class Content extends React.Component {
     this.tabsOnChange = this.tabsOnChange.bind(this);
     this.tabsOnEdit = this.tabsOnEdit.bind(this);
 
+    this.onReload = this.onReload.bind(this);
     this.onEdit = this.onEdit.bind(this);
     this.onSave = this.onSave.bind(this);
     this.onDelete = this.onDelete.bind(this);
@@ -92,6 +93,11 @@ class Content extends React.Component {
   onEdit(yaml) {
     const { tabs: { id }} = this.props;
     this.setState({ [id]: yaml });
+  }
+
+  onReload() {
+    const { itemGet, tabs: { id }} = this.props;
+    itemGet(id);
   }
 
   onSave() {
@@ -167,6 +173,7 @@ class Content extends React.Component {
       },
       tabsOnChange,
       tabsOnEdit,
+      onReload,
       onEdit,
       onSave,
       onDelete,
@@ -211,12 +218,31 @@ class Content extends React.Component {
                 </Button>
               }
               {
+                (item && !dirty) &&
+                <Button
+                  className="catalog__button"
+                  size="small"
+                  onClick={onReload}>
+                  Reload
+                </Button>
+              }
+              {
                 dirty &&
                 <Button
                   className="catalog__button"
                   size="small"
                   onClick={onDiscard}>
                   Discard
+                </Button>
+              }
+              {
+                dirty &&
+                <Button
+                  className="catalog__button"
+                  size="small"
+                  type="primary"
+                  onClick={onSave}>
+                  Save
                 </Button>
               }
               {
@@ -233,16 +259,6 @@ class Content extends React.Component {
                     Delete
                   </Button>
                 </Popconfirm>
-              }
-              {
-                dirty &&
-                <Button
-                  className="catalog__button"
-                  size="small"
-                  type="primary"
-                  onClick={onSave}>
-                  Save
-                </Button>
               }
             </span>
           }>
