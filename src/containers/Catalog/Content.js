@@ -120,6 +120,38 @@ class Content extends React.Component {
     this.props.tabCloseAll();
   }
 
+  static renderTab(props) {
+    const {
+      id,
+      item,
+      yaml,
+    } = props;
+
+    const {
+      metadata: {
+        name = id,
+        namespace = NO_NAMESPACE,
+      } = {},
+      [YAML]: yamlOriginal,
+    } = item || {};
+
+    return (
+      <Tabs.TabPane
+        key={id}
+        tab={
+          <span
+            className={classnames({
+              'catalog__tab-modified': yaml && yaml !== yamlOriginal,
+              'catalog__tab-detached': !item,
+            })}>
+            {`${namespace} / ${name}`}
+          </span>
+        }
+        closable
+      />
+    );
+  }
+
   render() {
     const {
       props: {
@@ -215,31 +247,13 @@ class Content extends React.Component {
             </span>
           }>
           {
-            tabIds.map(itemId => {
-              const item = items[itemId];
-              const yaml = state[itemId];
-              const {
-                metadata: {
-                  name = itemId,
-                  namespace = NO_NAMESPACE,
-                } = {},
-              } = item || {};
-              return (
-                <Tabs.TabPane
-                  key={itemId}
-                  tab={
-                    <span
-                      className={classnames({
-                        'catalog__tab-modified': item && yaml,
-                        'catalog__tab-detached': !item,
-                      })}>
-                      {`${namespace} / ${name}`}
-                    </span>
-                  }
-                  closable
-                />
-              );
-            })
+            tabIds.map(itemId =>
+              Content.renderTab({
+                id: itemId,
+                item: items[itemId],
+                yaml: state[itemId],
+              })
+            )
           }
         </Tabs>
         <Editor
