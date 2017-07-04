@@ -282,17 +282,21 @@ class Content extends React.Component {
 }
 
 Content.propTypes = {
-  flags: PropTypes.object,
-  items: PropTypes.object,
-  tabs: PropTypes.object,
-  itemGet: PropTypes.func,
-  itemPost: PropTypes.func,
-  itemPut: PropTypes.func,
-  itemDelete: PropTypes.func,
-  tabOpen: PropTypes.func,
-  tabClose: PropTypes.func,
-  tabCloseAll: PropTypes.func,
+  flags: PropTypes.object.isRequired,
+  items: PropTypes.object.isRequired,
+  tabs: PropTypes.object.isRequired,
+  itemGet: PropTypes.func.isRequired,
+  itemPost: PropTypes.func.isRequired,
+  itemPut: PropTypes.func.isRequired,
+  itemDelete: PropTypes.func.isRequired,
+  tabOpen: PropTypes.func.isRequired,
+  tabClose: PropTypes.func.isRequired,
+  tabCloseAll: PropTypes.func.isRequired,
   defaultTab: PropTypes.string,
+};
+
+Content.defaultProps = {
+  defaultTab: '',
 };
 
 export default connect(

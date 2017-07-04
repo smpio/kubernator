@@ -45,7 +45,7 @@ class Controls extends React.Component {
       <div className="rbac__controls">
         <div className="rbac__controls-inner">
           {
-            (!namespaces || !namespaces.length) &&
+            !namespaces.length &&
             <Spin />
           }
           <Radio.Group
@@ -72,11 +72,11 @@ class Controls extends React.Component {
 }
 
 Controls.propTypes = {
-  namespaces: PropTypes.array,
-  namespacesGet: PropTypes.func,
-  namespaceIndex: PropTypes.number,
-  onChangeLegend: PropTypes.func,
-  onChangeNamespace: PropTypes.func,
+  namespaces: PropTypes.array.isRequired,
+  namespacesGet: PropTypes.func.isRequired,
+  namespaceIndex: PropTypes.number.isRequired,
+  onChangeLegend: PropTypes.func.isRequired,
+  onChangeNamespace: PropTypes.func.isRequired,
 };
 
 export default connect(

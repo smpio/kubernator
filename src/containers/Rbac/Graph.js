@@ -356,12 +356,16 @@ const selectGraphData = createSelector(
 // ---------
 
 Graph.propTypes = {
-  nodes: PropTypes.array,
-  links: PropTypes.array,
+  nodes: PropTypes.array.isRequired,
+  links: PropTypes.array.isRequired,
   namespaces: PropTypes.array,
-  namespaceIndex: PropTypes.number,
-  rbacGet: PropTypes.func,
-  historyPush: PropTypes.func,
+  namespaceIndex: PropTypes.number.isRequired,
+  rbacGet: PropTypes.func.isRequired,
+  historyPush: PropTypes.func.isRequired,
+};
+
+Graph.defaultProps = {
+  namespaces: [],
 };
 
 export default connect(

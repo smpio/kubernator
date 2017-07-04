@@ -66,5 +66,5 @@ export default class Rbac extends React.PureComponent {
 }
 
 Rbac.propTypes = {
-  history: PropTypes.object,
+  history: PropTypes.object.isRequired,
 };

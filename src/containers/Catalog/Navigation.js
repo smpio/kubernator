@@ -324,15 +324,15 @@ const selectAll = createSelector(
 // ---------
 
 Navigation.propTypes = {
-  flags: PropTypes.object,
-  resources: PropTypes.object,
-  items: PropTypes.object,
-  namespaces: PropTypes.array,
-  catalog: PropTypes.array,
-  catalogGet: PropTypes.func,
-  namespaceItemsGet: PropTypes.func,
-  itemsGet: PropTypes.func,
-  tabOpen: PropTypes.func,
+  flags: PropTypes.object.isRequired,
+  resources: PropTypes.object.isRequired,
+  items: PropTypes.object.isRequired,
+  namespaces: PropTypes.array.isRequired,
+  catalog: PropTypes.array.isRequired,
+  catalogGet: PropTypes.func.isRequired,
+  namespaceItemsGet: PropTypes.func.isRequired,
+  itemsGet: PropTypes.func.isRequired,
+  tabOpen: PropTypes.func.isRequired,
 };
 
 export default connect(

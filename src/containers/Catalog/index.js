@@ -23,5 +23,5 @@ export default class Catalog extends React.PureComponent {
 }
 
 Catalog.propTypes = {
-  location: PropTypes.object,
+  location: PropTypes.object.isRequired,
 };

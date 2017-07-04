@@ -67,3 +67,8 @@ Editor.propTypes = {
   value: PropTypes.string,
   onChange: PropTypes.func,
 };
+
+Editor.defaultProps = {
+  value: '',
+  onChange: () => {},
+};
