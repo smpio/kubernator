@@ -14,6 +14,12 @@ import {
 } from './resources';
 
 import {
+  modelsSaga,
+  modelsState,
+  modelsReducer,
+} from './models';
+
+import {
   itemsSaga,
   itemsState,
   itemsReducer,
@@ -34,6 +40,7 @@ import {
 export * from './shared';
 export * from './groups';
 export * from './resources';
+export * from './models';
 export * from './items';
 export * from './tabs';
 export * from './combo';
@@ -42,6 +49,7 @@ export function* saga() {
   yield all([
     groupsSaga(),
     resourcesSaga(),
+    modelsSaga(),
     itemsSaga(),
     tabsSaga(),
     comboSaga(),
@@ -52,6 +60,7 @@ export const reducer = createReducer(
   {
     ...groupsReducer,
     ...resourcesReducer,
+    ...modelsReducer,
     ...itemsReducer,
     ...tabsReducer,
     ...comboReducer,
@@ -59,6 +68,7 @@ export const reducer = createReducer(
   {
     ...groupsState,
     ...resourcesState,
+    ...modelsState,
     ...itemsState,
     ...tabsState,
     ...comboState,

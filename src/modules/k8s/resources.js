@@ -18,8 +18,14 @@ import {
   URL_PART_GROUP,
   URL_PART_RESOURCE,
   apiGet,
+  putTake,
   selectArrOptional,
 } from './shared';
+
+import {
+  MODELS_GET__S,
+  modelsGet,
+} from './models';
 
 
 // action codes
@@ -82,13 +88,8 @@ export function resourceSelectByKind(state, kind) {
   else return resources[resourceIds[0]];
 }
 
-export function modelsSelect(state) {
-  return state[PREFIX].models;
-}
-
 export const resourcesState = {
   resources: {},
-  models: {},
 };
 
 
@@ -107,39 +108,12 @@ function* sagaResourcesGet() {
       resources.forEach(resource => decorate(resource));
 
       // models
-      let { models } = yield call(apiGet, `/swaggerapi/${group[URL]}`);
-      const { version } = group.preferredVersion;
-      models = Object.keys(models)
-        .filter(key => key.startsWith(version))
-        .map(key => {
-          const [, kind] = key.split('.');
-          const model = models[key];
-
-          // set id
-          delete model.id;
-          model[ID] = kind;
-
-          // rename refs
-          const { properties } = model;
-          Object.keys(properties).forEach(id => {
-            const property = properties[id];
-            const { $ref, description } = property;
-
-            // rename ref
-            if ($ref) property.$ref = $ref.split('.')[1];
-
-            // set readonly flag
-            property[IS_READONLY] = description && description.includes('Read-only.');
-          });
-
-          //
-          return model;
-        });
+      yield putTake(modelsGet(group), MODELS_GET__S);
 
       //
       yield put({
         type: RESOURCES_GET__S,
-        payload: { resources, models },
+        payload: { resources },
         meta: { ...meta, group },
       });
     }
@@ -167,7 +141,7 @@ export function* resourcesSaga() {
 export const resourcesReducer = {
 
   [RESOURCES_GET__S]: (state, action) => {
-    const { resources, models } = action.payload;
+    const { resources } = action.payload;
     const { group } = action.meta;
     return update(state, {
       groups: {
@@ -176,7 +150,6 @@ export const resourcesReducer = {
         },
       },
       resources: { $merge: toKeysObject(resources, ID) },
-      models: { $merge: toKeysObject(models, ID) },
     });
   },
 };

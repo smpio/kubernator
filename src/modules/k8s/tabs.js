@@ -10,7 +10,7 @@ import {
 
 import {
   modelsSelect,
-} from './resources';
+} from './models';
 
 import {
   ITEM_GET__S,
