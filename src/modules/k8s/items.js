@@ -21,6 +21,7 @@ import {
 
 import {
   resourceGetUrl,
+  resourceSelect,
   resourceSelectByKind,
 } from './resources';
 
@@ -273,11 +274,18 @@ function* sagaItemPut() {
       const { id, yaml } = payload;
 
       //
-      const { [URL]: url } = yield select(itemSelect, id);
+      const {
+        [URL]: url,
+        [RESOURCE_ID]: resourceId,
+      } = yield select(itemSelect, id);
+      const resource = yield select(resourceSelect, resourceId);
 
       // put
       const item = yield call(itemApiPut, url, yaml);
       if (item.status === 'Failure') throw item;
+
+      // decorate item
+      itemDecorate(resource)(item);
 
       //
       yield put({
