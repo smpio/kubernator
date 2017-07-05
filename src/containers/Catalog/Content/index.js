@@ -97,6 +97,7 @@ class Content extends React.Component {
 
   onReload() {
     const { itemGet, tabs: { id }} = this.props;
+    this.setState({ [id]: null });
     itemGet(id);
   }
 
