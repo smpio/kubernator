@@ -16,7 +16,7 @@ import {
   ITEM_IDS,
   IS_READONLY,
   NO_UID,
-  apiGet,
+  apiFetch,
 } from './shared';
 
 import {
@@ -87,20 +87,20 @@ export const itemDelete = id => ({
 // api
 // ------
 
-async function itemApiGetYaml(url) {
-  const res = await fetch(
+function itemApiGetYaml(url) {
+  return apiFetch(
     url,
     {
       headers: {
         'Accept': 'application/yaml',
       },
     },
+    'text',
   );
-  return res.text();
 }
 
-async function itemApiPost(url, yaml) {
-  const res = await fetch(
+function itemApiPost(url, yaml) {
+  return apiFetch(
     url,
     {
       method: 'POST',
@@ -110,11 +110,10 @@ async function itemApiPost(url, yaml) {
       },
     },
   );
-  return res.json();
 }
 
-async function itemApiPut(url, yaml) {
-  const res = await fetch(
+function itemApiPut(url, yaml) {
+  return apiFetch(
     url,
     {
       method: 'PUT',
@@ -124,17 +123,15 @@ async function itemApiPut(url, yaml) {
       },
     },
   );
-  return res.json();
 }
 
-async function itemApiDelete(url) {
-  const res = await fetch(
+function itemApiDelete(url) {
+  return apiFetch(
     url,
     {
       method: 'DELETE',
     },
   );
-  return res.json();
 }
 
 
@@ -155,14 +152,14 @@ export const itemsState = {
 
 function* sagaItemsGet() {
   yield takeEvery(ITEMS_GET, function* (action) {
-    const { resolve, reject } = action.payload;
+    const { payload, meta } = action;
+    const { resolve, reject } = payload;
     try {
-      const { payload, meta } = action;
       const { resource, namespace } = payload;
 
       // get
       const url = resourceGetUrl(resource, namespace);
-      const { items } = yield call(apiGet, url);
+      const { items } = yield call(apiFetch, url);
 
       // decorate
       const decorate = itemDecorate(resource);
@@ -183,9 +180,10 @@ function* sagaItemsGet() {
 
       //
       yield put({
+        error: true,
         type: ITEMS_GET__F,
         payload: error,
-        error: true,
+        meta,
       });
 
       //
@@ -196,8 +194,8 @@ function* sagaItemsGet() {
 
 function* sagaItemGet() {
   yield takeEvery(ITEM_GET, function* (action) {
+    const { payload, meta } = action;
     try {
-      const { payload, meta } = action;
       const { id } = payload;
 
       const item = yield select(itemSelect, id);
@@ -213,9 +211,10 @@ function* sagaItemGet() {
 
     catch (error) {
       yield put({
+        error: true,
         type: ITEM_GET__F,
         payload: error,
-        error: true,
+        meta,
       });
     }
   });
@@ -223,8 +222,8 @@ function* sagaItemGet() {
 
 function* sagaItemPost() {
   yield takeEvery(ITEM_POST, function* (action) {
+    const { payload, meta } = action;
     try {
-      const { payload, meta } = action;
       let { id, yaml } = payload;
 
       // parse item
@@ -259,9 +258,10 @@ function* sagaItemPost() {
 
     catch (error) {
       yield put({
+        error: true,
         type: ITEM_POST__F,
         payload: error,
-        error: true,
+        meta,
       });
     }
   });
@@ -269,8 +269,8 @@ function* sagaItemPost() {
 
 function* sagaItemPut() {
   yield takeEvery(ITEM_PUT, function* (action) {
+    const { payload, meta } = action;
     try {
-      const { payload, meta } = action;
       const { id, yaml } = payload;
 
       //
@@ -297,9 +297,10 @@ function* sagaItemPut() {
 
     catch (error) {
       yield put({
+        error: true,
         type: ITEM_PUT__F,
         payload: error,
-        error: true,
+        meta,
       });
     }
   });
@@ -307,8 +308,8 @@ function* sagaItemPut() {
 
 function* sagaItemDelete() {
   yield takeEvery(ITEM_DELETE, function* (action) {
+    const { payload, meta } = action;
     try {
-      const { payload, meta } = action;
       const { id: itemId } = payload;
 
       //
@@ -333,9 +334,10 @@ function* sagaItemDelete() {
 
     catch (error) {
       yield put({
+        error: true,
         type: ITEM_DELETE__F,
         payload: error,
-        error: true,
+        meta,
       });
     }
   });

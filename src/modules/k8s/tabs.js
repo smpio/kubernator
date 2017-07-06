@@ -14,6 +14,7 @@ import {
 
 import {
   ITEM_GET__S,
+  ITEM_GET__F,
   itemGet,
   itemSelect,
   itemRemoveReadonlyProperties,
@@ -74,9 +75,9 @@ const getIndex = (function* () {
 
 function* sagaTabOpen() {
   yield takeEvery(TAB_OPEN, function* (action) {
-    const { resolve, reject } = action.payload;
+    const { payload, meta } = action;
+    const { resolve, reject } = payload;
     try {
-      const { payload, meta } = action;
       let { id, yaml } = payload;
 
       // artificial item
@@ -101,7 +102,7 @@ function* sagaTabOpen() {
         const item = yield select(itemSelect, id);
 
         // request yaml only if needed
-        if (item && !item[YAML]) yield putTake(itemGet(id), ITEM_GET__S);
+        if (item && !item[YAML]) yield putTake(itemGet(id), [ITEM_GET__S, ITEM_GET__F]);
       }
 
       //
@@ -119,9 +120,10 @@ function* sagaTabOpen() {
 
       //
       yield put({
+        error: true,
         type: TAB_OPEN__F,
         payload: error,
-        error: true,
+        meta,
       });
 
       // callback

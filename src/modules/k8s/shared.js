@@ -1,6 +1,11 @@
 import { put, take } from 'redux-saga/effects';
 import store from 'store';
 
+import {
+  NotiErrorApi,
+} from '../../middleware/notifications';
+
+
 export const PREFIX = 'k8s';
 
 export const ID = Symbol('ID');
@@ -26,13 +31,31 @@ export const NO_UID = '[nouid]';
 
 export const UI_THROTTLE = 500;
 
-export async function apiGet(url) {
-  const res = await fetch(url);
-  return res.json();
+export async function apiFetch(url, options = {}, parser = 'json') {
+  const netResponse = await fetch(url, options);
+  if (netResponse.ok) return netResponse[parser]();
+  else {
+    let apiResponse;
+
+    // parse as text
+    try {
+      apiResponse = await netResponse.text();
+    }
+    catch (e) {}
+
+    // parse as json
+    try {
+      apiResponse = JSON.parse(apiResponse);
+    }
+    catch (e) {}
+
+    // notify
+    throw new NotiErrorApi(apiResponse, netResponse);
+  }
 }
 
 (async function cacheInit() {
-  const version = await apiGet('/version');
+  const version = await apiFetch('/version');
   const buildDate = store.get('version.buildDate');
   if (buildDate !== version.buildDate) {
     store.clearAll();
@@ -43,13 +66,13 @@ export async function apiGet(url) {
 export async function cacheGet(url) {
   let result = store.get(url);
   if (!result) {
-    result = await apiGet(url);
+    result = await apiFetch(url);
     store.set(url, result);
   }
   return Promise.resolve(result);
 }
 
-export function* putTake(actionPut, actionTake) {
+export function* putTake(actionPut, actionsTake) {
   const $id = Date.now();
 
   // put
@@ -58,13 +81,14 @@ export function* putTake(actionPut, actionTake) {
   yield put(actionPut);
 
   // take
+  const [, actionTypeF] = actionsTake;
   let action = { meta: { $id: null }};
   while (action.meta.$id !== $id) {
-    action = yield take(actionTake);
+    action = yield take(actionsTake);
   }
 
   //
-  return action;
+  return action.type === actionTypeF ? null : action;
 }
 
 export function selectArrOptional(arr) {

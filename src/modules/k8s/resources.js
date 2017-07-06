@@ -16,13 +16,14 @@ import {
   IS_LISTABLE,
   URL_PART_GROUP,
   URL_PART_RESOURCE,
-  apiGet,
+  apiFetch,
   putTake,
   selectArrOptional,
 } from './shared';
 
 import {
   MODELS_GET__S,
+  MODELS_GET__F,
   modelsGet,
 } from './models';
 
@@ -97,17 +98,17 @@ export const resourcesState = {
 
 function* sagaResourcesGet() {
   yield takeEvery(RESOURCES_GET, function* (action) {
+    const { payload, meta } = action;
     try {
-      const { payload, meta } = action;
       const { group } = payload;
 
       // resources
-      const { resources } = yield call(apiGet, group[URL]);
+      const { resources } = yield call(apiFetch, group[URL]);
       const decorate = resourceDecorate(group);
       resources.forEach(resource => decorate(resource));
 
       // models
-      yield putTake(modelsGet(group), MODELS_GET__S);
+      yield putTake(modelsGet(group), [MODELS_GET__S, MODELS_GET__F]);
 
       //
       yield put({
@@ -119,9 +120,10 @@ function* sagaResourcesGet() {
 
     catch (error) {
       yield put({
+        error: true,
         type: RESOURCES_GET__F,
         payload: error,
-        error: true,
+        meta,
       });
     }
   });

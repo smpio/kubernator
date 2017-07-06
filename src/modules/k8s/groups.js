@@ -11,7 +11,7 @@ import {
   URL,
   RESOURCE_IDS,
   NO_GROUP,
-  apiGet,
+  apiFetch,
   putTake,
   selectArr,
 } from './shared';
@@ -63,11 +63,11 @@ export const groupsState = {
 
 function* sagaGroupsGet() {
   yield takeEvery(GROUPS_GET, function* (action) {
+    const { meta } = action;
     try {
-      const { meta } = action;
 
       // get
-      const { groups } = yield call(apiGet, '/apis');
+      const { groups } = yield call(apiFetch, '/apis');
 
       // add general api
       // as a fake group
@@ -94,9 +94,10 @@ function* sagaGroupsGet() {
 
     catch (error) {
       yield put({
+        error: true,
         type: GROUPS_GET__F,
         payload: error,
-        error: true,
+        meta,
       });
     }
   });
@@ -104,12 +105,12 @@ function* sagaGroupsGet() {
 
 function* sagaGroupGet() {
   yield takeEvery(GROUP_GET, function* (action) {
+    const { payload, meta } = action;
     try {
-      const { payload, meta } = action;
       const { id } = payload;
 
       const group =
-        (yield putTake(groupsGet(), GROUPS_GET__S)) &&
+        (yield putTake(groupsGet(), [GROUPS_GET__S, GROUPS_GET__F])) &&
         (yield select(groupSelect, id));
 
       //
@@ -122,9 +123,10 @@ function* sagaGroupGet() {
 
     catch (error) {
       yield put({
+        error: true,
         type: GROUP_GET__F,
         payload: error,
-        error: true,
+        meta,
       });
     }
   });

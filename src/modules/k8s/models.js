@@ -48,8 +48,8 @@ export const modelsState = {
 
 function* sagaModelsGet() {
   yield takeEvery(MODELS_GET, function* (action) {
+    const { payload, meta } = action;
     try {
-      const { payload, meta } = action;
       const { group } = payload;
 
       // models
@@ -92,9 +92,10 @@ function* sagaModelsGet() {
 
     catch (error) {
       yield put({
+        error: true,
         type: MODELS_GET__F,
         payload: error,
-        error: true,
+        meta,
       });
     }
   });
