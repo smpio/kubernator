@@ -227,7 +227,7 @@ function* sagaItemPost() {
       let { id, yaml } = payload;
 
       // parse item
-      const { kind } = jsYaml.safeLoad(yaml);
+      const { kind, metadata: { namespace } = {}} = jsYaml.safeLoad(yaml);
       if (!kind) throw new Error('Please, specify item\'s kind.');
 
       // find resource
@@ -235,7 +235,8 @@ function* sagaItemPost() {
       if (!resource) throw new Error('Can\'t find correponding resource by kind.');
 
       // get url
-      const { [URL]: url } = resource;
+      const { namespaced, [URL]: resourceUrl } = resource;
+      const url = namespaced ? resourceGetUrl(resource, namespace) : resourceUrl;
 
       // post
       const item = yield call(itemApiPost, url, yaml);
