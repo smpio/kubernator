@@ -56,10 +56,10 @@ export async function apiFetch(url, options = {}, parser = 'json') {
 
 (async function cacheInit() {
   const version = await apiFetch('/version');
-  const buildDate = store.get('version.buildDate');
-  if (buildDate !== version.buildDate) {
+  const gitVersion = store.get('version.gitVersion');
+  if (gitVersion !== version.gitVersion) {
     store.clearAll();
-    store.set('version.buildDate', version.buildDate);
+    store.set('version.gitVersion', version.gitVersion);
   }
 })();
 
