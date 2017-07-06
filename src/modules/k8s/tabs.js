@@ -74,9 +74,9 @@ const getIndex = (function* () {
 
 function* sagaTabOpen() {
   yield takeEvery(TAB_OPEN, function* (action) {
-    const { resolve, reject } = action.payload;
+    const { payload, meta } = action;
+    const { resolve, reject } = payload;
     try {
-      const { payload, meta } = action;
       let { id, yaml } = payload;
 
       // artificial item
@@ -119,9 +119,10 @@ function* sagaTabOpen() {
 
       //
       yield put({
+        error: true,
         type: TAB_OPEN__F,
         payload: error,
-        error: true,
+        meta,
       });
 
       // callback

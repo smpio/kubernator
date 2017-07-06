@@ -95,8 +95,8 @@ export const comboState = {
 
 function* sagaCatalogGet() {
   yield takeEvery(CATALOG_GET, function* (action) {
+    const { meta } = action;
     try {
-      const { meta } = action;
 
       //
       yield put({
@@ -142,9 +142,10 @@ function* sagaCatalogGet() {
     }
     catch (error) {
       yield put({
+        error: true,
         type: CATALOG_GET__F,
         payload: error,
-        error: true,
+        meta,
       });
     }
   });
@@ -152,8 +153,8 @@ function* sagaCatalogGet() {
 
 function* sagaRbacGet() {
   yield takeEvery(RBAC_GET, function* (action) {
+    const { meta } = action;
     try {
-      const { meta } = action;
 
       // group [cache]
       const id = 'rbac.authorization.k8s.io';
@@ -179,9 +180,10 @@ function* sagaRbacGet() {
     }
     catch (error) {
       yield put({
+        error: true,
         type: RBAC_GET__F,
         payload: error,
-        error: true,
+        meta,
       });
     }
   });
@@ -189,8 +191,8 @@ function* sagaRbacGet() {
 
 function* sagaNamespacesGet() {
   yield takeEvery(NAMESPACES_GET, function* (action) {
+    const { meta } = action;
     try {
-      const { meta } = action;
 
       // namespaces [cache]
       let namespaces = yield select(namespacesSelectArr);
@@ -233,9 +235,10 @@ function* sagaNamespacesGet() {
 
     catch (error) {
       yield put({
+        error: true,
         type: NAMESPACES_GET__F,
         payload: error,
-        error: true,
+        meta,
       });
     }
   });
@@ -243,9 +246,9 @@ function* sagaNamespacesGet() {
 
 function* sagaNamespaceItemsGet() {
   yield takeEvery(NAMESPACE_ITEMS_GET, function* (action) {
-    const { resolve, reject } = action.payload;
+    const { payload, meta } = action;
+    const { resolve, reject } = payload;
     try {
-      const { payload, meta } = action;
       const { namespaceName } = payload;
 
       // resources [cache]
@@ -270,9 +273,10 @@ function* sagaNamespaceItemsGet() {
 
       //
       yield put({
+        error: true,
         type: NAMESPACE_ITEMS_GET__F,
         payload: error,
-        error: true,
+        meta,
       });
 
       //

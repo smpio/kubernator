@@ -152,9 +152,9 @@ export const itemsState = {
 
 function* sagaItemsGet() {
   yield takeEvery(ITEMS_GET, function* (action) {
-    const { resolve, reject } = action.payload;
+    const { payload, meta } = action;
+    const { resolve, reject } = payload;
     try {
-      const { payload, meta } = action;
       const { resource, namespace } = payload;
 
       // get
@@ -180,9 +180,10 @@ function* sagaItemsGet() {
 
       //
       yield put({
+        error: true,
         type: ITEMS_GET__F,
         payload: error,
-        error: true,
+        meta,
       });
 
       //
@@ -193,8 +194,8 @@ function* sagaItemsGet() {
 
 function* sagaItemGet() {
   yield takeEvery(ITEM_GET, function* (action) {
+    const { payload, meta } = action;
     try {
-      const { payload, meta } = action;
       const { id } = payload;
 
       const item = yield select(itemSelect, id);
@@ -210,9 +211,10 @@ function* sagaItemGet() {
 
     catch (error) {
       yield put({
+        error: true,
         type: ITEM_GET__F,
         payload: error,
-        error: true,
+        meta,
       });
     }
   });
@@ -220,8 +222,8 @@ function* sagaItemGet() {
 
 function* sagaItemPost() {
   yield takeEvery(ITEM_POST, function* (action) {
+    const { payload, meta } = action;
     try {
-      const { payload, meta } = action;
       let { id, yaml } = payload;
 
       // parse item
@@ -256,9 +258,10 @@ function* sagaItemPost() {
 
     catch (error) {
       yield put({
+        error: true,
         type: ITEM_POST__F,
         payload: error,
-        error: true,
+        meta,
       });
     }
   });
@@ -266,8 +269,8 @@ function* sagaItemPost() {
 
 function* sagaItemPut() {
   yield takeEvery(ITEM_PUT, function* (action) {
+    const { payload, meta } = action;
     try {
-      const { payload, meta } = action;
       const { id, yaml } = payload;
 
       //
@@ -294,9 +297,10 @@ function* sagaItemPut() {
 
     catch (error) {
       yield put({
+        error: true,
         type: ITEM_PUT__F,
         payload: error,
-        error: true,
+        meta,
       });
     }
   });
@@ -304,8 +308,8 @@ function* sagaItemPut() {
 
 function* sagaItemDelete() {
   yield takeEvery(ITEM_DELETE, function* (action) {
+    const { payload, meta } = action;
     try {
-      const { payload, meta } = action;
       const { id: itemId } = payload;
 
       //
@@ -330,9 +334,10 @@ function* sagaItemDelete() {
 
     catch (error) {
       yield put({
+        error: true,
         type: ITEM_DELETE__F,
         payload: error,
-        error: true,
+        meta,
       });
     }
   });

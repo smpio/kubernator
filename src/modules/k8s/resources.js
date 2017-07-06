@@ -97,8 +97,8 @@ export const resourcesState = {
 
 function* sagaResourcesGet() {
   yield takeEvery(RESOURCES_GET, function* (action) {
+    const { payload, meta } = action;
     try {
-      const { payload, meta } = action;
       const { group } = payload;
 
       // resources
@@ -119,9 +119,10 @@ function* sagaResourcesGet() {
 
     catch (error) {
       yield put({
+        error: true,
         type: RESOURCES_GET__F,
         payload: error,
-        error: true,
+        meta,
       });
     }
   });

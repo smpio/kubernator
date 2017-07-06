@@ -63,8 +63,8 @@ export const groupsState = {
 
 function* sagaGroupsGet() {
   yield takeEvery(GROUPS_GET, function* (action) {
+    const { meta } = action;
     try {
-      const { meta } = action;
 
       // get
       const { groups } = yield call(apiFetch, '/apis');
@@ -94,9 +94,10 @@ function* sagaGroupsGet() {
 
     catch (error) {
       yield put({
+        error: true,
         type: GROUPS_GET__F,
         payload: error,
-        error: true,
+        meta,
       });
     }
   });
@@ -104,8 +105,8 @@ function* sagaGroupsGet() {
 
 function* sagaGroupGet() {
   yield takeEvery(GROUP_GET, function* (action) {
+    const { payload, meta } = action;
     try {
-      const { payload, meta } = action;
       const { id } = payload;
 
       const group =
@@ -122,9 +123,10 @@ function* sagaGroupGet() {
 
     catch (error) {
       yield put({
+        error: true,
         type: GROUP_GET__F,
         payload: error,
-        error: true,
+        meta,
       });
     }
   });
