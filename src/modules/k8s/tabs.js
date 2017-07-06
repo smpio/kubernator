@@ -90,7 +90,7 @@ function* sagaTabOpen() {
         if (yaml) {
           const item = jsYaml.safeLoad(yaml);
           const models = yield select(modelsSelect);
-          itemRemoveReadonlyProperties(models, item, item.kind);
+          itemRemoveReadonlyProperties(item, models, item.kind, ['status']);
           yaml = jsYaml.safeDump(item, { noRefs: true });
         }
       }

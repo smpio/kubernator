@@ -457,15 +457,20 @@ export function itemDecorate(resource) {
   };
 }
 
-export function itemRemoveReadonlyProperties(models, item, modelId) {
+export function itemRemoveReadonlyProperties(item, models, modelId, forcedKeys) {
   if (item) {
+
+    // remove forced keys
+    forcedKeys && forcedKeys.forEach(key => delete item[key]);
+
+    // remove readonly keys
     const model = models[modelId];
     if (model) {
       const { properties } = model;
       Object.keys(properties).forEach(key => {
         const { [IS_READONLY]: readonly, $ref } = properties[key];
         if (readonly) delete item[key];
-        else if ($ref) itemRemoveReadonlyProperties(models, item[key], $ref);
+        else if ($ref) itemRemoveReadonlyProperties(item[key], models, $ref);
       });
     }
   }
