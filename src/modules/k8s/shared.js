@@ -2,7 +2,6 @@ import { put, take } from 'redux-saga/effects';
 import store from 'store';
 
 import {
-  NotiErrorNet,
   NotiErrorApi,
 } from '../../middleware/notifications';
 
@@ -37,14 +36,21 @@ export async function apiFetch(url, options = {}, parser = 'json') {
   if (netResponse.ok) return netResponse[parser]();
   else {
     let apiResponse;
+
+    // parse as text
     try {
-      apiResponse = await netResponse.json();
+      apiResponse = await netResponse.text();
     }
-    finally {
-      throw apiResponse
-        ? new NotiErrorApi(apiResponse)
-        : new NotiErrorNet(netResponse);
+    catch (e) {}
+
+    // parse as json
+    try {
+      apiResponse = JSON.parse(apiResponse);
     }
+    catch (e) {}
+
+    // notify
+    throw new NotiErrorApi(apiResponse, netResponse);
   }
 }
 
