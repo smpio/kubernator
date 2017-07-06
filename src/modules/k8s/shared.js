@@ -1,6 +1,12 @@
 import { put, take } from 'redux-saga/effects';
 import store from 'store';
 
+import {
+  NotiErrorNet,
+  NotiErrorApi,
+} from '../../middleware/notifications';
+
+
 export const PREFIX = 'k8s';
 
 export const ID = Symbol('ID');
@@ -26,13 +32,24 @@ export const NO_UID = '[nouid]';
 
 export const UI_THROTTLE = 500;
 
-export async function apiGet(url) {
-  const res = await fetch(url);
-  return res.json();
+export async function apiFetch(url, options = {}, parser = 'json') {
+  const netResponse = await fetch(url, options);
+  if (netResponse.ok) return netResponse[parser]();
+  else {
+    let apiResponse;
+    try {
+      apiResponse = await netResponse.json();
+    }
+    finally {
+      throw apiResponse
+        ? new NotiErrorApi(apiResponse)
+        : new NotiErrorNet(netResponse);
+    }
+  }
 }
 
 (async function cacheInit() {
-  const version = await apiGet('/version');
+  const version = await apiFetch('/version');
   const buildDate = store.get('version.buildDate');
   if (buildDate !== version.buildDate) {
     store.clearAll();
@@ -43,7 +60,7 @@ export async function apiGet(url) {
 export async function cacheGet(url) {
   let result = store.get(url);
   if (!result) {
-    result = await apiGet(url);
+    result = await apiFetch(url);
     store.set(url, result);
   }
   return Promise.resolve(result);

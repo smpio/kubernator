@@ -11,7 +11,7 @@ import {
   URL,
   RESOURCE_IDS,
   NO_GROUP,
-  apiGet,
+  apiFetch,
   putTake,
   selectArr,
 } from './shared';
@@ -67,7 +67,7 @@ function* sagaGroupsGet() {
       const { meta } = action;
 
       // get
-      const { groups } = yield call(apiGet, '/apis');
+      const { groups } = yield call(apiFetch, '/apis');
 
       // add general api
       // as a fake group

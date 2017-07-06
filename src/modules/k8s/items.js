@@ -16,7 +16,7 @@ import {
   ITEM_IDS,
   IS_READONLY,
   NO_UID,
-  apiGet,
+  apiFetch,
 } from './shared';
 
 import {
@@ -87,20 +87,20 @@ export const itemDelete = id => ({
 // api
 // ------
 
-async function itemApiGetYaml(url) {
-  const res = await fetch(
+function itemApiGetYaml(url) {
+  return apiFetch(
     url,
     {
       headers: {
         'Accept': 'application/yaml',
       },
     },
+    'text',
   );
-  return res.text();
 }
 
-async function itemApiPost(url, yaml) {
-  const res = await fetch(
+function itemApiPost(url, yaml) {
+  return apiFetch(
     url,
     {
       method: 'POST',
@@ -110,11 +110,10 @@ async function itemApiPost(url, yaml) {
       },
     },
   );
-  return res.json();
 }
 
-async function itemApiPut(url, yaml) {
-  const res = await fetch(
+function itemApiPut(url, yaml) {
+  return apiFetch(
     url,
     {
       method: 'PUT',
@@ -124,17 +123,15 @@ async function itemApiPut(url, yaml) {
       },
     },
   );
-  return res.json();
 }
 
-async function itemApiDelete(url) {
-  const res = await fetch(
+function itemApiDelete(url) {
+  return apiFetch(
     url,
     {
       method: 'DELETE',
     },
   );
-  return res.json();
 }
 
 
@@ -162,7 +159,7 @@ function* sagaItemsGet() {
 
       // get
       const url = resourceGetUrl(resource, namespace);
-      const { items } = yield call(apiGet, url);
+      const { items } = yield call(apiFetch, url);
 
       // decorate
       const decorate = itemDecorate(resource);

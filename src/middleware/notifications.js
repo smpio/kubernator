@@ -1,29 +1,34 @@
 import { notification } from 'antd';
 
-const TEMPLATE_ERROR = {
-  duration: 0,
-  style: {
-    'backgroundColor': 'lightpink',
-  },
-};
+export class NotiErrorNet {
+  constructor({ status, statusText, url }) {
+    this.ignore = status === 403;
+    this.message = `${status} ${statusText}`;
+    this.description = url;
+  }
+}
+
+export class NotiErrorApi {
+  constructor({ code, reason, message }) {
+    this.message = `${code} ${reason}`;
+    this.description = message;
+    this.duration = 0;
+    this.style = {
+      'backgroundColor': 'lightpink',
+    };
+  }
+}
 
 export default store => next => action => {
-  const {
-    error,
-    payload: {
-      code,
-      reason,
-      message,
-    } = {},
-  } = action;
-
-  if (error) {
-    notification.open({
-      ...TEMPLATE_ERROR,
-      message: !code && !reason ? 'Shit happened' : `${code || '[nocode]'}: ${reason || '[noreason]'}`,
-      description: message || 'No description given :(',
-    });
-  }
-
+  const { error, payload } = action;
+  if (
+    error &&
+    payload &&
+    !payload.ignore &&
+    (
+      payload instanceof NotiErrorApi ||
+      payload instanceof NotiErrorNet
+    )
+  ) notification.open(payload);
   return next(action);
 };

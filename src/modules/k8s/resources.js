@@ -16,7 +16,7 @@ import {
   IS_LISTABLE,
   URL_PART_GROUP,
   URL_PART_RESOURCE,
-  apiGet,
+  apiFetch,
   putTake,
   selectArrOptional,
 } from './shared';
@@ -102,7 +102,7 @@ function* sagaResourcesGet() {
       const { group } = payload;
 
       // resources
-      const { resources } = yield call(apiGet, group[URL]);
+      const { resources } = yield call(apiFetch, group[URL]);
       const decorate = resourceDecorate(group);
       resources.forEach(resource => decorate(resource));
 
