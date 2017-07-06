@@ -14,7 +14,9 @@ import {
 
 import {
   GROUPS_GET__S,
+  GROUPS_GET__F,
   GROUP_GET__S,
+  GROUP_GET__F,
   groupsGet,
   groupGet,
   groupsSelectArr,
@@ -23,6 +25,7 @@ import {
 
 import {
   RESOURCES_GET__S,
+  RESOURCES_GET__F,
   resourcesGet,
   resourcesSelectByGroup,
   resourcesSelectByNamespaced,
@@ -31,6 +34,7 @@ import {
 
 import {
   ITEMS_GET__S,
+  ITEMS_GET__F,
   itemsGet,
 } from './items';
 
@@ -108,7 +112,7 @@ function* sagaCatalogGet() {
       // groups [cache]
       const groups =
         (yield select(groupsSelectArr)) ||
-        (yield putTake(groupsGet(), GROUPS_GET__S)).payload.groups;
+        (yield putTake(groupsGet(), [GROUPS_GET__S, GROUPS_GET__F])).payload.groups;
 
       //
       yield put({
@@ -120,7 +124,7 @@ function* sagaCatalogGet() {
       // resources [cache]
       yield all(groups
         .filter(group => !group[RESOURCE_IDS].length)
-        .map(group => putTake(resourcesGet(group), RESOURCES_GET__S))
+        .map(group => putTake(resourcesGet(group), [RESOURCES_GET__S, RESOURCES_GET__F]))
       );
 
       //
@@ -132,7 +136,7 @@ function* sagaCatalogGet() {
 
       // namespaces [cache]
       (yield select(namespacesSelectArr)) ||
-      (yield putTake(namespacesGet(), NAMESPACES_GET__S));
+      (yield putTake(namespacesGet(), [NAMESPACES_GET__S, NAMESPACES_GET__F]));
 
       //
       yield put({
@@ -160,16 +164,16 @@ function* sagaRbacGet() {
       const id = 'rbac.authorization.k8s.io';
       const group =
         (yield select(groupSelect, id)) ||
-        (yield putTake(groupGet(id), GROUP_GET__S)).payload.group;
+        (yield putTake(groupGet(id), [GROUP_GET__S, GROUP_GET__F])).payload.group;
 
       // resources [cache]
       const resources =
         (yield select(resourcesSelectByGroup, group)) ||
-        (yield putTake(resourcesGet(group), RESOURCES_GET__S)).payload.resources;
+        (yield putTake(resourcesGet(group), [RESOURCES_GET__S, RESOURCES_GET__F])).payload.resources;
 
       // items
       yield all(resources.map(resource =>
-        putTake(itemsGet(resource), ITEMS_GET__S)
+        putTake(itemsGet(resource), [ITEMS_GET__S, ITEMS_GET__F])
       ));
       
       //
@@ -206,18 +210,18 @@ function* sagaNamespacesGet() {
           // group [cache]
           const group =
             (yield select(groupSelect, NO_GROUP)) ||
-            (yield putTake(groupGet(NO_GROUP), GROUP_GET__S)).payload.group;
+            (yield putTake(groupGet(NO_GROUP), [GROUP_GET__S, GROUP_GET__F])).payload.group;
 
           // resources [cache]
           (yield select(resourcesSelectByGroup, group)) ||
-          (yield putTake(resourcesGet(group), RESOURCES_GET__S));
+          (yield putTake(resourcesGet(group), [RESOURCES_GET__S, RESOURCES_GET__F]));
 
           //
           resource = yield select(resourceSelect, id);
         }
 
         // items
-        const items = (yield putTake(itemsGet(resource), ITEMS_GET__S)).payload.items;
+        const items = (yield putTake(itemsGet(resource), [ITEMS_GET__S, ITEMS_GET__F])).payload.items;
 
         // namespaces
         namespaces = items.map(item => item.metadata.name);
@@ -256,7 +260,7 @@ function* sagaNamespaceItemsGet() {
 
       // items
       yield all(resources.map(resource =>
-        putTake(itemsGet(resource, namespaceName), ITEMS_GET__S)
+        putTake(itemsGet(resource, namespaceName), [ITEMS_GET__S, ITEMS_GET__F])
       ));
 
       //

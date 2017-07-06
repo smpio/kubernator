@@ -23,6 +23,7 @@ import {
 
 import {
   MODELS_GET__S,
+  MODELS_GET__F,
   modelsGet,
 } from './models';
 
@@ -107,7 +108,7 @@ function* sagaResourcesGet() {
       resources.forEach(resource => decorate(resource));
 
       // models
-      yield putTake(modelsGet(group), MODELS_GET__S);
+      yield putTake(modelsGet(group), [MODELS_GET__S, MODELS_GET__F]);
 
       //
       yield put({

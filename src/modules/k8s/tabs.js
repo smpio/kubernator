@@ -14,6 +14,7 @@ import {
 
 import {
   ITEM_GET__S,
+  ITEM_GET__F,
   itemGet,
   itemSelect,
   itemRemoveReadonlyProperties,
@@ -101,7 +102,7 @@ function* sagaTabOpen() {
         const item = yield select(itemSelect, id);
 
         // request yaml only if needed
-        if (item && !item[YAML]) yield putTake(itemGet(id), ITEM_GET__S);
+        if (item && !item[YAML]) yield putTake(itemGet(id), [ITEM_GET__S, ITEM_GET__F]);
       }
 
       //

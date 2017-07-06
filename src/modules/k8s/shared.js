@@ -66,7 +66,7 @@ export async function cacheGet(url) {
   return Promise.resolve(result);
 }
 
-export function* putTake(actionPut, actionTake) {
+export function* putTake(actionPut, actionsTake) {
   const $id = Date.now();
 
   // put
@@ -75,13 +75,14 @@ export function* putTake(actionPut, actionTake) {
   yield put(actionPut);
 
   // take
+  const [, actionTypeF] = actionsTake;
   let action = { meta: { $id: null }};
   while (action.meta.$id !== $id) {
-    action = yield take(actionTake);
+    action = yield take(actionsTake);
   }
 
   //
-  return action;
+  return action.type === actionTypeF ? null : action;
 }
 
 export function selectArrOptional(arr) {

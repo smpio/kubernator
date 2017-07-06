@@ -110,7 +110,7 @@ function* sagaGroupGet() {
       const { id } = payload;
 
       const group =
-        (yield putTake(groupsGet(), GROUPS_GET__S)) &&
+        (yield putTake(groupsGet(), [GROUPS_GET__S, GROUPS_GET__F])) &&
         (yield select(groupSelect, id));
 
       //
