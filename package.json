@@ -26,6 +26,7 @@
     "store": "^2.0.12"
   },
   "devDependencies": {
+    "@uqee/react-scripts": "^1.0.9",
     "babel-eslint": "^7.2.3",
     "eslint": "^4.0.0",
     "eslint-config-fbjs": "^1.1.1",
@@ -36,8 +37,7 @@
     "eslint-plugin-react": "^7.1.0",
     "node-sass-chokidar": "^0.0.3",
     "npm-run-all": "^4.0.2",
-    "prop-types": "^15.5.10",
-    "react-scripts": "1.0.7"
+    "prop-types": "^15.5.10"
   },
   "scripts": {
     "start-js": "react-scripts start",
