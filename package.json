@@ -26,7 +26,7 @@
     "store": "^2.0.12"
   },
   "devDependencies": {
-    "@uqee/react-scripts": "^1.0.9",
+    "@uqee/react-scripts": "1.0.10-2",
     "babel-eslint": "^7.2.3",
     "eslint": "^4.0.0",
     "eslint-config-fbjs": "^1.1.1",
@@ -35,18 +35,14 @@
     "eslint-plugin-jasmine": "^2.3.1",
     "eslint-plugin-prefer-object-spread": "^1.2.1",
     "eslint-plugin-react": "^7.1.0",
-    "node-sass-chokidar": "^0.0.3",
     "npm-run-all": "^4.0.2",
     "prop-types": "^15.5.10"
   },
   "scripts": {
-    "start-js": "react-scripts start",
-    "start": "npm-run-all -p watch-css start-js",
-    "build": "npm run build-css && react-scripts build",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
-    "build-css": "node-sass-chokidar --include-path ./src --include-path ./node_modules src/ -o src/",
-    "watch-css": "npm run build-css && node-sass-chokidar --include-path ./src --include-path ./node_modules src/ -o src/ --watch --recursive"
+    "eject": "react-scripts eject"
   },
   "proxy": "http://localhost:8001",
   "homepage": "."
