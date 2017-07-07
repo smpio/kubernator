@@ -3,11 +3,9 @@ import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'react-router-redux';
 
+import App from 'containers/App';
 import store, { history } from './store';
-import App from './containers/App';
 
-import 'sanitize.css/sanitize.css';
-import 'antd/dist/antd.css';
 import './index.css';
 
 render(

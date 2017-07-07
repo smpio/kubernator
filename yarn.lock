@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@uqee/react-scripts@1.0.10-2":
-  version "1.0.10-2"
-  resolved "https://registry.yarnpkg.com/@uqee/react-scripts/-/react-scripts-1.0.10-2.tgz#5afd5d190ed449ef73ae9a1612331b8f27a15244"
+"@uqee/react-scripts@1.0.10-3":
+  version "1.0.10-3"
+  resolved "https://registry.yarnpkg.com/@uqee/react-scripts/-/react-scripts-1.0.10-3.tgz#48960497fe158dbd6096d15036d053689b7abb3b"
   dependencies:
     autoprefixer "7.1.1"
     babel-core "6.25.0"
@@ -34,6 +34,7 @@
     object-assign "4.1.1"
     postcss-advanced-variables "1.2.2"
     postcss-flexbugs-fixes "3.0.0"
+    postcss-global-import "1.0.1"
     postcss-import "10.0.0"
     postcss-loader "2.0.6"
     postcss-nested "2.0.2"
@@ -5057,6 +5058,13 @@ postcss-flexbugs-fixes@3.0.0:
   resolved "https://registry.yarnpkg.com/postcss-flexbugs-fixes/-/postcss-flexbugs-fixes-3.0.0.tgz#7b31cb6c27d0417a35a67914c295f83c403c7ed4"
   dependencies:
     postcss "^6.0.1"
+
+postcss-global-import@1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/postcss-global-import/-/postcss-global-import-1.0.1.tgz#5647231a99ce002a6e1efa5612674046b0bb56ad"
+  dependencies:
+    postcss "^6.0.2"
+    resolve "^1.1.7"
 
 postcss-import@10.0.0:
   version "10.0.0"

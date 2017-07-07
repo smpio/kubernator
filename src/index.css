@@ -1,21 +1,27 @@
-html {
-  box-sizing: border-box;
-}
+@global-import '../node_modules/sanitize.css/sanitize.css';
+@global-import '../node_modules/antd/dist/antd.css';
 
-*,
-*:before,
-*:after {
-  box-sizing: inherit;
-}
+:global {
+  
+  html {
+    box-sizing: border-box;
+  }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-}
+  *,
+  *:before,
+  *:after {
+    box-sizing: inherit;
+  }
 
-html,
-body,
-#root {
-  height: 100%;
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
 }

@@ -26,7 +26,7 @@
     "store": "^2.0.12"
   },
   "devDependencies": {
-    "@uqee/react-scripts": "1.0.10-2",
+    "@uqee/react-scripts": "1.0.10-3",
     "babel-eslint": "^7.2.3",
     "eslint": "^4.0.0",
     "eslint-config-fbjs": "^1.1.1",
