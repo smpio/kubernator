@@ -1,5 +1,7 @@
 import React from 'react';
 
+import css from './index.css';
+
 export default class Legend extends React.PureComponent {
   render() {
     return (

@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import throttle from 'react-throttle-render';
-
 import * as d3 from 'd3';
 
 import {
@@ -12,25 +11,43 @@ import {
   UI_THROTTLE,
   rbacGet,
   tabOpen,
-} from '../../../modules/k8s';
+} from 'modules/k8s';
 
 import {
   selectGraphData,
 } from './selectors';
+import css from './index.css';
 
 
-class Graph extends React.Component {
+@connect(
+  (state, props) => selectGraphData(state[PREFIX], props),
+  dispatch => bindActionCreators({
+    rbacGet,
+    tabOpen,
+  }, dispatch),
+)
+
+@throttle(UI_THROTTLE)
+
+export default class Graph extends React.Component {
+
+  static propTypes = {
+    nodes: PropTypes.array.isRequired,
+    links: PropTypes.array.isRequired,
+    namespaces: PropTypes.array,
+    namespaceIndex: PropTypes.number.isRequired,
+    rbacGet: PropTypes.func.isRequired,
+    historyPush: PropTypes.func.isRequired,
+  };
+
+  static defaultProps = {
+    namespaces: [],
+  };
+
   constructor(props) {
     super(props);
-
     this.state = { container: null };
     this.d3State = null; // no need fo rerender
-
-    this.getContainer = this.getContainer.bind(this);
-    this.d3Create = this.d3Create.bind(this);
-    this.d3Update = this.d3Update.bind(this);
-
-    this.itemEdit = this.itemEdit.bind(this);
   }
 
   componentDidMount() {
@@ -42,17 +59,11 @@ class Graph extends React.Component {
     this.d3Update();
   }
 
-  itemEdit(id) {
-    const { historyPush, tabOpen } = this.props;
-    historyPush('/catalog');
-    setImmediate(() => tabOpen(id));
-  }
-
-  getContainer(container) {
+  getContainer = container => {
     this.setState({ container });
-  }
+  };
 
-  d3Create() {
+  d3Create = () => {
     const { container } = this.state;
 
     // create state
@@ -98,9 +109,9 @@ class Graph extends React.Component {
       .scaleExtent([0.2, 2])
       .on('zoom', () => canvas.attr('transform', d3.event.transform));
     svg.call(zoom);
-  }
+  };
 
-  d3Update() {
+  d3Update = () => {
     const {
       props: {
         nodes,
@@ -170,7 +181,13 @@ class Graph extends React.Component {
 
     simulation.force('link')
       .links(links);
-  }
+  };
+
+  itemEdit = id => {
+    const { historyPush, tabOpen } = this.props;
+    historyPush('/catalog');
+    setImmediate(() => tabOpen(id));
+  };
 
   render() {
     const { getContainer } = this;
@@ -181,24 +198,3 @@ class Graph extends React.Component {
     );
   }
 }
-
-Graph.propTypes = {
-  nodes: PropTypes.array.isRequired,
-  links: PropTypes.array.isRequired,
-  namespaces: PropTypes.array,
-  namespaceIndex: PropTypes.number.isRequired,
-  rbacGet: PropTypes.func.isRequired,
-  historyPush: PropTypes.func.isRequired,
-};
-
-Graph.defaultProps = {
-  namespaces: [],
-};
-
-export default connect(
-  (state, props) => selectGraphData(state[PREFIX], props),
-  dispatch => bindActionCreators({
-    rbacGet,
-    tabOpen,
-  }, dispatch),
-)(throttle(UI_THROTTLE)(Graph));

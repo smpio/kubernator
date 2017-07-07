@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import throttle from 'react-throttle-render';
+import { Tree as TreeRoot, Spin } from 'antd';
 
 import {
   PREFIX,
@@ -13,7 +14,7 @@ import {
   namespaceItemsGet,
   itemsGet,
   tabOpen,
-} from '../../../modules/k8s';
+} from 'modules/k8s';
 
 import {
   TYPE_NAMESPACE,
@@ -21,21 +22,40 @@ import {
   TYPE_ITEM,
   selectAll,
 } from './selectors';
+import css from './index.css';
 
-import { Tree as TreeRoot, Spin } from 'antd';
 const TreeNode = TreeRoot.TreeNode;
 
 
-class Navigation extends React.Component {
+@connect(
+  state => selectAll(state[PREFIX]),
+  dispatch => bindActionCreators({
+    catalogGet,
+    namespaceItemsGet,
+    itemsGet,
+    tabOpen,
+  }, dispatch),
+)
+
+@throttle(UI_THROTTLE)
+
+export default class Navigation extends React.Component {
+
+  static propTypes = {
+    flags: PropTypes.object.isRequired,
+    resources: PropTypes.object.isRequired,
+    items: PropTypes.object.isRequired,
+    namespaces: PropTypes.array.isRequired,
+    catalog: PropTypes.array.isRequired,
+    catalogGet: PropTypes.func.isRequired,
+    namespaceItemsGet: PropTypes.func.isRequired,
+    itemsGet: PropTypes.func.isRequired,
+    tabOpen: PropTypes.func.isRequired,
+  };
+
   constructor(props) {
     super(props);
-    this.state = {
-      expandedKeys: [],
-    };
-    this.onSelect = this.onSelect.bind(this);
-    this.onExpand = this.onExpand.bind(this);
-    this.onLoadData = this.onLoadData.bind(this);
-    this.renderNode = this.renderNode.bind(this);
+    this.state = { expandedKeys: [] };
   }
 
   shouldComponentUpdate(props) {
@@ -51,7 +71,7 @@ class Navigation extends React.Component {
     if (!catalog.length || catalog.length !== namespaces.length) catalogGet();
   }
 
-  onSelect(selectedKeys, event) {
+  onSelect = (selectedKeys, event) => {
     const {
       props: {
         tabOpen,
@@ -79,17 +99,17 @@ class Navigation extends React.Component {
 
     // not item -> update keys
     else if (selectedKeys.length) this.setState({ expandedKeys: selectedKeys });
-  }
+  };
 
-  onExpand(expandedKeys, { expanded, node }) {
+  onExpand = (expandedKeys, { expanded, node }) => {
     const { eventKey: closedKey } = node.props;
     if (!expanded && !closedKey.includes(':')) { // hard coded crunch for the current key naming
       expandedKeys = expandedKeys.filter(key => !key.startsWith(closedKey));
     }
     this.setState({ expandedKeys });
-  }
+  };
 
-  onLoadData(treeNode) {
+  onLoadData = treeNode => {
     const { namespaceItemsGet, itemsGet } = this.props;
     const { custom: { type, payload } = {}} = treeNode.props;
 
@@ -111,9 +131,9 @@ class Navigation extends React.Component {
 
     //
     else return Promise.resolve();
-  }
+  };
 
-  renderNode(node) {
+  renderNode = node => {
     const {
       renderNode,
     } = this;
@@ -139,7 +159,7 @@ class Navigation extends React.Component {
         }
       </TreeNode>
     );
-  }
+  };
 
   render() {
     const {
@@ -183,25 +203,3 @@ class Navigation extends React.Component {
     );
   }
 }
-
-Navigation.propTypes = {
-  flags: PropTypes.object.isRequired,
-  resources: PropTypes.object.isRequired,
-  items: PropTypes.object.isRequired,
-  namespaces: PropTypes.array.isRequired,
-  catalog: PropTypes.array.isRequired,
-  catalogGet: PropTypes.func.isRequired,
-  namespaceItemsGet: PropTypes.func.isRequired,
-  itemsGet: PropTypes.func.isRequired,
-  tabOpen: PropTypes.func.isRequired,
-};
-
-export default connect(
-  state => selectAll(state[PREFIX]),
-  dispatch => bindActionCreators({
-    catalogGet,
-    namespaceItemsGet,
-    itemsGet,
-    tabOpen,
-  }, dispatch),
-)(throttle(UI_THROTTLE)(Navigation));
