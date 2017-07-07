@@ -22,4 +22,3 @@ yarn-error.log*
 
 # custom
 .idea
-src/**/*.css
