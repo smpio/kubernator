@@ -32,16 +32,17 @@ import css from './index.css';
 export default class Graph extends React.Component {
 
   static propTypes = {
+
+    // props
+    showIsolated: PropTypes.bool.isRequired,
+    showNamespaces: PropTypes.bool.isRequired,
+    navigateTo: PropTypes.func.isRequired,
+
+    // connect
     nodes: PropTypes.array.isRequired,
     links: PropTypes.array.isRequired,
-    namespaces: PropTypes.array,
-    namespaceIndex: PropTypes.number.isRequired,
     rbacGet: PropTypes.func.isRequired,
-    historyPush: PropTypes.func.isRequired,
-  };
-
-  static defaultProps = {
-    namespaces: [],
+    tabOpen: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -184,8 +185,8 @@ export default class Graph extends React.Component {
   };
 
   itemEdit = id => {
-    const { historyPush, tabOpen } = this.props;
-    historyPush('/catalog');
+    const { navigateTo, tabOpen } = this.props;
+    navigateTo('/catalog');
     setImmediate(() => tabOpen(id));
   };
 

@@ -83,12 +83,17 @@ class GraphData {
   }
 }
 
-const selectNamespace = (state, props) => state.namespaces[props.namespaceIndex];
 const selectItems = state => state.items;
 
+const selectFlags = (state, props) => ({
+  showIsolated: props.showIsolated,
+  showNamespaces: props.showNamespaces,
+});
+
 export const selectGraphData = createSelector(
-  [selectNamespace, selectItems],
-  (namespaceName, items) => {
+  [selectItems, selectFlags],
+  (items, flags) => {
+    const namespaceName = NO_NAMESPACE;
     const gd = new GraphData();
 
     // filter namespace

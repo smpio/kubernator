@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 
 import Controls from './Controls';
-import Graph from './Graph';
 import Legend from './Graph/Legend';
+import Graph from './Graph';
 import css from './index.css';
 
 export default class Rbac extends React.PureComponent {
@@ -17,31 +17,28 @@ export default class Rbac extends React.PureComponent {
     super(props);
     this.state = {
       showLegend: false,
-      namespaceIndex: 0,
+      showIsolated: false,
+      showNamespaces: false,
     };
   }
 
-  onChangeLegend = showLegend => {
-    this.setState({ showLegend });
-  };
+  setShowLegend = showLegend => this.setState({ showLegend });
+  setShowIsolated = showIsolated => this.setState({ showIsolated });
+  setShowNamespaces = showNamespaces => this.setState({ showNamespaces });
 
-  onChangeNamespace = namespaceIndex => {
-    this.setState({ namespaceIndex });
-  };
-
-  historyPush = url => {
-    this.props.history.push(url);
-  };
+  navigateTo = url => this.props.history.push(url);
 
   render() {
     const {
       state: {
         showLegend,
-        namespaceIndex,
+        showIsolated,
+        showNamespaces,
       },
-      onChangeLegend,
-      onChangeNamespace,
-      historyPush,
+      setShowLegend,
+      setShowIsolated,
+      setShowNamespaces,
+      navigateTo,
     } = this;
     return (
       <div className={css.rbac}>
@@ -49,17 +46,21 @@ export default class Rbac extends React.PureComponent {
           <title>Rbac</title>
         </Helmet>
         <Controls
-          namespaceIndex={namespaceIndex}
-          onChangeNamespace={onChangeNamespace}
-          onChangeLegend={onChangeLegend}
+          showLegend={showLegend}
+          showIsolated={showIsolated}
+          showNamespaces={showNamespaces}
+          setShowLegend={setShowLegend}
+          setShowIsolated={setShowIsolated}
+          setShowNamespaces={setShowNamespaces}
         />
         {
           showLegend &&
           <Legend />
         }
         <Graph
-          namespaceIndex={namespaceIndex}
-          historyPush={historyPush}
+          showIsolated={showIsolated}
+          showNamespaces={showNamespaces}
+          navigateTo={navigateTo}
         />
       </div>
     );
