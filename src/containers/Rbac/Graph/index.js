@@ -86,7 +86,7 @@ export default class Graph extends React.Component {
     // force
     const simulation = d3State.simulation = d3.forceSimulation()
       .force('center', d3.forceCenter(center.x, center.y))
-      .force('collide', d3.forceCollide(65 /* r */).strength(0.2 /* def 0.7 */))
+      .force('collide', d3.forceCollide(50 /* r */).strength(0.2 /* def 0.7 */))
       .force('link', d3.forceLink())
       .velocityDecay(0.5);
 
