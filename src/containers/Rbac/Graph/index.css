@@ -18,12 +18,23 @@
 
       &:global(.RoleBinding),
       &:global(.ClusterRoleBinding) {
-        line { stroke: gray; }
-        text { fill: gray; }
         &:hover {
           cursor: pointer;
-          line { stroke: black; }
           text { fill: black; }
+          line { stroke: black; }
+        }
+      }
+
+      &:global(.RoleBinding) {
+        text { fill: gray; }
+        line { stroke: gray; }
+      }
+
+      &:global(.ClusterRoleBinding) {
+        text { fill: brown; }
+        line {
+          stroke: brown;
+          stroke-width: 2;
         }
       }
 
@@ -37,23 +48,45 @@
       cursor: move;
       circle { transform-origin: center; }
 
-      &:global(.User),
-      &:global(.Group),
-      &:global(.ServiceAccount) {
+      &:global(.User) {
         circle {
           fill: yellowgreen;
           stroke: darkgreen;
         }
       }
 
-      &:global(.Role),
-      &:global(.ClusterRole) {
-        cursor: pointer;
+      &:global(.Group) {
+        circle {
+          fill: lightseagreen;
+          stroke: darkgreen;
+        }
+      }
+
+      &:global(.ServiceAccount) {
+        circle {
+          fill: yellow;
+          stroke: burlywood;
+        }
+      }
+
+      &:global(.Role) {
         circle {
           fill: cornflowerblue;
           stroke: darkblue;
-          transform: scale(.75);
         }
+      }
+
+      &:global(.ClusterRole) {
+        circle {
+          fill: coral;
+          stroke: brown;
+        }
+      }
+
+      &:global(.Role),
+      &:global(.ClusterRole) {
+        cursor: pointer;
+        circle { transform: scale(.75); }
         &:hover {
           text { fill: black; }
           circle { transform: none; }
@@ -75,7 +108,7 @@
 .legend {
   align-self: flex-start;
   max-width: 100%;
-  width: 600px
+  width: 800px;
 }
 
 .graph {

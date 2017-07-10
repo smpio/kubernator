@@ -2,7 +2,6 @@ import { createSelector } from 'reselect';
 
 import {
   RESOURCE_ID,
-  NO_NAMESPACE,
 } from '../../../modules/k8s';
 
 
@@ -11,19 +10,26 @@ const RESOURCE_CLUSTER_ROLE = 'clusterroles';
 const RESOURCE_ROLE_BINDING = 'rolebindings';
 const RESOURCE_CLUSTER_ROLE_BINDING = 'clusterrolebindings';
 
+const KIND_ROLE = 'Role';
+const KIND_CLUSTER_ROLE = 'ClusterRole';
+const KIND_ROLE_BINDING = 'RoleBinding';
+const KIND_CLUSTER_ROLE_BINDING = 'ClusterRoleBinding';
+
 class GraphData {
 
-  constructor() {
+  constructor(flags) {
     this.nId = 0;
     this.oKinds = {
-      [RESOURCE_ROLE]: 'Role',
-      [RESOURCE_CLUSTER_ROLE]: 'ClusterRole',
-      [RESOURCE_ROLE_BINDING]: 'RoleBinding',
-      [RESOURCE_CLUSTER_ROLE_BINDING]: 'ClusterRoleBinding',
+      [RESOURCE_ROLE]: KIND_ROLE,
+      [RESOURCE_CLUSTER_ROLE]: KIND_CLUSTER_ROLE,
+      [RESOURCE_ROLE_BINDING]: KIND_ROLE_BINDING,
+      [RESOURCE_CLUSTER_ROLE_BINDING]: KIND_CLUSTER_ROLE_BINDING,
     };
 
     this.oNodes = {};
     this.aLinks = [];
+
+    this.flags = flags;
 
     this.getId = this.getId.bind(this);
     this.getKind = this.getKind.bind(this);
@@ -51,8 +57,35 @@ class GraphData {
   }
 
   createLink(link) {
-    const { aLinks, getId } = this;
-    aLinks.push({ ...link, id: getId() });
+    const {
+      oNodes,
+      aLinks,
+      getId,
+      flags: {
+        showIsolated,
+        showNames,
+      },
+    } = this;
+
+    // create names
+    const { kind, namespace, name } = link;
+    const fullname = namespace ? `${namespace} / ${name}` : name;
+    const shortname = kind === KIND_ROLE_BINDING ? namespace : '';
+
+    // create link
+    aLinks.push({
+      ...link,
+      id: getId(),
+      fullname,
+      shortname: showNames ? fullname : shortname,
+    });
+
+    // mark nodes as linked
+    if (!showIsolated) {
+      const { source, target } = link;
+      oNodes[source].$linked = true;
+      oNodes[target].$linked = true;
+    }
   }
 
   findNode(node) {
@@ -62,11 +95,19 @@ class GraphData {
   }
 
   getData() {
-    const { oNodes, aLinks } = this;
+    const {
+      oNodes,
+      aLinks,
+      flags: {
+        showIsolated,
+      },
+    } = this;
 
     // nodes
     const oKeyToIndex = {};
-    const nodes = Object.keys(oNodes).map((key, index) => {
+    let nodes = Object.keys(oNodes);
+    if (!showIsolated) nodes = nodes.filter(key => oNodes[key].$linked);
+    nodes = nodes.map((key, index) => {
       oKeyToIndex[key] = index;
       return oNodes[key];
     });
@@ -83,24 +124,21 @@ class GraphData {
   }
 }
 
-const selectNamespace = (state, props) => state.namespaces[props.namespaceIndex];
 const selectItems = state => state.items;
 
-export const selectGraphData = createSelector(
-  [selectNamespace, selectItems],
-  (namespaceName, items) => {
-    const gd = new GraphData();
+const selectFlags = (state, props) => ({
+  showIsolated: props.showIsolated,
+  showNames: props.showNames,
+});
 
-    // filter namespace
-    const itemsNamespace = Object.keys(items)
-      .filter(id => {
-        const { namespace = NO_NAMESPACE } = items[id].metadata;
-        return namespace === namespaceName;
-      })
-      .map(id => items[id]);
+export const selectGraphData = createSelector(
+  [selectItems, selectFlags],
+  (items, flags) => {
+    const gd = new GraphData(flags);
+    const itemsArr = Object.keys(items).map(id => items[id]);
 
     // add roles
-    itemsNamespace
+    itemsArr
       .filter(item => {
         const { [RESOURCE_ID]: resource } = item;
         return (
@@ -115,7 +153,7 @@ export const selectGraphData = createSelector(
 
     // add subjects
     // User, Group, ServiceAccount
-    itemsNamespace
+    itemsArr
       .filter(item => {
         const { [RESOURCE_ID]: resource } = item;
         return (
@@ -126,8 +164,9 @@ export const selectGraphData = createSelector(
       .forEach(item => {
         const {
           metadata: {
-            uid: itemUid,
+            namespace: itemNamespace,
             name: itemName,
+            uid: itemUid,
           },
           subjects,
           roleRef: {
@@ -159,6 +198,7 @@ export const selectGraphData = createSelector(
             source: subjectId,
             target: roleId,
             kind: gd.getKind(resource),
+            namespace: itemNamespace,
             name: itemName,
             uid: itemUid,
           });

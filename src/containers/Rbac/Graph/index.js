@@ -32,16 +32,17 @@ import css from './index.css';
 export default class Graph extends React.Component {
 
   static propTypes = {
+
+    // props
+    showIsolated: PropTypes.bool.isRequired,
+    showNames: PropTypes.bool.isRequired,
+    navigateTo: PropTypes.func.isRequired,
+
+    // connect
     nodes: PropTypes.array.isRequired,
     links: PropTypes.array.isRequired,
-    namespaces: PropTypes.array,
-    namespaceIndex: PropTypes.number.isRequired,
     rbacGet: PropTypes.func.isRequired,
-    historyPush: PropTypes.func.isRequired,
-  };
-
-  static defaultProps = {
-    namespaces: [],
+    tabOpen: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -85,7 +86,7 @@ export default class Graph extends React.Component {
     // force
     const simulation = d3State.simulation = d3.forceSimulation()
       .force('center', d3.forceCenter(center.x, center.y))
-      .force('collide', d3.forceCollide(65 /* r */).strength(0.2 /* def 0.7 */))
+      .force('collide', d3.forceCollide(50 /* r */).strength(0.2 /* def 0.7 */))
       .force('link', d3.forceLink())
       .velocityDecay(0.5);
 
@@ -124,6 +125,8 @@ export default class Graph extends React.Component {
         simulation,
       },
       itemEdit,
+      linkFullname,
+      linkShortname,
     } = this;
 
     let nodesSelection;
@@ -135,13 +138,15 @@ export default class Graph extends React.Component {
       .enter()
       .append('g')
       .attr('class', link => `${css.link} ${link.kind}`)
-      .on('click', link => itemEdit(link.uid));
+      .on('click', link => itemEdit(link.uid))
+      .on('mouseover', linkFullname)
+      .on('mouseout', linkShortname);
 
     linksSelection.append('line');
     linksSelection.append('text')
       .attr('dx', 4)
       .attr('dy', 4)
-      .text(link => link.name);
+      .text(link => link.shortname);
 
     nodesSelection = nodesGroup
       .selectAll(`.${css.node}`)
@@ -184,10 +189,18 @@ export default class Graph extends React.Component {
   };
 
   itemEdit = id => {
-    const { historyPush, tabOpen } = this.props;
-    historyPush('/catalog');
+    const { navigateTo, tabOpen } = this.props;
+    navigateTo('/catalog');
     setImmediate(() => tabOpen(id));
   };
+
+  linkFullname(link) {
+    d3.select(this).select('text').text(link.fullname);
+  }
+
+  linkShortname(link) {
+    d3.select(this).select('text').text(link.shortname);
+  }
 
   render() {
     const { getContainer } = this;

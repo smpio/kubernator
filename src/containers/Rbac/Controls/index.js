@@ -1,81 +1,44 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-import { Radio, Checkbox, Spin } from 'antd';
-
-import {
-  PREFIX,
-  namespacesGet,
-} from 'modules/k8s';
+import { Checkbox } from 'antd';
 
 import css from './index.css';
 
 
-@connect(
-  state => state[PREFIX],
-  dispatch => bindActionCreators({
-    namespacesGet,
-  }, dispatch),
-)
-
 export default class Controls extends React.Component {
 
   static propTypes = {
-    namespaces: PropTypes.array.isRequired,
-    namespacesGet: PropTypes.func.isRequired,
-    namespaceIndex: PropTypes.number.isRequired,
-    onChangeLegend: PropTypes.func.isRequired,
-    onChangeNamespace: PropTypes.func.isRequired,
+    showLegend: PropTypes.bool.isRequired,
+    showIsolated: PropTypes.bool.isRequired,
+    showNames: PropTypes.bool.isRequired,
+    setShowLegend: PropTypes.func.isRequired,
+    setShowIsolated: PropTypes.func.isRequired,
+    setShowNames: PropTypes.func.isRequired,
   };
 
-  componentDidMount() {
-    this.props.namespacesGet();
-  }
+  static getChecked = event => event.target.checked;
 
-  onChangeNamespace = event => {
-    const namespaceIndex = event.target.value;
-    this.props.onChangeNamespace(namespaceIndex);
-  };
-
-  onChangeLegend = event => {
-    const value = event.target.checked;
-    this.props.onChangeLegend(value);
-  };
+  setShowLegend = event => this.props.setShowLegend(Controls.getChecked(event));
+  setShowIsolated = event => this.props.setShowIsolated(Controls.getChecked(event));
+  setShowNames = event => this.props.setShowNames(Controls.getChecked(event));
 
   render() {
     const {
       props: {
-        namespaces,
-        namespaceIndex,
+        showLegend,
+        showIsolated,
+        showNames,
       },
-      onChangeNamespace,
-      onChangeLegend,
+      setShowLegend,
+      setShowIsolated,
+      setShowNames,
     } = this;
     return (
       <div className={css.controls}>
-        <div className={css.controlsInner}>
-          {
-            !namespaces.length &&
-            <Spin />
-          }
-          <Radio.Group
-            value={namespaceIndex}
-            onChange={onChangeNamespace}>
-            {
-              namespaces.map((namespace, index) =>
-                <Radio.Button
-                  key={namespace}
-                  value={index}
-                  checked={index === namespaceIndex}>
-                  {namespace}
-                </Radio.Button>
-              )
-            }
-          </Radio.Group>
-          <Checkbox onChange={onChangeLegend}>Legend</Checkbox>
-        </div>
+        <Checkbox checked={showLegend} onChange={setShowLegend}>Legend</Checkbox>
+        <Checkbox checked={showIsolated} onChange={setShowIsolated}>Isolated</Checkbox>
+        <Checkbox checked={showNames} onChange={setShowNames}>Names</Checkbox>
       </div>
     );
   }
