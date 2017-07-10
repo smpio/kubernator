@@ -13,7 +13,7 @@ const RESOURCE_CLUSTER_ROLE_BINDING = 'clusterrolebindings';
 
 class GraphData {
 
-  constructor() {
+  constructor(flags) {
     this.nId = 0;
     this.oKinds = {
       [RESOURCE_ROLE]: 'Role',
@@ -24,6 +24,8 @@ class GraphData {
 
     this.oNodes = {};
     this.aLinks = [];
+
+    this.flags = flags;
 
     this.getId = this.getId.bind(this);
     this.getKind = this.getKind.bind(this);
@@ -51,8 +53,24 @@ class GraphData {
   }
 
   createLink(link) {
-    const { aLinks, getId } = this;
+    const {
+      oNodes,
+      aLinks,
+      getId,
+      flags: {
+        showIsolated,
+      },
+    } = this;
+
+    // create link
     aLinks.push({ ...link, id: getId() });
+
+    // mark nodes as linked
+    if (!showIsolated) {
+      const { source, target } = link;
+      oNodes[source].$linked = true;
+      oNodes[target].$linked = true;
+    }
   }
 
   findNode(node) {
@@ -62,11 +80,19 @@ class GraphData {
   }
 
   getData() {
-    const { oNodes, aLinks } = this;
+    const {
+      oNodes,
+      aLinks,
+      flags: {
+        showIsolated,
+      },
+    } = this;
 
     // nodes
     const oKeyToIndex = {};
-    const nodes = Object.keys(oNodes).map((key, index) => {
+    let nodes = Object.keys(oNodes);
+    if (!showIsolated) nodes = nodes.filter(key => oNodes[key].$linked);
+    nodes = nodes.map((key, index) => {
       oKeyToIndex[key] = index;
       return oNodes[key];
     });
@@ -94,7 +120,7 @@ export const selectGraphData = createSelector(
   [selectItems, selectFlags],
   (items, flags) => {
     const namespaceName = NO_NAMESPACE;
-    const gd = new GraphData();
+    const gd = new GraphData(flags);
 
     // filter namespace
     const itemsNamespace = Object.keys(items)
