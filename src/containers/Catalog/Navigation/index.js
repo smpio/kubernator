@@ -179,10 +179,10 @@ export default class Navigation extends React.Component {
     } = this;
 
     return (
-      <div className="catalog__navigation">
+      <div className={css.navigation}>
         {
           loadingCatalog &&
-          <div className="catalog__spinner">
+          <div className={css.spinner}>
             <Spin tip={loadingCatalog} />
           </div>
         }

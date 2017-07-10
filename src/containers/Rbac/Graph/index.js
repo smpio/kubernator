@@ -130,11 +130,11 @@ export default class Graph extends React.Component {
     let linksSelection;
 
     linksSelection = linksGroup
-      .selectAll('.link')
+      .selectAll(`.${css.link}`)
       .data(links, link => link.id)
       .enter()
       .append('g')
-      .attr('class', link => `link ${link.kind}`)
+      .attr('class', link => `${css.link} ${link.kind}`)
       .on('click', link => itemEdit(link.uid));
 
     linksSelection.append('line');
@@ -144,11 +144,11 @@ export default class Graph extends React.Component {
       .text(link => link.name);
 
     nodesSelection = nodesGroup
-      .selectAll('.node')
+      .selectAll(`.${css.node}`)
       .data(nodes, node => node.id)
       .enter()
       .append('g')
-      .attr('class', node => `node ${node.kind}`)
+      .attr('class', node => `${css.node} ${node.kind}`)
       .on('click', node => node.uid && itemEdit(node.uid))
       .call(drag);
 
@@ -192,7 +192,7 @@ export default class Graph extends React.Component {
   render() {
     const { getContainer } = this;
     return (
-      <div className="rbac__graph">
+      <div className={css.graph}>
         <svg ref={getContainer} />
       </div>
     );

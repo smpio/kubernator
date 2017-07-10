@@ -54,8 +54,8 @@ export default class Controls extends React.Component {
       onChangeLegend,
     } = this;
     return (
-      <div className="rbac__controls">
-        <div className="rbac__controls-inner">
+      <div className={css.controls}>
+        <div className={css.controlsInner}>
           {
             !namespaces.length &&
             <Spin />
@@ -74,9 +74,7 @@ export default class Controls extends React.Component {
               )
             }
           </Radio.Group>
-          <div className="rbac__controls-legend">
-            <Checkbox onChange={onChangeLegend}>Legend</Checkbox>
-          </div>
+          <Checkbox onChange={onChangeLegend}>Legend</Checkbox>
         </div>
       </div>
     );

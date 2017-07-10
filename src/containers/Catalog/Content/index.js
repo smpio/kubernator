@@ -79,8 +79,8 @@ export default class Content extends React.Component {
         tab={
           <span
             className={classnames({
-              'catalog__tab-modified': yaml && yaml !== yamlOriginal,
-              'catalog__tab-detached': !item,
+              [css.tabModified]: yaml && yaml !== yamlOriginal,
+              [css.tabDetached]: !item,
             })}>
             {`${namespace} / ${name}`}
           </span>
@@ -219,10 +219,10 @@ export default class Content extends React.Component {
     return (
       <div
         className={classnames(
-          'catalog__content',
+          css.content,
           {
-            'hide-tabs': hideTabs,
-            'hide-editor': hideEditor,
+            [css.hideTabs]: hideTabs,
+            [css.hideEditor]: hideEditor,
           },
         )}>
         <Tabs
@@ -235,7 +235,7 @@ export default class Content extends React.Component {
               {
                 showCloseAll &&
                 <Button
-                  className="catalog__button"
+                  className={css.button}
                   size="small"
                   onClick={onCloseAll}>
                   CloseAll
@@ -244,7 +244,7 @@ export default class Content extends React.Component {
               {
                 (item && !dirty) &&
                 <Button
-                  className="catalog__button"
+                  className={css.button}
                   size="small"
                   onClick={onReload}>
                   Reload
@@ -253,7 +253,7 @@ export default class Content extends React.Component {
               {
                 dirty &&
                 <Button
-                  className="catalog__button"
+                  className={css.button}
                   size="small"
                   onClick={onDiscard}>
                   Discard
@@ -262,7 +262,7 @@ export default class Content extends React.Component {
               {
                 dirty &&
                 <Button
-                  className="catalog__button"
+                  className={css.button}
                   size="small"
                   type="primary"
                   onClick={onSave}>
@@ -277,7 +277,7 @@ export default class Content extends React.Component {
                   okText="Yes" cancelText="No"
                   onConfirm={onDelete}>
                   <Button
-                    className="catalog__button"
+                    className={css.button}
                     size="small"
                     type="danger">
                     Delete

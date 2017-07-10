@@ -44,7 +44,7 @@ export default class Rbac extends React.PureComponent {
       historyPush,
     } = this;
     return (
-      <div className="rbac">
+      <div className={css.rbac}>
         <Helmet>
           <title>Rbac</title>
         </Helmet>

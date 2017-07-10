@@ -59,7 +59,7 @@ export default class Editor extends React.PureComponent {
       editorDidMount,
     } = this;
     return (
-      <div className="react-monaco-editor">
+      <div className={css.editor}>
         <MonacoEditor
           requireConfig={Editor.requireConfig}
           options={Editor.options}
