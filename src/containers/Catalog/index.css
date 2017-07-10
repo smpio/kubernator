@@ -1,0 +1,5 @@
+.catalog {
+  display: flex;
+  width: 100%;
+  overflow-y: hidden;
+}

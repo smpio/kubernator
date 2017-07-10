@@ -1,0 +1,19 @@
+.navigation {
+  background-color: white;
+  padding: 0 .75em 0 .5em;
+  overflow-y: auto;
+
+  :global {
+
+    /* transparent expand icons */
+    .ant-tree.ant-tree-show-line li span.ant-tree-switcher {
+      background-color: initial;
+    }
+  }
+}
+
+.spinner {
+  text-align: center;
+  min-width: 10em;
+  padding: 1.5em 0 1em;
+}

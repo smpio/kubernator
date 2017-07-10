@@ -1,0 +1,35 @@
+.layout {
+  height: 100%;
+
+  :global {
+
+    .ant-layout-header {
+      padding: 0 2em;
+      height: 3em;
+      line-height: 3;
+      overflow: hidden;
+    }
+
+    .ant-menu {
+      line-height: 3.1;
+      border: none;
+      background-color: transparent;
+    }
+
+    .ant-layout-content {
+      display: flex;
+      padding: 1em;
+    }
+  }
+}
+
+.logo {
+  display: block;
+  float: left;
+  margin: .5em 1.5em .5em 0;
+  height: 2em;
+}
+
+:global(.ant-notification-notice-description) {
+  word-wrap: break-word;
+}

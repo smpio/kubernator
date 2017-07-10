@@ -8,29 +8,41 @@ import { Radio, Checkbox, Spin } from 'antd';
 import {
   PREFIX,
   namespacesGet,
-} from '../../../modules/k8s';
+} from 'modules/k8s';
+
+import css from './index.css';
 
 
-class Controls extends React.Component {
-  constructor(props) {
-    super(props);
-    this.onChangeNamespace = this.onChangeNamespace.bind(this);
-    this.onChangeLegend = this.onChangeLegend.bind(this);
-  }
+@connect(
+  state => state[PREFIX],
+  dispatch => bindActionCreators({
+    namespacesGet,
+  }, dispatch),
+)
+
+export default class Controls extends React.Component {
+
+  static propTypes = {
+    namespaces: PropTypes.array.isRequired,
+    namespacesGet: PropTypes.func.isRequired,
+    namespaceIndex: PropTypes.number.isRequired,
+    onChangeLegend: PropTypes.func.isRequired,
+    onChangeNamespace: PropTypes.func.isRequired,
+  };
 
   componentDidMount() {
     this.props.namespacesGet();
   }
 
-  onChangeNamespace(event) {
+  onChangeNamespace = event => {
     const namespaceIndex = event.target.value;
     this.props.onChangeNamespace(namespaceIndex);
-  }
+  };
 
-  onChangeLegend(event) {
+  onChangeLegend = event => {
     const value = event.target.checked;
     this.props.onChangeLegend(value);
-  }
+  };
 
   render() {
     const {
@@ -42,8 +54,8 @@ class Controls extends React.Component {
       onChangeLegend,
     } = this;
     return (
-      <div className="rbac__controls">
-        <div className="rbac__controls-inner">
+      <div className={css.controls}>
+        <div className={css.controlsInner}>
           {
             !namespaces.length &&
             <Spin />
@@ -62,26 +74,9 @@ class Controls extends React.Component {
               )
             }
           </Radio.Group>
-          <div className="rbac__controls-legend">
-            <Checkbox onChange={onChangeLegend}>Legend</Checkbox>
-          </div>
+          <Checkbox onChange={onChangeLegend}>Legend</Checkbox>
         </div>
       </div>
     );
   }
 }
-
-Controls.propTypes = {
-  namespaces: PropTypes.array.isRequired,
-  namespacesGet: PropTypes.func.isRequired,
-  namespaceIndex: PropTypes.number.isRequired,
-  onChangeLegend: PropTypes.func.isRequired,
-  onChangeNamespace: PropTypes.func.isRequired,
-};
-
-export default connect(
-  state => state[PREFIX],
-  dispatch => bindActionCreators({
-    namespacesGet,
-  }, dispatch),
-)(Controls);

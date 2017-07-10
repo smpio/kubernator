@@ -1,0 +1,89 @@
+$animation-duration: .3s;
+
+.content {
+  min-width: 0;
+  flex-grow: 2;
+  margin-left: 1em;
+
+
+  /* -- editor -- */
+
+  display: flex;
+  flex-direction: column;
+
+  .editor {
+    flex-grow: 2;
+
+    background-color: white;
+    padding: 1em 1em 1em .75em;
+
+    display: flex;
+    & > :global(.react-monaco-editor-container) {
+      flex: auto;
+      min-width: 0;
+    }
+  }
+
+
+  /* -- tabs -- */
+
+  .button {
+    margin-left: .25em;
+  }
+
+  :global {
+
+    .ant-tabs.ant-tabs-editable-card {
+
+      & > .ant-tabs-bar {
+        margin: 0;
+
+        .ant-tabs-tab {
+          border-color: transparent;
+          margin-right: 1px;
+
+          :local {
+            .tabModified { color: brown; }
+            .tabDetached { color: green; }
+          }
+        }
+
+        .ant-tabs-tab-active {
+          border-color: white;
+
+          :local {
+            .tabModified { color: lighten(brown, 10%); }
+            .tabDetached { color: lighten(green, 10%); }
+          }
+        }
+
+        .ant-tabs-extra-content .ant-tabs-new-tab {
+          background-color: white;
+          position: relative;
+          top: 1px;
+        }
+      }
+
+      & > .ant-tabs-content {
+        display: none;
+      }
+    }
+  }
+
+
+  /* -- animated show/hide -- */
+
+  & > :global(.ant-tabs),
+  & > .editor {
+    visibility: visible;
+    opacity: 1;
+    transition: visibility 0s linear 0s, opacity ease $animation-duration;
+  }
+
+  &.hideTabs > :global(.ant-tabs),
+  &.hideEditor > .editor {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s linear $animation-duration, opacity ease $animation-duration;
+  }
+}

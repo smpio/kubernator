@@ -4,6 +4,9 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
+import { Tabs, Button, Popconfirm } from 'antd';
+import classnames from 'classnames';
+
 import {
   PREFIX,
   YAML,
@@ -16,28 +19,80 @@ import {
   tabOpen,
   tabClose,
   tabCloseAll,
-} from '../../../modules/k8s';
+} from 'modules/k8s';
 
-import { Tabs, Button, Popconfirm } from 'antd';
-import Editor from '../Editor';
-
-import classnames from 'classnames';
+import Editor from './Editor';
+import css from './index.css';
 
 
-class Content extends React.Component {
+@connect(
+  state => state[PREFIX],
+  dispatch => bindActionCreators({
+    itemGet,
+    itemPost,
+    itemPut,
+    itemDelete,
+    tabOpen,
+    tabClose,
+    tabCloseAll,
+  }, dispatch),
+)
+
+export default class Content extends React.Component {
+
+  static propTypes = {
+    flags: PropTypes.object.isRequired,
+    items: PropTypes.object.isRequired,
+    tabs: PropTypes.object.isRequired,
+    itemGet: PropTypes.func.isRequired,
+    itemPost: PropTypes.func.isRequired,
+    itemPut: PropTypes.func.isRequired,
+    itemDelete: PropTypes.func.isRequired,
+    tabOpen: PropTypes.func.isRequired,
+    tabClose: PropTypes.func.isRequired,
+    tabCloseAll: PropTypes.func.isRequired,
+    defaultTab: PropTypes.string,
+  };
+
+  static defaultProps = {
+    defaultTab: '',
+  };
+
+  static renderTab(props) {
+    const {
+      id,
+      item,
+      yaml,
+    } = props;
+
+    const {
+      metadata: {
+        name = id,
+        namespace = NO_NAMESPACE,
+      } = {},
+      [YAML]: yamlOriginal,
+    } = item || {};
+
+    return (
+      <Tabs.TabPane
+        key={id}
+        tab={
+          <span
+            className={classnames({
+              [css.tabModified]: yaml && yaml !== yamlOriginal,
+              [css.tabDetached]: !item,
+            })}>
+            {`${namespace} / ${name}`}
+          </span>
+        }
+        closable
+      />
+    );
+  }
+
   constructor(props) {
     super(props);
     this.state = { /* id: yaml */ };
-
-    this.tabsOnChange = this.tabsOnChange.bind(this);
-    this.tabsOnEdit = this.tabsOnEdit.bind(this);
-
-    this.onReload = this.onReload.bind(this);
-    this.onEdit = this.onEdit.bind(this);
-    this.onSave = this.onSave.bind(this);
-    this.onDelete = this.onDelete.bind(this);
-    this.onCloseAll = this.onCloseAll.bind(this);
-
     this.onDiscard = this.onEdit.bind(this, null);
   }
 
@@ -50,11 +105,11 @@ class Content extends React.Component {
     if (defaultTab) tabOpen(defaultTab);
   }
 
-  tabsOnChange(id) {
+  tabsOnChange = id => {
     this.props.tabOpen(id);
-  }
+  };
 
-  tabsOnEdit(id, action) {
+  tabsOnEdit = (id, action) => {
     switch (action) {
       case 'add':
         const {
@@ -88,20 +143,20 @@ class Content extends React.Component {
       default:
         return false;
     }
-  }
+  };
 
-  onEdit(yaml) {
-    const { tabs: { id }} = this.props;
-    this.setState({ [id]: yaml });
-  }
-
-  onReload() {
+  onReload = () => {
     const { itemGet, tabs: { id }} = this.props;
     this.setState({ [id]: null });
     itemGet(id);
-  }
+  };
 
-  onSave() {
+  onEdit = yaml => {
+    const { tabs: { id }} = this.props;
+    this.setState({ [id]: yaml });
+  };
+
+  onSave = () => {
     const {
       props: {
         items,
@@ -116,48 +171,16 @@ class Content extends React.Component {
       },
     } = this;
     return items[id] ? itemPut(id, yaml) : itemPost(id, yaml);
-  }
+  };
 
-  onDelete() {
+  onDelete = () => {
     const { tabs: { id }, itemDelete } = this.props;
     return itemDelete(id);
-  }
+  };
 
-  onCloseAll() {
+  onCloseAll = () => {
     this.props.tabCloseAll();
-  }
-
-  static renderTab(props) {
-    const {
-      id,
-      item,
-      yaml,
-    } = props;
-
-    const {
-      metadata: {
-        name = id,
-        namespace = NO_NAMESPACE,
-      } = {},
-      [YAML]: yamlOriginal,
-    } = item || {};
-
-    return (
-      <Tabs.TabPane
-        key={id}
-        tab={
-          <span
-            className={classnames({
-              'catalog__tab-modified': yaml && yaml !== yamlOriginal,
-              'catalog__tab-detached': !item,
-            })}>
-            {`${namespace} / ${name}`}
-          </span>
-        }
-        closable
-      />
-    );
-  }
+  };
 
   render() {
     const {
@@ -196,10 +219,10 @@ class Content extends React.Component {
     return (
       <div
         className={classnames(
-          'catalog__content',
+          css.content,
           {
-            'hide-tabs': hideTabs,
-            'hide-editor': hideEditor,
+            [css.hideTabs]: hideTabs,
+            [css.hideEditor]: hideEditor,
           },
         )}>
         <Tabs
@@ -212,7 +235,7 @@ class Content extends React.Component {
               {
                 showCloseAll &&
                 <Button
-                  className="catalog__button"
+                  className={css.button}
                   size="small"
                   onClick={onCloseAll}>
                   CloseAll
@@ -221,7 +244,7 @@ class Content extends React.Component {
               {
                 (item && !dirty) &&
                 <Button
-                  className="catalog__button"
+                  className={css.button}
                   size="small"
                   onClick={onReload}>
                   Reload
@@ -230,7 +253,7 @@ class Content extends React.Component {
               {
                 dirty &&
                 <Button
-                  className="catalog__button"
+                  className={css.button}
                   size="small"
                   onClick={onDiscard}>
                   Discard
@@ -239,7 +262,7 @@ class Content extends React.Component {
               {
                 dirty &&
                 <Button
-                  className="catalog__button"
+                  className={css.button}
                   size="small"
                   type="primary"
                   onClick={onSave}>
@@ -254,7 +277,7 @@ class Content extends React.Component {
                   okText="Yes" cancelText="No"
                   onConfirm={onDelete}>
                   <Button
-                    className="catalog__button"
+                    className={css.button}
                     size="small"
                     type="danger">
                     Delete
@@ -281,34 +304,3 @@ class Content extends React.Component {
     );
   }
 }
-
-Content.propTypes = {
-  flags: PropTypes.object.isRequired,
-  items: PropTypes.object.isRequired,
-  tabs: PropTypes.object.isRequired,
-  itemGet: PropTypes.func.isRequired,
-  itemPost: PropTypes.func.isRequired,
-  itemPut: PropTypes.func.isRequired,
-  itemDelete: PropTypes.func.isRequired,
-  tabOpen: PropTypes.func.isRequired,
-  tabClose: PropTypes.func.isRequired,
-  tabCloseAll: PropTypes.func.isRequired,
-  defaultTab: PropTypes.string,
-};
-
-Content.defaultProps = {
-  defaultTab: '',
-};
-
-export default connect(
-  state => state[PREFIX],
-  dispatch => bindActionCreators({
-    itemGet,
-    itemPost,
-    itemPut,
-    itemDelete,
-    tabOpen,
-    tabClose,
-    tabCloseAll,
-  }, dispatch),
-)(Content);

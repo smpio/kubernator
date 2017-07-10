@@ -13,16 +13,16 @@ import {
 } from 'antd';
 
 import logo from './logo.png';
-import './index.css';
+import css from './index.css';
 
 export default props =>
-  <Layout className="layout">
+  <Layout className={css.layout}>
     <Helmet>
       <title>App</title>
     </Helmet>
     <Layout.Header>
       <Link to="/">
-        <img className="layout__logo" src={logo} alt="logo" />
+        <img className={css.logo} src={logo} alt="logo" />
       </Link>
       <Menu theme="dark" mode="horizontal">
         <Menu.Item key="catalog">

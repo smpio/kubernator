@@ -1,0 +1,85 @@
+.legend,
+.graph {
+  margin-top: 1em;
+  padding: 1em;
+  background-color: white;
+
+  svg {
+    width: 100%;
+    height: 100%;
+
+    .link, .node {
+      circle, line, text {
+        transition: all .1s linear;
+      }
+    }
+
+    .link {
+
+      &:global(.RoleBinding),
+      &:global(.ClusterRoleBinding) {
+        line { stroke: gray; }
+        text { fill: gray; }
+        &:hover {
+          cursor: pointer;
+          line { stroke: black; }
+          text { fill: black; }
+        }
+      }
+
+      &:global(.undefined) {
+        line { stroke: lightgray; }
+        text { fill: lightgray; }
+      }
+    }
+
+    .node {
+      cursor: move;
+      circle { transform-origin: center; }
+
+      &:global(.User),
+      &:global(.Group),
+      &:global(.ServiceAccount) {
+        circle {
+          fill: yellowgreen;
+          stroke: darkgreen;
+        }
+      }
+
+      &:global(.Role),
+      &:global(.ClusterRole) {
+        cursor: pointer;
+        circle {
+          fill: cornflowerblue;
+          stroke: darkblue;
+          transform: scale(.75);
+        }
+        &:hover {
+          text { fill: black; }
+          circle { transform: none; }
+        }
+      }
+
+      &:global(.undefined) {
+        text { fill: lightgray; }
+        circle {
+          fill: lightgray;
+          stroke: gray;
+          transform: scale(.5);
+        }
+      }
+    }
+  }
+}
+
+.legend {
+  align-self: flex-start;
+  max-width: 100%;
+  width: 600px
+}
+
+.graph {
+  flex: auto;
+  width: 100%;
+  height: 100%;
+}

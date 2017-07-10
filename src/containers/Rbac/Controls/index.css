@@ -1,0 +1,33 @@
+.controls {
+  align-self: flex-start;
+  max-width: 100%;
+
+  padding: 1em;
+  background-color: white;
+}
+
+.controlsInner {
+  overflow-x: auto;
+
+  display: flex;
+  align-items: center;
+
+  :global(.ant-spin) {
+
+    :global(.ant-spin-dot) {
+      display: block;
+    }
+  }
+
+  :global(.ant-radio-group) {
+    display: flex;
+
+    :global(.ant-radio-button-wrapper) {
+      white-space: nowrap;
+    }
+  }
+
+  :global(.ant-checkbox-wrapper) {
+    white-space: nowrap;
+  }
+}
