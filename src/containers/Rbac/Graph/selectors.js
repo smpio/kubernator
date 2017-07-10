@@ -2,7 +2,6 @@ import { createSelector } from 'reselect';
 
 import {
   RESOURCE_ID,
-  NO_NAMESPACE,
 } from '../../../modules/k8s';
 
 
@@ -11,15 +10,20 @@ const RESOURCE_CLUSTER_ROLE = 'clusterroles';
 const RESOURCE_ROLE_BINDING = 'rolebindings';
 const RESOURCE_CLUSTER_ROLE_BINDING = 'clusterrolebindings';
 
+const KIND_ROLE = 'Role';
+const KIND_CLUSTER_ROLE = 'ClusterRole';
+const KIND_ROLE_BINDING = 'RoleBinding';
+const KIND_CLUSTER_ROLE_BINDING = 'ClusterRoleBinding';
+
 class GraphData {
 
   constructor(flags) {
     this.nId = 0;
     this.oKinds = {
-      [RESOURCE_ROLE]: 'Role',
-      [RESOURCE_CLUSTER_ROLE]: 'ClusterRole',
-      [RESOURCE_ROLE_BINDING]: 'RoleBinding',
-      [RESOURCE_CLUSTER_ROLE_BINDING]: 'ClusterRoleBinding',
+      [RESOURCE_ROLE]: KIND_ROLE,
+      [RESOURCE_CLUSTER_ROLE]: KIND_CLUSTER_ROLE,
+      [RESOURCE_ROLE_BINDING]: KIND_ROLE_BINDING,
+      [RESOURCE_CLUSTER_ROLE_BINDING]: KIND_CLUSTER_ROLE_BINDING,
     };
 
     this.oNodes = {};
@@ -59,11 +63,22 @@ class GraphData {
       getId,
       flags: {
         showIsolated,
+        showNames,
       },
     } = this;
 
+    // create names
+    const { kind, namespace, name } = link;
+    const fullname = namespace ? `${namespace} / ${name}` : name;
+    const shortname = kind === KIND_ROLE_BINDING ? namespace : '';
+
     // create link
-    aLinks.push({ ...link, id: getId() });
+    aLinks.push({
+      ...link,
+      id: getId(),
+      fullname,
+      shortname: showNames ? fullname : shortname,
+    });
 
     // mark nodes as linked
     if (!showIsolated) {
@@ -113,25 +128,17 @@ const selectItems = state => state.items;
 
 const selectFlags = (state, props) => ({
   showIsolated: props.showIsolated,
-  showNamespaces: props.showNamespaces,
+  showNames: props.showNames,
 });
 
 export const selectGraphData = createSelector(
   [selectItems, selectFlags],
   (items, flags) => {
-    const namespaceName = NO_NAMESPACE;
     const gd = new GraphData(flags);
-
-    // filter namespace
-    const itemsNamespace = Object.keys(items)
-      .filter(id => {
-        const { namespace = NO_NAMESPACE } = items[id].metadata;
-        return namespace === namespaceName;
-      })
-      .map(id => items[id]);
+    const itemsArr = Object.keys(items).map(id => items[id]);
 
     // add roles
-    itemsNamespace
+    itemsArr
       .filter(item => {
         const { [RESOURCE_ID]: resource } = item;
         return (
@@ -146,7 +153,7 @@ export const selectGraphData = createSelector(
 
     // add subjects
     // User, Group, ServiceAccount
-    itemsNamespace
+    itemsArr
       .filter(item => {
         const { [RESOURCE_ID]: resource } = item;
         return (
@@ -157,8 +164,9 @@ export const selectGraphData = createSelector(
       .forEach(item => {
         const {
           metadata: {
-            uid: itemUid,
+            namespace: itemNamespace,
             name: itemName,
+            uid: itemUid,
           },
           subjects,
           roleRef: {
@@ -190,6 +198,7 @@ export const selectGraphData = createSelector(
             source: subjectId,
             target: roleId,
             kind: gd.getKind(resource),
+            namespace: itemNamespace,
             name: itemName,
             uid: itemUid,
           });

@@ -35,7 +35,7 @@ export default class Graph extends React.Component {
 
     // props
     showIsolated: PropTypes.bool.isRequired,
-    showNamespaces: PropTypes.bool.isRequired,
+    showNames: PropTypes.bool.isRequired,
     navigateTo: PropTypes.func.isRequired,
 
     // connect
@@ -125,6 +125,8 @@ export default class Graph extends React.Component {
         simulation,
       },
       itemEdit,
+      linkFullname,
+      linkShortname,
     } = this;
 
     let nodesSelection;
@@ -136,13 +138,15 @@ export default class Graph extends React.Component {
       .enter()
       .append('g')
       .attr('class', link => `${css.link} ${link.kind}`)
-      .on('click', link => itemEdit(link.uid));
+      .on('click', link => itemEdit(link.uid))
+      .on('mouseover', linkFullname)
+      .on('mouseout', linkShortname);
 
     linksSelection.append('line');
     linksSelection.append('text')
       .attr('dx', 4)
       .attr('dy', 4)
-      .text(link => link.name);
+      .text(link => link.shortname);
 
     nodesSelection = nodesGroup
       .selectAll(`.${css.node}`)
@@ -189,6 +193,14 @@ export default class Graph extends React.Component {
     navigateTo('/catalog');
     setImmediate(() => tabOpen(id));
   };
+
+  linkFullname(link) {
+    d3.select(this).select('text').text(link.fullname);
+  }
+
+  linkShortname(link) {
+    d3.select(this).select('text').text(link.shortname);
+  }
 
   render() {
     const { getContainer } = this;

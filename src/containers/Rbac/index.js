@@ -18,13 +18,13 @@ export default class Rbac extends React.PureComponent {
     this.state = {
       showLegend: false,
       showIsolated: false,
-      showNamespaces: false,
+      showNames: false,
     };
   }
 
   setShowLegend = showLegend => this.setState({ showLegend });
   setShowIsolated = showIsolated => this.setState({ showIsolated });
-  setShowNamespaces = showNamespaces => this.setState({ showNamespaces });
+  setShowNames = showNames => this.setState({ showNames });
 
   navigateTo = url => this.props.history.push(url);
 
@@ -33,11 +33,11 @@ export default class Rbac extends React.PureComponent {
       state: {
         showLegend,
         showIsolated,
-        showNamespaces,
+        showNames,
       },
       setShowLegend,
       setShowIsolated,
-      setShowNamespaces,
+      setShowNames,
       navigateTo,
     } = this;
     return (
@@ -48,10 +48,10 @@ export default class Rbac extends React.PureComponent {
         <Controls
           showLegend={showLegend}
           showIsolated={showIsolated}
-          showNamespaces={showNamespaces}
+          showNames={showNames}
           setShowLegend={setShowLegend}
           setShowIsolated={setShowIsolated}
-          setShowNamespaces={setShowNamespaces}
+          setShowNames={setShowNames}
         />
         {
           showLegend &&
@@ -59,7 +59,7 @@ export default class Rbac extends React.PureComponent {
         }
         <Graph
           showIsolated={showIsolated}
-          showNamespaces={showNamespaces}
+          showNames={showNames}
           navigateTo={navigateTo}
         />
       </div>
