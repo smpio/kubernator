@@ -6,7 +6,6 @@
     "antd": "^2.11.0",
     "classnames": "^2.2.5",
     "d3": "^4.9.1",
-    "decko": "^1.2.0",
     "immutability-helper": "^2.2.2",
     "js-yaml": "^3.8.4",
     "react": "^15.6.0",
@@ -35,7 +34,6 @@
     "eslint-plugin-jasmine": "^2.3.1",
     "eslint-plugin-prefer-object-spread": "^1.2.1",
     "eslint-plugin-react": "^7.1.0",
-    "npm-run-all": "^4.0.2",
     "prop-types": "^15.5.10"
   },
   "scripts": {
