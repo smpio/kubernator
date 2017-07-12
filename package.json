@@ -1,6 +1,6 @@
 {
   "name": "k8s-browser",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "dependencies": {
     "antd": "^2.11.0",
@@ -28,7 +28,7 @@
     "store": "^2.0.12"
   },
   "devDependencies": {
-    "@uqee/react-scripts": "1.0.10-3",
+    "@uqee/react-scripts": "1.0.10-4",
     "babel-eslint": "^7.2.3",
     "eslint": "^4.0.0",
     "eslint-config-fbjs": "^1.1.1",
