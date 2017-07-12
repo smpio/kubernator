@@ -12,6 +12,7 @@ import {
 import {
   forceSimulation as d3forceSimulation,
   forceCenter as d3forceCenter,
+  forceManyBody as d3forceManyBody,
   forceCollide as d3forceCollide,
   forceLink as d3forceLink,
 } from 'd3-force';
@@ -98,6 +99,7 @@ export default class Graph extends React.Component {
     // force
     const simulation = d3state.simulation = d3forceSimulation()
       .force('center', d3forceCenter(center.x, center.y))
+      .force('manybody', d3forceManyBody().strength(100 /* def -30 */))
       .force('collide', d3forceCollide(50 /* r */).strength(0.2 /* def 0.7 */))
       .force('link', d3forceLink())
       .velocityDecay(0.5);
