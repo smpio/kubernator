@@ -2,6 +2,10 @@
 # yarn lockfile v1
 
 
+"@uqee/immutability-helper-extensions@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@uqee/immutability-helper-extensions/-/immutability-helper-extensions-0.1.0.tgz#413e7fcc84760810dd618c14c87cc07e0130d969"
+
 "@uqee/react-scripts@1.0.10-4":
   version "1.0.10-4"
   resolved "https://registry.yarnpkg.com/@uqee/react-scripts/-/react-scripts-1.0.10-4.tgz#751d2b64974205922573f1a853033572a643bc23"
