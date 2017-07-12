@@ -4,7 +4,19 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import throttle from 'react-throttle-render';
-import * as d3 from 'd3';
+
+import {
+  select as d3select,
+  event as d3event,
+} from 'd3-selection';
+import {
+  forceSimulation as d3forceSimulation,
+  forceCenter as d3forceCenter,
+  forceCollide as d3forceCollide,
+  forceLink as d3forceLink,
+} from 'd3-force';
+import { drag as d3drag } from 'd3-drag';
+import { zoom as d3zoom } from 'd3-zoom';
 
 import {
   PREFIX,
@@ -48,7 +60,7 @@ export default class Graph extends React.Component {
   constructor(props) {
     super(props);
     this.state = { container: null };
-    this.d3State = null; // no need fo rerender
+    this.d3state = null; // no need fo rerender
   }
 
   componentDidMount() {
@@ -68,10 +80,10 @@ export default class Graph extends React.Component {
     const { container } = this.state;
 
     // create state
-    const d3State = this.d3State = {};
+    const d3state = this.d3state = {};
 
     // get svg
-    const svg = d3.select(container);
+    const svg = d3select(container);
     svg.selectAll('*').remove();
 
     // get dimensions
@@ -80,35 +92,35 @@ export default class Graph extends React.Component {
 
     // create groups
     const canvas = svg.append('g');
-    d3State.linksGroup = canvas.append('g');
-    d3State.nodesGroup = canvas.append('g');
+    d3state.linksGroup = canvas.append('g');
+    d3state.nodesGroup = canvas.append('g');
 
     // force
-    const simulation = d3State.simulation = d3.forceSimulation()
-      .force('center', d3.forceCenter(center.x, center.y))
-      .force('collide', d3.forceCollide(50 /* r */).strength(0.2 /* def 0.7 */))
-      .force('link', d3.forceLink())
+    const simulation = d3state.simulation = d3forceSimulation()
+      .force('center', d3forceCenter(center.x, center.y))
+      .force('collide', d3forceCollide(50 /* r */).strength(0.2 /* def 0.7 */))
+      .force('link', d3forceLink())
       .velocityDecay(0.5);
 
     // drag
-    d3State.drag = d3.drag()
+    d3state.drag = d3drag()
       .on('start', node => {
-        if (!d3.event.active) simulation.alphaTarget(0.1).restart();
+        if (!d3event.active) simulation.alphaTarget(0.1).restart();
       })
       .on('drag', node => {
-        node.fx = d3.event.x;
-        node.fy = d3.event.y;
+        node.fx = d3event.x;
+        node.fy = d3event.y;
       })
       .on('end', node => {
-        if (!d3.event.active) simulation.alphaTarget(0);
+        if (!d3event.active) simulation.alphaTarget(0);
         delete node.fx;
         delete node.fy;
       });
 
     // zoom
-    const zoom = d3.zoom()
+    const zoom = d3zoom()
       .scaleExtent([0.2, 2])
-      .on('zoom', () => canvas.attr('transform', d3.event.transform));
+      .on('zoom', () => canvas.attr('transform', d3event.transform));
     svg.call(zoom);
   };
 
@@ -118,7 +130,7 @@ export default class Graph extends React.Component {
         nodes,
         links,
       },
-      d3State: {
+      d3state: {
         linksGroup,
         nodesGroup,
         drag,
@@ -195,11 +207,11 @@ export default class Graph extends React.Component {
   };
 
   linkFullname(link) {
-    d3.select(this).select('text').text(link.fullname);
+    d3select(this).select('text').text(link.fullname);
   }
 
   linkShortname(link) {
-    d3.select(this).select('text').text(link.shortname);
+    d3select(this).select('text').text(link.shortname);
   }
 
   render() {
