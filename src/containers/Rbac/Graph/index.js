@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { push as navigateTo } from 'react-router-redux';
 import throttle from 'react-throttle-render';
 
 import {
@@ -35,6 +36,7 @@ import css from './index.css';
 @connect(
   (state, props) => selectGraphData(state[PREFIX], props),
   dispatch => bindActionCreators({
+    navigateTo,
     rbacGet,
     tabOpen,
   }, dispatch),
@@ -49,11 +51,11 @@ export default class Graph extends React.Component {
     // props
     showIsolated: PropTypes.bool.isRequired,
     showNames: PropTypes.bool.isRequired,
-    navigateTo: PropTypes.func.isRequired,
 
     // connect
     nodes: PropTypes.array.isRequired,
     links: PropTypes.array.isRequired,
+    navigateTo: PropTypes.func.isRequired,
     rbacGet: PropTypes.func.isRequired,
     tabOpen: PropTypes.func.isRequired,
   };
