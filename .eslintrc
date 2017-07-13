@@ -4,6 +4,7 @@
   ],
   "rules": {
     "curly": ["error", "multi-line"],
-    "brace-style": ["error", "stroustrup", { "allowSingleLine": true }]
+    "brace-style": ["error", "stroustrup", { "allowSingleLine": true }],
+    "max-len": ["error", { "ignoreStrings": true }]
   }
 }
