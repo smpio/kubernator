@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "private": true,
   "dependencies": {
-    "@uqee/immutability-helper-extensions": "^0.1.0",
+    "@uqee/immutability-helper-x": "^0.1.0",
     "antd": "^2.11.0",
     "classnames": "^2.2.5",
     "d3-drag": "^1.1.0",
