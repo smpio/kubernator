@@ -91,7 +91,7 @@ export function* putTake(actionPut, actionsTake) {
   return action.type === actionTypeF ? null : action;
 }
 
-export function* takeEveryReq(actions, fn, onSuccess) {
+export function* takeEveryReq(actions, fn, _onSuccess) {
   const [REQUEST, SUCCESS, FAILURE] = actions;
   yield takeEvery(REQUEST, function* (action) {
     const { meta, promise: { _resolve, _reject } = {}} = action;
@@ -103,7 +103,7 @@ export function* takeEveryReq(actions, fn, onSuccess) {
           payload,
           meta,
         });
-        if (onSuccess) yield call(onSuccess, payload);
+        if (_onSuccess) yield call(_onSuccess, payload);
         if (_resolve) _resolve(payload);
       }
     }
