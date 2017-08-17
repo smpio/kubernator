@@ -272,7 +272,8 @@ function* sagaItemPut() {
   yield takeEvery(ITEM_PUT, function* (action) {
     const { payload, meta } = action;
     try {
-      const { id, yaml } = payload;
+      const { id } = payload;
+      let { yaml } = payload;
 
       //
       const {
@@ -288,11 +289,14 @@ function* sagaItemPut() {
       // decorate item
       itemDecorate(resource)(item);
 
+      // sync yaml
+      yaml = yield call(itemApiGetYaml, url);
+
       //
       yield put({
         type: ITEM_PUT__S,
-        payload: { item },
-        meta: { ...meta, id, yaml },
+        payload: { item, yaml },
+        meta: { ...meta, id },
       });
     }
 
@@ -415,8 +419,8 @@ export const itemsReducer = {
   },
 
   [ITEM_PUT__S]: (state, action) => {
-    const { id, yaml } = action.meta;
-    const { item } = action.payload;
+    const { id } = action.meta;
+    const { item, yaml } = action.payload;
     return update(state, {
       items: {
         [id]: {

@@ -170,6 +170,7 @@ export default class Content extends React.Component {
         [id]: yaml,
       },
     } = this;
+    this.setState({ [id]: null });
     return items[id] ? itemPut(id, yaml) : itemPost(id, yaml);
   };
 
