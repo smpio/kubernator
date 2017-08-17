@@ -97,13 +97,15 @@ export function* takeEveryReq(actions, fn, onSuccess) {
     const { meta, promise: { _resolve, _reject } = {}} = action;
     try {
       const payload = yield call(fn, action);
-      if (_resolve) _resolve(payload);
-      yield put({
-        type: SUCCESS,
-        payload,
-        meta,
-      });
-      if (onSuccess) yield call(onSuccess, payload);
+      if (payload) {
+        yield put({
+          type: SUCCESS,
+          payload,
+          meta,
+        });
+        if (onSuccess) yield call(onSuccess, payload);
+        if (_resolve) _resolve(payload);
+      }
     }
     catch (error) {
       if (_reject) _reject(error);

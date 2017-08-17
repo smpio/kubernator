@@ -186,7 +186,7 @@ function* sagaItemGet() {
     function* (action) {
       const { id } = action.payload;
       const item = yield select(itemSelect, id);
-      if (!item) return {};
+      if (!item) return null;
       else {
         const yaml = yield call(itemApiGetYaml, item[URL]);
         return { id, yaml };
@@ -264,7 +264,7 @@ function* sagaItemPut() {
       yaml = yield call(itemApiGetYaml, url);
 
       //
-      return { item, yaml };
+      return { id, item, yaml };
     },
   );
 }
