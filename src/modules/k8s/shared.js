@@ -1,4 +1,4 @@
-import { put, take } from 'redux-saga/effects';
+import { call, put, take, takeEvery } from 'redux-saga/effects';
 import store from 'store';
 
 import {
@@ -89,6 +89,32 @@ export function* putTake(actionPut, actionsTake) {
 
   //
   return action.type === actionTypeF ? null : action;
+}
+
+export function* takeEveryReq(actions, fn, onSuccess) {
+  const [REQUEST, SUCCESS, FAILURE] = actions;
+  yield takeEvery(REQUEST, function* (action) {
+    const { meta, promise: { _resolve, _reject } = {}} = action;
+    try {
+      const payload = yield call(fn, action);
+      if (_resolve) _resolve(payload);
+      yield put({
+        type: SUCCESS,
+        payload,
+        meta,
+      });
+      if (onSuccess) yield call(onSuccess, payload);
+    }
+    catch (error) {
+      if (_reject) _reject(error);
+      yield put({
+        error: true,
+        type: FAILURE,
+        payload: error,
+        meta,
+      });
+    }
+  });
 }
 
 export function selectArrOptional(arr) {

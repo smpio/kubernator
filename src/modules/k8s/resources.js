@@ -1,4 +1,4 @@
-import { all, call, put, takeEvery } from 'redux-saga/effects';
+import { all, call } from 'redux-saga/effects';
 import update from 'immutability-helper';
 
 import {
@@ -18,6 +18,7 @@ import {
   URL_PART_RESOURCE,
   cacheGet,
   putTake,
+  takeEveryReq,
   selectArrOptional,
 } from './shared';
 
@@ -97,10 +98,14 @@ export const resourcesState = {
 // ------
 
 function* sagaResourcesGet() {
-  yield takeEvery(RESOURCES_GET, function* (action) {
-    const { payload, meta } = action;
-    try {
-      const { group } = payload;
+  yield takeEveryReq(
+    [
+      RESOURCES_GET,
+      RESOURCES_GET__S,
+      RESOURCES_GET__F,
+    ],
+    function* (action) {
+      const { group } = action.payload;
 
       // resources
       const { resources } = yield call(cacheGet, group[URL]);
@@ -113,22 +118,9 @@ function* sagaResourcesGet() {
       yield putTake(modelsGet(group), [MODELS_GET__S, MODELS_GET__F]);
 
       //
-      yield put({
-        type: RESOURCES_GET__S,
-        payload: { resources },
-        meta: { ...meta, group },
-      });
-    }
-
-    catch (error) {
-      yield put({
-        error: true,
-        type: RESOURCES_GET__F,
-        payload: error,
-        meta,
-      });
-    }
-  });
+      return { group, resources };
+    },
+  );
 }
 
 export function* resourcesSaga() {
@@ -144,8 +136,7 @@ export function* resourcesSaga() {
 export const resourcesReducer = {
 
   [RESOURCES_GET__S]: (state, action) => {
-    const { resources } = action.payload;
-    const { group } = action.meta;
+    const { group, resources } = action.payload;
     return update(state, {
       groups: {
         [group[ID]]: {

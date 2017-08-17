@@ -1,5 +1,5 @@
 import { delay } from 'redux-saga';
-import { all, put, select, takeEvery } from 'redux-saga/effects';
+import { all, put, select } from 'redux-saga/effects';
 import update from 'immutability-helper';
 
 import {
@@ -9,6 +9,7 @@ import {
   NO_GROUP,
   NO_NAMESPACE,
   putTake,
+  takeEveryReq,
   selectArr,
 } from './shared';
 
@@ -75,9 +76,10 @@ export const namespacesGet = () => ({
   type: NAMESPACES_GET,
 });
 
-export const namespaceItemsGet = (namespaceName, resolve, reject) => ({
+export const namespaceItemsGet = (namespaceName, _resolve, _reject) => ({
   type: NAMESPACE_ITEMS_GET,
-  payload: { namespaceName, resolve, reject },
+  payload: { namespaceName },
+  promise: { _resolve, _reject },
 });
 
 
@@ -98,9 +100,13 @@ export const comboState = {
 // ------
 
 function* sagaCatalogGet() {
-  yield takeEvery(CATALOG_GET, function* (action) {
-    const { meta } = action;
-    try {
+  yield takeEveryReq(
+    [
+      CATALOG_GET,
+      CATALOG_GET__S,
+      CATALOG_GET__F,
+    ],
+    function* (action) {
 
       //
       yield put({
@@ -139,26 +145,19 @@ function* sagaCatalogGet() {
       (yield putTake(namespacesGet(), [NAMESPACES_GET__S, NAMESPACES_GET__F]));
 
       //
-      yield put({
-        type: CATALOG_GET__S,
-        meta,
-      });
-    }
-    catch (error) {
-      yield put({
-        error: true,
-        type: CATALOG_GET__F,
-        payload: error,
-        meta,
-      });
-    }
-  });
+      return {};
+    },
+  );
 }
 
 function* sagaRbacGet() {
-  yield takeEvery(RBAC_GET, function* (action) {
-    const { meta } = action;
-    try {
+  yield takeEveryReq(
+    [
+      RBAC_GET,
+      RBAC_GET__S,
+      RBAC_GET__F,
+    ],
+    function* (action) {
 
       // group [cache]
       const id = 'rbac.authorization.k8s.io';
@@ -177,26 +176,19 @@ function* sagaRbacGet() {
       ));
       
       //
-      yield put({
-        type: RBAC_GET__S,
-        meta,
-      });
-    }
-    catch (error) {
-      yield put({
-        error: true,
-        type: RBAC_GET__F,
-        payload: error,
-        meta,
-      });
-    }
-  });
+      return {};
+    },
+  );
 }
 
 function* sagaNamespacesGet() {
-  yield takeEvery(NAMESPACES_GET, function* (action) {
-    const { meta } = action;
-    try {
+  yield takeEveryReq(
+    [
+      NAMESPACES_GET,
+      NAMESPACES_GET__S,
+      NAMESPACES_GET__F,
+    ],
+    function* (action) {
 
       // namespaces [cache]
       let namespaces = yield select(namespacesSelectArr);
@@ -230,30 +222,20 @@ function* sagaNamespacesGet() {
       }
 
       //
-      yield put({
-        type: NAMESPACES_GET__S,
-        payload: { namespaces },
-        meta,
-      });
-    }
-
-    catch (error) {
-      yield put({
-        error: true,
-        type: NAMESPACES_GET__F,
-        payload: error,
-        meta,
-      });
-    }
-  });
+      return { namespaces };
+    },
+  );
 }
 
 function* sagaNamespaceItemsGet() {
-  yield takeEvery(NAMESPACE_ITEMS_GET, function* (action) {
-    const { payload, meta } = action;
-    const { resolve, reject } = payload;
-    try {
-      const { namespaceName } = payload;
+  yield takeEveryReq(
+    [
+      NAMESPACE_ITEMS_GET,
+      NAMESPACE_ITEMS_GET__S,
+      NAMESPACE_ITEMS_GET__F,
+    ],
+    function* (action) {
+      const { namespaceName } = action.payload;
 
       // resources [cache]
       const resources = yield select(resourcesSelectByNamespaced, !!namespaceName);
@@ -264,29 +246,9 @@ function* sagaNamespaceItemsGet() {
       ));
 
       //
-      yield put({
-        type: NAMESPACE_ITEMS_GET__S,
-        meta,
-      });
-
-      //
-      if (resolve) resolve();
-    }
-
-    catch (error) {
-
-      //
-      yield put({
-        error: true,
-        type: NAMESPACE_ITEMS_GET__F,
-        payload: error,
-        meta,
-      });
-
-      //
-      if (reject) reject();
-    }
-  });
+      return {};
+    },
+  );
 }
 
 export function* comboSaga() {
