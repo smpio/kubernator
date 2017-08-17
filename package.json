@@ -1,6 +1,6 @@
 {
   "name": "k8s-browser",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "dependencies": {
     "@uqee/immutability-helper-x": "^0.1.0",
