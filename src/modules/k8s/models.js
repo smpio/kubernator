@@ -1,4 +1,4 @@
-import { all, call, put, takeEvery } from 'redux-saga/effects';
+import { all, call } from 'redux-saga/effects';
 import update from 'immutability-helper';
 
 import {
@@ -11,6 +11,7 @@ import {
   URL,
   IS_READONLY,
   cacheGet,
+  takeEveryReq,
 } from './shared';
 
 
@@ -47,10 +48,14 @@ export const modelsState = {
 // ------
 
 function* sagaModelsGet() {
-  yield takeEvery(MODELS_GET, function* (action) {
-    const { payload, meta } = action;
-    try {
-      const { group } = payload;
+  yield takeEveryReq(
+    [
+      MODELS_GET,
+      MODELS_GET__S,
+      MODELS_GET__F,
+    ],
+    function* (action) {
+      const { group } = action.payload;
 
       // models
       let { models } = yield call(cacheGet, `/swaggerapi${group[URL]}`);
@@ -83,22 +88,9 @@ function* sagaModelsGet() {
         });
 
       //
-      yield put({
-        type: MODELS_GET__S,
-        payload: { models },
-        meta,
-      });
-    }
-
-    catch (error) {
-      yield put({
-        error: true,
-        type: MODELS_GET__F,
-        payload: error,
-        meta,
-      });
-    }
-  });
+      return { models };
+    },
+  );
 }
 
 export function* modelsSaga() {

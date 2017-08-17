@@ -5,6 +5,6 @@
   "rules": {
     "curly": ["error", "multi-line"],
     "brace-style": ["error", "stroustrup", { "allowSingleLine": true }],
-    "max-len": ["error", { "ignoreStrings": true }]
+    "max-len": ["error", { "code": 128 }]
   }
 }

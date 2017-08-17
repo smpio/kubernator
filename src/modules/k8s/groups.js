@@ -1,4 +1,4 @@
-import { all, call, put, select, takeEvery } from 'redux-saga/effects';
+import { all, call, select } from 'redux-saga/effects';
 import update from 'immutability-helper';
 
 import {
@@ -13,6 +13,7 @@ import {
   NO_GROUP,
   cacheGet,
   putTake,
+  takeEveryReq,
   selectArr,
 } from './shared';
 
@@ -62,9 +63,13 @@ export const groupsState = {
 // ------
 
 function* sagaGroupsGet() {
-  yield takeEvery(GROUPS_GET, function* (action) {
-    const { meta } = action;
-    try {
+  yield takeEveryReq(
+    [
+      GROUPS_GET,
+      GROUPS_GET__S,
+      GROUPS_GET__F,
+    ],
+    function* (action) {
 
       // get
       const { groups } = yield call(cacheGet, '/apis');
@@ -85,51 +90,29 @@ function* sagaGroupsGet() {
       groups.forEach(group => decorate(group));
 
       //
-      yield put({
-        type: GROUPS_GET__S,
-        payload: { groups },
-        meta,
-      });
-    }
-
-    catch (error) {
-      yield put({
-        error: true,
-        type: GROUPS_GET__F,
-        payload: error,
-        meta,
-      });
-    }
-  });
+      return { groups };
+    },
+  );
 }
 
 function* sagaGroupGet() {
-  yield takeEvery(GROUP_GET, function* (action) {
-    const { payload, meta } = action;
-    try {
-      const { id } = payload;
+  yield takeEveryReq(
+    [
+      GROUP_GET,
+      GROUP_GET__S,
+      GROUP_GET__F,
+    ],
+    function* (action) {
+      const { id } = action.payload;
 
       const group =
         (yield putTake(groupsGet(), [GROUPS_GET__S, GROUPS_GET__F])) &&
         (yield select(groupSelect, id));
 
       //
-      yield put({
-        type: GROUP_GET__S,
-        payload: { group },
-        meta,
-      });
-    }
-
-    catch (error) {
-      yield put({
-        error: true,
-        type: GROUP_GET__F,
-        payload: error,
-        meta,
-      });
-    }
-  });
+      return { group };
+    },
+  );
 }
 
 export function* groupsSaga() {

@@ -1,4 +1,4 @@
-import { all, call, put, select, takeEvery } from 'redux-saga/effects';
+import { all, select } from 'redux-saga/effects';
 import update from 'immutability-helper';
 import jsYaml from 'js-yaml';
 
@@ -6,6 +6,7 @@ import {
   PREFIX,
   YAML,
   putTake,
+  takeEveryReq,
 } from './shared';
 
 import {
@@ -35,9 +36,10 @@ export const TAB_CLOSEALL = `${PREFIX}/TAB_CLOSEALL`;
 // creators
 // ----------
 
-export const tabOpen = (id, yaml, resolve, reject) => ({
+export const tabOpen = (id, yaml, _resolve, _reject) => ({
   type: TAB_OPEN,
-  payload: { id, yaml, resolve, reject },
+  payload: { id, yaml },
+  promise: { _resolve, _reject },
 });
 
 export const tabClose = id => ({
@@ -74,11 +76,14 @@ const getIndex = (function* () {
 })();
 
 function* sagaTabOpen() {
-  yield takeEvery(TAB_OPEN, function* (action) {
-    const { payload, meta } = action;
-    const { resolve, reject } = payload;
-    try {
-      let { id, yaml } = payload;
+  yield takeEveryReq(
+    [
+      TAB_OPEN,
+      TAB_OPEN__S,
+      TAB_OPEN__F,
+    ],
+    function* (action) {
+      let { id, yaml } = action.payload;
 
       // artificial item
       if (!id) {
@@ -106,30 +111,9 @@ function* sagaTabOpen() {
       }
 
       //
-      yield put({
-        type: TAB_OPEN__S,
-        payload: { id },
-        meta,
-      });
-
-      // callback
-      if (resolve) yield call(resolve, { id, yaml });
-    }
-
-    catch (error) {
-
-      //
-      yield put({
-        error: true,
-        type: TAB_OPEN__F,
-        payload: error,
-        meta,
-      });
-
-      // callback
-      if (reject) yield call(reject);
-    }
-  });
+      return { id, yaml };
+    },
+  );
 }
 
 export function* tabsSaga() {

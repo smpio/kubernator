@@ -1,4 +1,4 @@
-import { all, call, put, select, takeEvery } from 'redux-saga/effects';
+import { all, call, put, select } from 'redux-saga/effects';
 import update from 'immutability-helper';
 import jsYaml from 'js-yaml';
 
@@ -17,6 +17,7 @@ import {
   IS_READONLY,
   NO_UID,
   apiFetch,
+  takeEveryReq,
 } from './shared';
 
 import {
@@ -58,9 +59,10 @@ export const ITEM_DELETE__F = `${PREFIX}/ITEM_DELETE/F`;
 // action creators
 // -----------------
 
-export const itemsGet = (resource, namespace, resolve, reject) => ({
+export const itemsGet = (resource, namespace, _resolve, _reject) => ({
   type: ITEMS_GET,
-  payload: { resource, namespace: namespace || undefined, resolve, reject },
+  payload: { resource, namespace: namespace || undefined },
+  promise: { _resolve, _reject },
 });
 
 export const itemGet = id => ({
@@ -151,11 +153,14 @@ export const itemsState = {
 // ------
 
 function* sagaItemsGet() {
-  yield takeEvery(ITEMS_GET, function* (action) {
-    const { payload, meta } = action;
-    const { resolve, reject } = payload;
-    try {
-      const { resource, namespace } = payload;
+  yield takeEveryReq(
+    [
+      ITEMS_GET,
+      ITEMS_GET__S,
+      ITEMS_GET__F,
+    ],
+    function* (action) {
+      const { resource, namespace } = action.payload;
 
       // get
       const url = resourceGetUrl(resource, namespace);
@@ -166,65 +171,39 @@ function* sagaItemsGet() {
       items.forEach(item => decorate(item));
 
       //
-      yield put({
-        type: ITEMS_GET__S,
-        payload: { items },
-        meta: { ...meta, resource, namespace },
-      });
-
-      //
-      if (resolve) resolve();
-    }
-
-    catch (error) {
-
-      //
-      yield put({
-        error: true,
-        type: ITEMS_GET__F,
-        payload: error,
-        meta,
-      });
-
-      //
-      if (reject) reject();
-    }
-  });
+      return { resource, namespace, items };
+    },
+  );
 }
 
 function* sagaItemGet() {
-  yield takeEvery(ITEM_GET, function* (action) {
-    const { payload, meta } = action;
-    try {
-      const { id } = payload;
-
+  yield takeEveryReq(
+    [
+      ITEM_GET,
+      ITEM_GET__S,
+      ITEM_GET__F,
+    ],
+    function* (action) {
+      const { id } = action.payload;
       const item = yield select(itemSelect, id);
-      if (item) {
+      if (!item) return null;
+      else {
         const yaml = yield call(itemApiGetYaml, item[URL]);
-        yield put({
-          type: ITEM_GET__S,
-          payload: { yaml },
-          meta: { ...meta, id },
-        });
+        return { id, yaml };
       }
-    }
-
-    catch (error) {
-      yield put({
-        error: true,
-        type: ITEM_GET__F,
-        payload: error,
-        meta,
-      });
-    }
-  });
+    },
+  );
 }
 
 function* sagaItemPost() {
-  yield takeEvery(ITEM_POST, function* (action) {
-    const { payload, meta } = action;
-    try {
-      let { id, yaml } = payload;
+  yield takeEveryReq(
+    [
+      ITEM_POST,
+      ITEM_POST__S,
+      ITEM_POST__F,
+    ],
+    function* (action) {
+      let { id, yaml } = action.payload;
 
       // parse item
       const { kind, metadata: { namespace } = {}} = jsYaml.safeLoad(yaml);
@@ -246,33 +225,26 @@ function* sagaItemPost() {
       itemDecorate(resource)(item);
 
       //
-      yield put({
-        type: ITEM_POST__S,
-        payload: { item },
-        meta: { ...meta, resource },
-      });
-
-      // update tab
+      return { id, resource, item };
+    },
+    function* (payload) {
+      const { id, item } = payload;
       yield put(tabClose(id));
       yield put(tabOpen(item[ID]));
-    }
-
-    catch (error) {
-      yield put({
-        error: true,
-        type: ITEM_POST__F,
-        payload: error,
-        meta,
-      });
-    }
-  });
+    },
+  );
 }
 
 function* sagaItemPut() {
-  yield takeEvery(ITEM_PUT, function* (action) {
-    const { payload, meta } = action;
-    try {
-      const { id, yaml } = payload;
+  yield takeEveryReq(
+    [
+      ITEM_PUT,
+      ITEM_PUT__S,
+      ITEM_PUT__F,
+    ],
+    function* (action) {
+      const { id } = action.payload;
+      let { yaml } = action.payload;
 
       //
       const {
@@ -288,30 +260,24 @@ function* sagaItemPut() {
       // decorate item
       itemDecorate(resource)(item);
 
-      //
-      yield put({
-        type: ITEM_PUT__S,
-        payload: { item },
-        meta: { ...meta, id, yaml },
-      });
-    }
+      // sync yaml
+      yaml = yield call(itemApiGetYaml, url);
 
-    catch (error) {
-      yield put({
-        error: true,
-        type: ITEM_PUT__F,
-        payload: error,
-        meta,
-      });
-    }
-  });
+      //
+      return { id, item, yaml };
+    },
+  );
 }
 
 function* sagaItemDelete() {
-  yield takeEvery(ITEM_DELETE, function* (action) {
-    const { payload, meta } = action;
-    try {
-      const { id: itemId } = payload;
+  yield takeEveryReq(
+    [
+      ITEM_DELETE,
+      ITEM_DELETE__S,
+      ITEM_DELETE__F,
+    ],
+    function* (action) {
+      const { id: itemId } = action.payload;
 
       //
       const {
@@ -324,24 +290,13 @@ function* sagaItemDelete() {
       if (item.status === 'Failure') throw item;
 
       //
-      yield put({
-        type: ITEM_DELETE__S,
-        meta: { ...meta, itemId, resourceId },
-      });
-
-      //
+      return { itemId, resourceId };
+    },
+    function* (payload) {
+      const { itemId } = payload;
       yield put(tabClose(itemId));
-    }
-
-    catch (error) {
-      yield put({
-        error: true,
-        type: ITEM_DELETE__F,
-        payload: error,
-        meta,
-      });
-    }
-  });
+    },
+  );
 }
 
 export function* itemsSaga() {
@@ -361,8 +316,7 @@ export function* itemsSaga() {
 export const itemsReducer = {
 
   [ITEMS_GET__S]: (state, action) => {
-    const { items } = action.payload;
-    const { resource, namespace } = action.meta;
+    const { resource, namespace, items } = action.payload;
 
     // merge items
     const idsNew = toKeysArray(items, ID);
@@ -385,8 +339,7 @@ export const itemsReducer = {
   },
 
   [ITEM_GET__S]: (state, action) => {
-    const { id } = action.meta;
-    const { yaml } = action.payload;
+    const { id, yaml } = action.payload;
     return update(state, {
       items: {
         [id]: {
@@ -399,8 +352,10 @@ export const itemsReducer = {
   },
 
   [ITEM_POST__S]: (state, action) => {
-    const { resource: { [ID]: resourceId }} = action.meta;
-    const { item, item: { [ID]: itemId }} = action.payload;
+    const {
+      resource: { [ID]: resourceId },
+      item, item: { [ID]: itemId },
+    } = action.payload;
 
     return update(state, {
       resources: {
@@ -415,8 +370,7 @@ export const itemsReducer = {
   },
 
   [ITEM_PUT__S]: (state, action) => {
-    const { id, yaml } = action.meta;
-    const { item } = action.payload;
+    const { id, item, yaml } = action.payload;
     return update(state, {
       items: {
         [id]: {
@@ -430,7 +384,7 @@ export const itemsReducer = {
   },
 
   [ITEM_DELETE__S]: (state, action) => {
-    const { itemId, resourceId } = action.meta;
+    const { itemId, resourceId } = action.payload;
     return update(state, {
       resources: {
         [resourceId]: {
