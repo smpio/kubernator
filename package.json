@@ -1,9 +1,9 @@
 {
   "name": "k8s-browser",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": true,
   "dependencies": {
-    "@uqee/immutability-helper-x": "^0.1.0",
+    "@uqee/immutability-helper-x": "^0.2.1",
     "antd": "^2.11.0",
     "classnames": "^2.2.5",
     "d3-drag": "^1.1.0",
@@ -29,7 +29,7 @@
     "store": "^2.0.12"
   },
   "devDependencies": {
-    "@uqee/react-scripts": "1.0.10-4",
+    "@uqee/react-scripts": "1.0.10-5",
     "babel-eslint": "^7.2.3",
     "eslint": "^4.0.0",
     "eslint-config-fbjs": "^1.1.1",
