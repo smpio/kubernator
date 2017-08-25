@@ -1,4 +1,5 @@
 .navigation {
+  flex-shrink: 0;
   background-color: white;
   padding: 0 .75em 0 .5em;
   overflow-y: auto;
