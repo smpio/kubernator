@@ -11,7 +11,6 @@ import {
   PREFIX,
   YAML,
   IS_LOADING_CATALOG,
-  NO_NAMESPACE,
   itemGet,
   itemPost,
   itemPut,
@@ -59,19 +58,16 @@ export default class Content extends React.Component {
   };
 
   static renderTab(props) {
+    const { id, item, yaml } = props;
     const {
-      id,
-      item,
-      yaml,
-    } = props;
-
-    const {
-      metadata: {
-        name = id,
-        namespace = NO_NAMESPACE,
-      } = {},
+      metadata: { name, namespace } = {},
       [YAML]: yamlOriginal,
     } = item || {};
+
+    let title = '';
+    if (namespace) title += namespace;
+    if (namespace && name) title += ' / ';
+    title += name || 'Untitled';
 
     return (
       <Tabs.TabPane
@@ -82,7 +78,7 @@ export default class Content extends React.Component {
               [css.tabModified]: yaml && yaml !== yamlOriginal,
               [css.tabDetached]: !item,
             })}>
-            {`${namespace} / ${name}`}
+            {title}
           </span>
         }
         closable
