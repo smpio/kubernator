@@ -70,14 +70,16 @@ export const itemGet = id => ({
   payload: { id },
 });
 
-export const itemPost = (id, yaml) => ({
+export const itemPost = (id, yaml, _resolve, _reject) => ({
   type: ITEM_POST,
   payload: { id, yaml },
+  promise: { _resolve, _reject },
 });
 
-export const itemPut = (id, yaml) => ({
+export const itemPut = (id, yaml, _resolve, _reject) => ({
   type: ITEM_PUT,
   payload: { id, yaml },
+  promise: { _resolve, _reject },
 });
 
 export const itemDelete = id => ({
