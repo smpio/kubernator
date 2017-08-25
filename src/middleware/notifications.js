@@ -20,18 +20,30 @@ export class NotiErrorApi {
 
     //
     this.duration = 0;
-    this.style = {
-      'backgroundColor': 'lightpink',
-    };
+    this.style = { 'backgroundColor': 'lightpink' };
   }
 }
 
 export default store => next => action => {
   const { error, payload } = action;
-  if (error && payload instanceof NotiErrorApi) {
-    const { silent, description } = payload;
-    if (!silent) notification.open(payload);
-    else console.log(description);
+  if (error) {
+    
+    // NotiErrorApi
+    if (payload instanceof NotiErrorApi) {
+      const { silent, description } = payload;
+      if (!silent) notification.open(payload);
+      else console.log(description);
+    }
+
+    // general error
+    else {
+      const { message } = payload;
+      notification.open({
+        message: 'Warning',
+        description: message,
+        style: { 'backgroundColor': 'bisque' },
+      });
+    }
   }
   return next(action);
 };
