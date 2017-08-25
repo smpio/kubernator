@@ -11,6 +11,7 @@
     }
 
     .ant-menu {
+      margin-top: 0;
       line-height: 3.1;
       border: none;
       background-color: transparent;
