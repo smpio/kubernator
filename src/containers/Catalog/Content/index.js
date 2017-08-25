@@ -309,6 +309,21 @@ export default class Content extends React.Component {
           onSave={onSave}
           onClose={onClose}
         />
+        {
+          hideEditor &&
+          <table className={css.legend}>
+            <tbody>
+              <tr>
+                <td>⌘&nbsp;+&nbsp;⇧&nbsp;+&nbsp;S</td>
+                <td>Tab.Save</td>
+              </tr>
+              <tr>
+                <td>⌘&nbsp;+&nbsp;⇧&nbsp;+&nbsp;C</td>
+                <td>Tab.Close</td>
+              </tr>
+            </tbody>
+          </table>
+        }
       </div>
     );
   }

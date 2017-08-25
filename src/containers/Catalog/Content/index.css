@@ -24,6 +24,23 @@ $animation-duration: .3s;
     }
   }
 
+  position: relative;
+  overflow: hidden;
+
+  .legend {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: none;
+
+    td, th {
+      font-size: 1.5em;
+      padding: .1em .5em;
+      color: lightgrey;
+    }
+  }
+
 
   /* -- tabs -- */
 
