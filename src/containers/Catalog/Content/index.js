@@ -166,7 +166,7 @@ export default class Content extends React.Component {
         [id]: yaml,
       },
     } = this;
-    const action = new Promise((resolve, reject) => (items[id] ? itemPut : itemPost)(id, yaml, resolve, reject));
+    const action = new Promise(resolve => (items[id] ? itemPut : itemPost)(id, yaml, resolve));
     return action.then(() => this.setState({ [id]: null }));
   };
 
