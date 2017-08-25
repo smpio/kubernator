@@ -12,11 +12,15 @@ export default class Editor extends React.PureComponent {
   static propTypes = {
     value: PropTypes.string,
     onChange: PropTypes.func,
+    onSave: PropTypes.func,
+    onClose: PropTypes.func,
   };
 
   static defaultProps = {
     value: '',
     onChange: () => {},
+    onSave: () => {},
+    onClose: () => {},
   };
 
   static requireConfig = {
@@ -38,6 +42,13 @@ export default class Editor extends React.PureComponent {
     automaticLayout: true,
   };
 
+  static KeyCode = {
+    Ctrl: 256,
+    Alt: 512,
+    Shift: 1024,
+    Meta: 2048,
+  };
+
   constructor(props) {
     super(props);
     this.state = {
@@ -46,7 +57,22 @@ export default class Editor extends React.PureComponent {
     };
   }
 
+  onSave = () => {
+    this.props.onSave();
+  };
+
+  onClose = () => {
+    this.props.onClose();
+  };
+
   editorDidMount = (editor, monaco) => {
+    const { onSave, onClose } = this;
+    const { Shift, Meta } = Editor.KeyCode;
+    const { KEY_S, KEY_C } = monaco.KeyCode;
+    /* eslint-disable no-bitwise */
+    editor.addCommand(Meta | Shift | KEY_S, onSave);
+    editor.addCommand(Meta | Shift | KEY_C, onClose);
+    /* eslint-enable no-bitwise */
     this.setState({ editor, monaco });
   }
 

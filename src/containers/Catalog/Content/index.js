@@ -179,6 +179,11 @@ export default class Content extends React.Component {
     return itemDelete(id);
   };
 
+  onClose = () => {
+    const { tabs: { id }, tabClose } = this.props;
+    tabClose(id);
+  };
+
   onCloseAll = () => {
     this.props.tabCloseAll();
   };
@@ -202,6 +207,7 @@ export default class Content extends React.Component {
       onEdit,
       onSave,
       onDelete,
+      onClose,
       onCloseAll,
       onDiscard,
     } = this;
@@ -300,6 +306,8 @@ export default class Content extends React.Component {
         <Editor
           value={yaml}
           onChange={onEdit}
+          onSave={onSave}
+          onClose={onClose}
         />
       </div>
     );
