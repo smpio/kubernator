@@ -29,7 +29,7 @@
     "store": "^2.0.12"
   },
   "devDependencies": {
-    "@uqee/react-scripts": "1.0.10-5",
+    "@uqee/react-scripts": "^1.0.11-1",
     "babel-eslint": "^7.2.3",
     "eslint": "^4.0.0",
     "eslint-config-fbjs": "^1.1.1",
