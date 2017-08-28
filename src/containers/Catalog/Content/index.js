@@ -139,15 +139,24 @@ export default class Content extends React.Component {
     }
   };
 
+  onEdit = yaml => {
+    const { tabs: { id }} = this.props;
+    this.setState({ [id]: yaml });
+  };
+
+  onClose = () => {
+    const { tabs: { id }, tabClose } = this.props;
+    tabClose(id);
+  };
+
+  onCloseAll = () => {
+    this.props.tabCloseAll();
+  };
+
   onReload = () => {
     const { itemGet, tabs: { id }} = this.props;
     this.setState({ [id]: null });
     itemGet(id);
-  };
-
-  onEdit = yaml => {
-    const { tabs: { id }} = this.props;
-    this.setState({ [id]: yaml });
   };
 
   onSave = () => {
@@ -173,15 +182,6 @@ export default class Content extends React.Component {
     return itemDelete(id);
   };
 
-  onClose = () => {
-    const { tabs: { id }, tabClose } = this.props;
-    tabClose(id);
-  };
-
-  onCloseAll = () => {
-    this.props.tabCloseAll();
-  };
-
   render() {
     const {
       props: {
@@ -197,12 +197,12 @@ export default class Content extends React.Component {
       },
       tabsOnChange,
       tabsOnEdit,
-      onReload,
       onEdit,
-      onSave,
-      onDelete,
       onClose,
       onCloseAll,
+      onReload,
+      onSave,
+      onDelete,
     } = this;
 
     const item = items[id];
