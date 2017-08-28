@@ -86,11 +86,9 @@ export default class Content extends React.Component {
     );
   }
 
-  constructor(props) {
-    super(props);
-    this.state = { /* id: yaml */ };
-    this.onDiscard = this.onEdit.bind(this, null);
-  }
+  state = {
+    /* id: yaml */
+  };
 
   shouldComponentUpdate(props) {
     return !props.flags[IS_LOADING_CATALOG];
@@ -205,7 +203,6 @@ export default class Content extends React.Component {
       onDelete,
       onClose,
       onCloseAll,
-      onDiscard,
     } = this;
 
     const item = items[id];
@@ -245,21 +242,12 @@ export default class Content extends React.Component {
                 </Button>
               }
               {
-                (item && !dirty) &&
+                item &&
                 <Button
                   className={css.button}
                   size="small"
                   onClick={onReload}>
                   Reload
-                </Button>
-              }
-              {
-                dirty &&
-                <Button
-                  className={css.button}
-                  size="small"
-                  onClick={onDiscard}>
-                  Discard
                 </Button>
               }
               {
@@ -304,18 +292,23 @@ export default class Content extends React.Component {
           onChange={onEdit}
           onSave={onSave}
           onClose={onClose}
+          onReload={onReload}
         />
         {
           hideEditor &&
           <table className={css.legend}>
             <tbody>
               <tr>
-                <td>⌘&nbsp;+&nbsp;⇧&nbsp;+&nbsp;S</td>
+                <td>⌘&nbsp;+&nbsp;⌥&nbsp;+&nbsp;S</td>
                 <td>Tab.Save</td>
               </tr>
               <tr>
-                <td>⌘&nbsp;+&nbsp;⇧&nbsp;+&nbsp;C</td>
+                <td>⌘&nbsp;+&nbsp;⌥&nbsp;+&nbsp;C</td>
                 <td>Tab.Close</td>
+              </tr>
+              <tr>
+                <td>⌘&nbsp;+&nbsp;⌥&nbsp;+&nbsp;R</td>
+                <td>Tab.Reload</td>
               </tr>
             </tbody>
           </table>

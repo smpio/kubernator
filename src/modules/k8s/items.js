@@ -320,13 +320,30 @@ export const itemsReducer = {
   [ITEMS_GET__S]: (state, action) => {
     const { resource, namespace, items } = action.payload;
 
-    // merge items
+    // merge item ids
+    // replace only items belonging to the specified namespace
     const idsNew = toKeysArray(items, ID);
     const idsMerge = idsOld => {
       const { items } = state;
       return idsOld
         .filter(id => items[id].metadata.namespace !== namespace)
         .concat(idsNew);
+    };
+
+    // merge items
+    // copy loaded YAML values from old items
+    const itemsMerge = itemsOld => {
+      const itemsNew = items;
+
+      itemsNew.forEach(itemNew => {
+        const itemOld = itemsOld[itemNew[ID]];
+        if (itemOld && itemOld[YAML]) itemNew[YAML] = itemOld[YAML];
+      });
+
+      return {
+        ...itemsOld,
+        ...toKeysObject(itemsNew, ID),
+      };
     };
 
     //
@@ -336,7 +353,7 @@ export const itemsReducer = {
           [ITEM_IDS]: { $apply: idsMerge },
         },
       },
-      items: { $merge: toKeysObject(items, ID) },
+      items: { $apply: itemsMerge },
     });
   },
 
