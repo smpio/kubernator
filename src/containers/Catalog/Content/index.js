@@ -292,18 +292,23 @@ export default class Content extends React.Component {
           onChange={onEdit}
           onSave={onSave}
           onClose={onClose}
+          onReload={onReload}
         />
         {
           hideEditor &&
           <table className={css.legend}>
             <tbody>
               <tr>
-                <td>⌘&nbsp;+&nbsp;⇧&nbsp;+&nbsp;S</td>
+                <td>⌘&nbsp;+&nbsp;⌥&nbsp;+&nbsp;S</td>
                 <td>Tab.Save</td>
               </tr>
               <tr>
-                <td>⌘&nbsp;+&nbsp;⇧&nbsp;+&nbsp;C</td>
+                <td>⌘&nbsp;+&nbsp;⌥&nbsp;+&nbsp;C</td>
                 <td>Tab.Close</td>
+              </tr>
+              <tr>
+                <td>⌘&nbsp;+&nbsp;⌥&nbsp;+&nbsp;R</td>
+                <td>Tab.Reload</td>
               </tr>
             </tbody>
           </table>

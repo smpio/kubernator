@@ -14,6 +14,7 @@ export default class Editor extends React.PureComponent {
     onChange: PropTypes.func,
     onSave: PropTypes.func,
     onClose: PropTypes.func,
+    onReload: PropTypes.func,
   };
 
   static defaultProps = {
@@ -21,6 +22,7 @@ export default class Editor extends React.PureComponent {
     onChange: () => {},
     onSave: () => {},
     onClose: () => {},
+    onReload: () => {},
   };
 
   static requireConfig = {
@@ -65,13 +67,18 @@ export default class Editor extends React.PureComponent {
     this.props.onClose();
   };
 
+  onReload = () => {
+    this.props.onReload();
+  };
+
   editorDidMount = (editor, monaco) => {
-    const { onSave, onClose } = this;
-    const { Shift, Meta } = Editor.KeyCode;
-    const { KEY_S, KEY_C } = monaco.KeyCode;
+    const { onSave, onClose, onReload } = this;
+    const { Meta, Alt } = Editor.KeyCode;
+    const { KEY_S, KEY_C, KEY_R } = monaco.KeyCode;
     /* eslint-disable no-bitwise */
-    editor.addCommand(Meta | Shift | KEY_S, onSave);
-    editor.addCommand(Meta | Shift | KEY_C, onClose);
+    editor.addCommand(Meta | Alt | KEY_S, onSave);
+    editor.addCommand(Meta | Alt | KEY_C, onClose);
+    editor.addCommand(Meta | Alt | KEY_R, onReload);
     /* eslint-enable no-bitwise */
     this.setState({ editor, monaco });
   }
