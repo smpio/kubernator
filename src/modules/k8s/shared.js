@@ -8,6 +8,9 @@ import {
 
 export const PREFIX = 'k8s';
 
+export const LOADING = Symbol('LOADING');
+export const FAILURE = Symbol('FAILURE');
+
 export const ID = Symbol('ID');
 export const URL = Symbol('URL');
 export const YAML = Symbol('YAML');
@@ -53,6 +56,18 @@ export async function apiFetch(url, options = {}, parser = 'json') {
     throw new NotiErrorApi(apiResponse, netResponse);
   }
 }
+
+export function apiFlagsSet(state, action) {
+  return {
+    [LOADING]: !action.error,
+    [FAILURE]: !!action.error && action.payload,
+  };
+}
+
+export const apiFlagsUnset = {
+  [LOADING]: false,
+  [FAILURE]: false,
+};
 
 (async function cacheInit() {
   const version = await apiFetch('/version');

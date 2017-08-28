@@ -17,6 +17,8 @@ import {
   IS_READONLY,
   NO_UID,
   apiFetch,
+  apiFlagsSet,
+  apiFlagsUnset,
   takeEveryReq,
 } from './shared';
 
@@ -65,9 +67,10 @@ export const itemsGet = (resource, namespace, _resolve, _reject) => ({
   promise: { _resolve, _reject },
 });
 
-export const itemGet = id => ({
+export const itemGet = (id, _resolve, _reject) => ({
   type: ITEM_GET,
   payload: { id },
+  promise: { _resolve, _reject },
 });
 
 export const itemPost = (id, yaml, _resolve, _reject) => ({
@@ -82,9 +85,10 @@ export const itemPut = (id, yaml, _resolve, _reject) => ({
   promise: { _resolve, _reject },
 });
 
-export const itemDelete = id => ({
+export const itemDelete = (id, _resolve, _reject) => ({
   type: ITEM_DELETE,
   payload: { id },
+  promise: { _resolve, _reject },
 });
 
 
@@ -315,6 +319,17 @@ export function* itemsSaga() {
 // reducer
 // ---------
 
+function itemFlags(state, action) {
+  const { payload: { id }} = action;
+  const { items: { [id]: item }} = state;
+  const flags = apiFlagsSet(state, action);
+  return !item ? state : update(state, {
+    items: {
+      [id]: { $merge: flags },
+    },
+  });
+}
+
 export const itemsReducer = {
 
   [ITEMS_GET__S]: (state, action) => {
@@ -357,12 +372,15 @@ export const itemsReducer = {
     });
   },
 
+  [ITEM_GET]: itemFlags,
+  [ITEM_GET__F]: itemFlags,
   [ITEM_GET__S]: (state, action) => {
     const { id, yaml } = action.payload;
     return update(state, {
       items: {
         [id]: {
           $merge: {
+            ...apiFlagsUnset,
             [YAML]: yaml,
           },
         },
@@ -370,6 +388,8 @@ export const itemsReducer = {
     });
   },
 
+  [ITEM_POST]: itemFlags,
+  [ITEM_POST__F]: itemFlags,
   [ITEM_POST__S]: (state, action) => {
     const {
       resource: { [ID]: resourceId },
@@ -388,6 +408,8 @@ export const itemsReducer = {
     });
   },
 
+  [ITEM_PUT]: itemFlags,
+  [ITEM_PUT__F]: itemFlags,
   [ITEM_PUT__S]: (state, action) => {
     const { id, item, yaml } = action.payload;
     return update(state, {
@@ -395,6 +417,7 @@ export const itemsReducer = {
         [id]: {
           $set: {
             ...item,
+            ...apiFlagsUnset,
             [YAML]: yaml,
           },
         },
@@ -402,6 +425,8 @@ export const itemsReducer = {
     });
   },
 
+  [ITEM_DELETE]: itemFlags,
+  [ITEM_DELETE__F]: itemFlags,
   [ITEM_DELETE__S]: (state, action) => {
     const { itemId, resourceId } = action.payload;
     return update(state, {

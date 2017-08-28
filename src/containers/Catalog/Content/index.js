@@ -9,6 +9,7 @@ import classnames from 'classnames';
 
 import {
   PREFIX,
+  LOADING,
   YAML,
   IS_LOADING_CATALOG,
   itemGet,
@@ -144,6 +145,10 @@ export default class Content extends React.Component {
     this.setState({ [id]: yaml });
   };
 
+  onDiscard = () => {
+    this.onEdit(null);
+  };
+
   onClose = () => {
     const { tabs: { id }, tabClose } = this.props;
     tabClose(id);
@@ -154,32 +159,39 @@ export default class Content extends React.Component {
   };
 
   onReload = () => {
-    const { itemGet, tabs: { id }} = this.props;
-    this.setState({ [id]: null });
-    itemGet(id);
+    const {
+      props: {
+        tabs: { id },
+        itemGet,
+      },
+      onDiscard,
+    } = this;
+    return new Promise(resolve => itemGet(id, resolve)).then(onDiscard);
   };
 
   onSave = () => {
     const {
       props: {
-        items,
-        tabs: {
-          id,
-        },
+        tabs: { id },
+        items: { [id]: item },
         itemPost,
         itemPut,
       },
-      state: {
-        [id]: yaml,
-      },
+      state: { [id]: yaml },
+      onDiscard,
     } = this;
-    const action = new Promise(resolve => (items[id] ? itemPut : itemPost)(id, yaml, resolve));
-    return action.then(() => this.setState({ [id]: null }));
+    return new Promise(resolve => (item ? itemPut : itemPost)(id, yaml, resolve)).then(onDiscard);
   };
 
   onDelete = () => {
-    const { tabs: { id }, itemDelete } = this.props;
-    return itemDelete(id);
+    const {
+      props: {
+        tabs: { id },
+        itemDelete,
+      },
+      onDiscard,
+    } = this;
+    return new Promise(resolve => itemDelete(id, resolve)).then(onDiscard);
   };
 
   render() {
@@ -215,6 +227,7 @@ export default class Content extends React.Component {
     const hideEditor = !tabIds.length;
 
     const showCloseAll = !!tabIds.length;
+    const itemLoading = item && item[LOADING];
 
     return (
       <div
@@ -232,49 +245,41 @@ export default class Content extends React.Component {
           onEdit={tabsOnEdit}
           tabBarExtraContent={
             <span>
-              {
-                showCloseAll &&
+              <Button
+                className={css.button}
+                size="small"
+                onClick={onCloseAll}
+                disabled={!showCloseAll}>
+                CloseAll
+              </Button>
+              <Button
+                className={css.button}
+                size="small"
+                onClick={onReload}
+                disabled={!item || itemLoading}>
+                Reload
+              </Button>
+              <Button
+                className={css.button}
+                size="small"
+                type="primary"
+                onClick={onSave}
+                disabled={!dirty || itemLoading}>
+                Save
+              </Button>
+              <Popconfirm
+                placement="bottomRight"
+                title="Are you sure to delete this item?"
+                okText="Yes" cancelText="No"
+                onConfirm={onDelete}>
                 <Button
                   className={css.button}
                   size="small"
-                  onClick={onCloseAll}>
-                  CloseAll
+                  type="danger"
+                  disabled={!item || itemLoading}>
+                  Delete
                 </Button>
-              }
-              {
-                item &&
-                <Button
-                  className={css.button}
-                  size="small"
-                  onClick={onReload}>
-                  Reload
-                </Button>
-              }
-              {
-                dirty &&
-                <Button
-                  className={css.button}
-                  size="small"
-                  type="primary"
-                  onClick={onSave}>
-                  Save
-                </Button>
-              }
-              {
-                item &&
-                <Popconfirm
-                  placement="bottomRight"
-                  title="Are you sure to delete this item?"
-                  okText="Yes" cancelText="No"
-                  onConfirm={onDelete}>
-                  <Button
-                    className={css.button}
-                    size="small"
-                    type="danger">
-                    Delete
-                  </Button>
-                </Popconfirm>
-              }
+              </Popconfirm>
             </span>
           }>
           {
