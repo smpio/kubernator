@@ -1,5 +1,5 @@
 {
-  "name": "k8s-browser",
+  "name": "kube-browser",
   "version": "0.2.1",
   "private": true,
   "dependencies": {
