@@ -44,6 +44,10 @@ $animation-duration: .3s;
 
   /* -- tabs -- */
 
+  .buttonGroup {
+    margin-left: .5em;
+  }
+  
   .button {
     margin-left: .25em;
   }

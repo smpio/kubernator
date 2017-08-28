@@ -145,18 +145,10 @@ export default class Content extends React.Component {
     this.setState({ [id]: yaml });
   };
 
-  onDiscard = () => {
-    this.onEdit(null);
-  };
-
-  onClose = () => {
-    const { tabs: { id }, tabClose } = this.props;
-    tabClose(id);
-  };
-
-  onCloseAll = () => {
-    this.props.tabCloseAll();
-  };
+  onDiscard = () => this.onEdit(null);
+  onOpen = () => this.tabsOnEdit(null, 'add');
+  onClose = () => this.tabsOnEdit(this.props.tabs.id, 'remove');
+  onCloseAll = () => this.props.tabCloseAll();
 
   onReload = () => {
     const {
@@ -210,6 +202,7 @@ export default class Content extends React.Component {
       tabsOnChange,
       tabsOnEdit,
       onEdit,
+      onOpen,
       onClose,
       onCloseAll,
       onReload,
@@ -243,43 +236,64 @@ export default class Content extends React.Component {
           activeKey={id}
           onChange={tabsOnChange}
           onEdit={tabsOnEdit}
+          hideAdd
           tabBarExtraContent={
             <span>
-              <Button
-                className={css.button}
-                size="small"
-                onClick={onCloseAll}
-                disabled={!showCloseAll}>
-                CloseAll
-              </Button>
-              <Button
-                className={css.button}
-                size="small"
-                onClick={onReload}
-                disabled={!item || itemLoading}>
-                Reload
-              </Button>
-              <Button
-                className={css.button}
-                size="small"
-                type="primary"
-                onClick={onSave}
-                disabled={!dirty || itemLoading}>
-                Save
-              </Button>
-              <Popconfirm
-                placement="bottomRight"
-                title="Are you sure to delete this item?"
-                okText="Yes" cancelText="No"
-                onConfirm={onDelete}>
+              <span className={css.buttonGroup}>
                 <Button
                   className={css.button}
+                  shape="circle"
+                  icon="plus"
                   size="small"
-                  type="danger"
-                  disabled={!item || itemLoading}>
-                  Delete
-                </Button>
-              </Popconfirm>
+                  onClick={onOpen}
+                  title="Open new tab"
+                />
+                <Button
+                  className={css.button}
+                  shape="circle"
+                  icon="close"
+                  size="small"
+                  onClick={onCloseAll}
+                  disabled={!showCloseAll}
+                  title="Close all tabs"
+                />
+              </span>
+              <span className={css.buttonGroup}>
+                <Button
+                  className={css.button}
+                  shape="circle"
+                  icon="reload"
+                  size="small"
+                  onClick={onReload}
+                  disabled={!item || itemLoading}
+                  title="Reload, ⌘⌥R"
+                />
+                <Button
+                  className={css.button}
+                  shape="circle"
+                  icon="save"
+                  size="small"
+                  type="primary"
+                  onClick={onSave}
+                  disabled={!dirty || itemLoading}
+                  title="Save, ⌘⌥S"
+                />
+                <Popconfirm
+                  placement="bottomRight"
+                  title="Are you sure to delete this item?"
+                  okText="Yes" cancelText="No"
+                  onConfirm={onDelete}>
+                  <Button
+                    className={css.button}
+                    shape="circle"
+                    icon="delete"
+                    size="small"
+                    type="danger"
+                    disabled={!item || itemLoading}
+                    title="Delete"
+                  />
+                </Popconfirm>
+              </span>
             </span>
           }>
           {
