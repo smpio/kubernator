@@ -145,7 +145,10 @@ export default class Content extends React.Component {
     this.setState({ [id]: yaml });
   };
 
-  onDiscard = () => this.onEdit(null);
+  onDiscard = id => {
+    this.setState({ [id]: null });
+  };
+
   onOpen = () => this.tabsOnEdit(null, 'add');
   onClose = () => this.tabsOnEdit(this.props.tabs.id, 'remove');
   onCloseAll = () => this.props.tabCloseAll();
@@ -158,7 +161,9 @@ export default class Content extends React.Component {
       },
       onDiscard,
     } = this;
-    return new Promise(resolve => itemGet(id, resolve)).then(onDiscard);
+
+    return new Promise(resolve => itemGet(id, resolve))
+      .then(() => onDiscard(id));
   };
 
   onSave = () => {
@@ -172,7 +177,9 @@ export default class Content extends React.Component {
       state: { [id]: yaml },
       onDiscard,
     } = this;
-    return new Promise(resolve => (item ? itemPut : itemPost)(id, yaml, resolve)).then(onDiscard);
+
+    return new Promise(resolve => (item ? itemPut : itemPost)(id, yaml, resolve))
+      .then(() => onDiscard(id));
   };
 
   onDelete = () => {
@@ -183,7 +190,9 @@ export default class Content extends React.Component {
       },
       onDiscard,
     } = this;
-    return new Promise(resolve => itemDelete(id, resolve)).then(onDiscard);
+
+    return new Promise(resolve => itemDelete(id, resolve))
+      .then(() => onDiscard(id));
   };
 
   render() {
