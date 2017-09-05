@@ -25,19 +25,19 @@ export class NotiErrorApi {
 }
 
 export default store => next => action => {
-  const { error, payload } = action;
+  const { payload: { error } = {}} = action;
   if (error) {
     
     // NotiErrorApi
-    if (payload instanceof NotiErrorApi) {
-      const { silent, description } = payload;
-      if (!silent) notification.open(payload);
+    if (error instanceof NotiErrorApi) {
+      const { silent, description } = error;
+      if (!silent) notification.open(error);
       else console.log(description);
     }
 
     // general error
     else {
-      const { message } = payload;
+      const { message } = error;
       notification.open({
         message: 'Warning',
         description: message,

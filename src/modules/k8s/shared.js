@@ -58,9 +58,10 @@ export async function apiFetch(url, options = {}, parser = 'json') {
 }
 
 export function apiFlagsSet(state, action) {
+  const { payload: { error } = {}} = action;
   return {
-    [LOADING]: !action.error,
-    [FAILURE]: !!action.error && action.payload,
+    [LOADING]: !error,
+    [FAILURE]: !!error,
   };
 }
 
@@ -109,7 +110,7 @@ export function* putTake(actionPut, actionsTake) {
 export function* takeEveryReq(actions, fn, _onSuccess) {
   const [REQUEST, SUCCESS, FAILURE] = actions;
   yield takeEvery(REQUEST, function* (action) {
-    const { meta, promise: { _resolve, _reject } = {}} = action;
+    const { payload, meta, promise: { _resolve, _reject } = {}} = action;
     try {
       const payload = yield call(fn, action);
       if (payload) {
@@ -125,9 +126,8 @@ export function* takeEveryReq(actions, fn, _onSuccess) {
     catch (error) {
       if (_reject) _reject(error);
       yield put({
-        error: true,
         type: FAILURE,
-        payload: error,
+        payload: { ...payload, error },
         meta,
       });
     }
