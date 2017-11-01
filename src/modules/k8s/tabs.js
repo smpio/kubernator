@@ -106,11 +106,11 @@ function* sagaTabOpen() {
         const item = yield select(itemSelect, id);
 
         // update yaml
-        if (item) yaml = (yield putTake(itemGet(id), [ITEM_GET__S, ITEM_GET__F])).payload.yaml;
+        if (item) yield putTake(itemGet(id), [ITEM_GET__S, ITEM_GET__F]);
       }
 
       //
-      return { id, yaml };
+      return { id };
     },
   );
 }
