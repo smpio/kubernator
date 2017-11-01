@@ -4,7 +4,6 @@ import jsYaml from 'js-yaml';
 
 import {
   PREFIX,
-  YAML,
   putTake,
   takeEveryReq,
 } from './shared';
@@ -106,8 +105,8 @@ function* sagaTabOpen() {
         // find item
         const item = yield select(itemSelect, id);
 
-        // request yaml only if needed
-        if (item && !item[YAML]) yield putTake(itemGet(id), [ITEM_GET__S, ITEM_GET__F]);
+        // update yaml
+        if (item) yaml = (yield putTake(itemGet(id), [ITEM_GET__S, ITEM_GET__F])).payload.yaml;
       }
 
       //
