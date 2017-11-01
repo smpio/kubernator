@@ -112,7 +112,7 @@ function* sagaResourcesGet() {
 
       // decorate
       const decorate = resourceDecorate(group);
-      resources.forEach(resource => decorate(resource));
+      resources.forEach(decorate);
 
       // models
       yield putTake(modelsGet(group), [MODELS_GET__S, MODELS_GET__F]);

@@ -87,7 +87,7 @@ function* sagaGroupsGet() {
 
       // decorate
       const decorate = groupDecorate();
-      groups.forEach(group => decorate(group));
+      groups.forEach(decorate);
 
       //
       return { groups };
