@@ -42,6 +42,7 @@ export default class Editor extends React.PureComponent {
     //renderIndentGuides: true,
     //readOnly: false,
     automaticLayout: true,
+    tabSize: 2,
   };
 
   static KeyCode = {
@@ -72,6 +73,8 @@ export default class Editor extends React.PureComponent {
   };
 
   editorDidMount = (editor, monaco) => {
+
+    // key bindings
     const { onSave, onClose, onReload } = this;
     const { Meta, Alt } = Editor.KeyCode;
     const { KEY_S, KEY_C, KEY_R } = monaco.KeyCode;
@@ -80,6 +83,13 @@ export default class Editor extends React.PureComponent {
     editor.addCommand(Meta | Alt | KEY_C, onClose);
     editor.addCommand(Meta | Alt | KEY_R, onReload);
     /* eslint-enable no-bitwise */
+
+    // model options
+    editor.getModel().updateOptions({
+      tabSize: Editor.options.tabSize,
+    });
+
+    //
     this.setState({ editor, monaco });
   }
 
