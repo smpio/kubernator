@@ -174,7 +174,7 @@ function* sagaItemsGet() {
 
       // decorate
       const decorate = itemDecorate(resource);
-      items.forEach(item => decorate(item));
+      items.forEach(decorate);
 
       //
       return { resource, namespace, items };
