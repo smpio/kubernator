@@ -456,7 +456,7 @@ export function itemDecorate(resource) {
 }
 
 export function itemRemoveReadonlyProperties(item, models, modelId, forcedKeys) {
-  if (item) {
+  if (item && models) {
 
     // remove forced keys
     forcedKeys && forcedKeys.forEach(key => delete item[key]);
