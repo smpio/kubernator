@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import throttle from 'react-throttle-render';
-import { Tree as TreeRoot, Spin } from 'antd';
+import { Button, Tree as TreeRoot, Spin } from 'antd';
 
 import {
   PREFIX,
@@ -59,10 +59,10 @@ export default class Navigation extends React.Component {
   }
 
   shouldComponentUpdate(props) {
-    const { loadingCatalog } = props.flags;
-    const { loadingCatalog: loadingCatalogPrev } = this.props.flags;
+    const { loadingStage } = props.flags;
+    const { loadingStage: loadingStagePrev } = this.props.flags;
 
-    if (loadingCatalog) return loadingCatalog !== loadingCatalogPrev;
+    if (loadingStage) return loadingStage !== loadingStagePrev;
     else return true;
   }
 
@@ -161,11 +161,16 @@ export default class Navigation extends React.Component {
     );
   };
 
+  reloadCatalog = () => {
+    const { catalogGet } = this.props;
+    catalogGet({ forceNamespaces: true });
+  };
+
   render() {
     const {
       props: {
         flags: {
-          loadingCatalog,
+          loadingStage,
         },
         catalog,
       },
@@ -176,18 +181,31 @@ export default class Navigation extends React.Component {
       onExpand,
       onLoadData,
       renderNode,
+      reloadCatalog,
     } = this;
 
     return (
       <div className={css.navigation}>
         {
-          loadingCatalog &&
+          loadingStage &&
           <div className={css.spinner}>
-            <Spin tip={loadingCatalog} />
+            <Spin tip={loadingStage} />
           </div>
         }
         {
-          !loadingCatalog &&
+          !loadingStage &&
+          <div className={css.controls}>
+            <Button
+              shape="circle"
+              icon="reload"
+              size="small"
+              title="Reload"
+              onClick={reloadCatalog}
+            />
+          </div>
+        }
+        {
+          !loadingStage &&
           <TreeRoot
             onSelect={onSelect}
             onExpand={onExpand}
