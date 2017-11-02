@@ -64,8 +64,9 @@ export const NAMESPACE_ITEMS_GET__F = `${PREFIX}/NAMESPACE_ITEMS_GET/F`;
 // action creators
 // -----------------
 
-export const catalogGet = () => ({
+export const catalogGet = ({ forceNamespaces } = {}) => ({
   type: CATALOG_GET,
+  payload: { forceNamespaces },
 });
 
 export const rbacGet = () => ({
@@ -107,6 +108,7 @@ function* sagaCatalogGet() {
       CATALOG_GET__F,
     ],
     function* (action) {
+      const { forceNamespaces } = action.payload;
 
       //
       yield put({
@@ -141,8 +143,9 @@ function* sagaCatalogGet() {
       yield delay(0);
 
       // namespaces [cache]
-      (yield select(namespacesSelectArr)) ||
-      (yield putTake(namespacesGet(), [NAMESPACES_GET__S, NAMESPACES_GET__F]));
+      let namespaces;
+      if (!forceNamespaces) namespaces = yield select(namespacesSelectArr);
+      if (!namespaces) yield putTake(namespacesGet(), [NAMESPACES_GET__S, NAMESPACES_GET__F]);
 
       //
       return {};
@@ -190,36 +193,31 @@ function* sagaNamespacesGet() {
     ],
     function* (action) {
 
-      // namespaces [cache]
-      let namespaces = yield select(namespacesSelectArr);
-      if (!namespaces) {
+      // resource [cache]
+      const id = 'namespaces';
+      let resource = yield select(resourceSelect, id);
+      if (!resource) {
 
-        // resource [cache]
-        const id = 'namespaces';
-        let resource = yield select(resourceSelect, id);
-        if (!resource) {
+        // group [cache]
+        const group =
+          (yield select(groupSelect, NO_GROUP)) ||
+          (yield putTake(groupGet(NO_GROUP), [GROUP_GET__S, GROUP_GET__F])).payload.group;
 
-          // group [cache]
-          const group =
-            (yield select(groupSelect, NO_GROUP)) ||
-            (yield putTake(groupGet(NO_GROUP), [GROUP_GET__S, GROUP_GET__F])).payload.group;
+        // resources [cache]
+        (yield select(resourcesSelectByGroup, group)) ||
+        (yield putTake(resourcesGet(group), [RESOURCES_GET__S, RESOURCES_GET__F]));
 
-          // resources [cache]
-          (yield select(resourcesSelectByGroup, group)) ||
-          (yield putTake(resourcesGet(group), [RESOURCES_GET__S, RESOURCES_GET__F]));
-
-          //
-          resource = yield select(resourceSelect, id);
-        }
-
-        // items
-        const items = (yield putTake(itemsGet(resource), [ITEMS_GET__S, ITEMS_GET__F])).payload.items;
-
-        // namespaces
-        namespaces = items.map(item => item.metadata.name);
-        namespaces.unshift(NO_NAMESPACE);
-        namespaces.sort();
+        //
+        resource = yield select(resourceSelect, id);
       }
+
+      // items
+      const { items } = (yield putTake(itemsGet(resource), [ITEMS_GET__S, ITEMS_GET__F])).payload;
+
+      // namespaces
+      let namespaces = items.map(item => item.metadata.name);
+      namespaces.unshift(NO_NAMESPACE);
+      namespaces.sort();
 
       //
       return { namespaces };

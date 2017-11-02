@@ -1,5 +1,5 @@
-@global-import '../node_modules/sanitize.css/sanitize.css';
-@global-import '../node_modules/antd/dist/antd.css';
+@global-import 'sanitize.css/sanitize.css';
+@global-import 'antd/dist/antd.css';
 
 :global {
   

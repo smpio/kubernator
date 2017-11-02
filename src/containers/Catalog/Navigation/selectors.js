@@ -113,7 +113,7 @@ function buildNamespaces(argsGlobal) {
 }
 
 const selectFlags = state => ({
-  loadingCatalog: state.flags[IS_LOADING_CATALOG],
+  loadingStage: state.flags[IS_LOADING_CATALOG],
 });
 
 const selectNamespaces = state => state.namespaces;
@@ -123,7 +123,7 @@ const selectItems = state => state.items;
 const selectCatalog = createSelector(
   [selectFlags, selectResources, selectItems, selectNamespaces],
   (flags, resources, items, namespaces) => {
-    if (flags.loadingCatalog || !namespaces.length || !Object.keys(resources).length) return [];
+    if (flags.loadingStage || !namespaces.length || !Object.keys(resources).length) return [];
     else return buildNamespaces({ namespaces, resources, items });
   },
 );

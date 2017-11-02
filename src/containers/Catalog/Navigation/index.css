@@ -1,3 +1,5 @@
+@import '../../../variables.css';
+
 .navigation {
   flex-shrink: 0;
   background-color: white;
@@ -17,4 +19,9 @@
   text-align: center;
   min-width: 10em;
   padding: 1.5em 0 1em;
+}
+
+.controls {
+  padding: 5px 0 4px 0;
+  border-bottom: 1px solid $color-grey-200;
 }
