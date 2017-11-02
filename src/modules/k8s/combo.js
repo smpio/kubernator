@@ -1,4 +1,3 @@
-import { delay } from 'redux-saga';
 import { all, put, select } from 'redux-saga/effects';
 import update from 'immutability-helper';
 
@@ -110,42 +109,36 @@ function* sagaCatalogGet() {
     function* (action) {
       const { forceNamespaces } = action.payload;
 
-      //
-      yield put({
-        type: CATALOG_GET__,
-        payload: { stage: 'groups' },
-      });
-      yield delay(0);
+      // groups <- [state] <- [storage] <- [api]
+      let groups = yield select(groupsSelectArr);
+      if (!groups) {
+        yield put({
+          type: CATALOG_GET__,
+          payload: { stage: 'groups' },
+        });
+        groups = (yield putTake(groupsGet(), [GROUPS_GET__S, GROUPS_GET__F])).payload.groups;
+      }
 
-      // groups [cache]
-      const groups =
-        (yield select(groupsSelectArr)) ||
-        (yield putTake(groupsGet(), [GROUPS_GET__S, GROUPS_GET__F])).payload.groups;
-
-      //
+      // resources <- [state] <- [storage] <- [api]
       yield put({
         type: CATALOG_GET__,
         payload: { stage: 'resources' },
       });
-      yield delay(0);
-
-      // resources [cache]
       yield all(groups
         .filter(group => !group[RESOURCE_IDS].length)
         .map(group => putTake(resourcesGet(group), [RESOURCES_GET__S, RESOURCES_GET__F]))
       );
 
-      //
-      yield put({
-        type: CATALOG_GET__,
-        payload: { stage: 'namespaces' },
-      });
-      yield delay(0);
-
-      // namespaces [cache]
+      // namespaces <- [state] <- [storage] <- [api]
       let namespaces;
       if (!forceNamespaces) namespaces = yield select(namespacesSelectArr);
-      if (!namespaces) yield putTake(namespacesGet(), [NAMESPACES_GET__S, NAMESPACES_GET__F]);
+      if (!namespaces) {
+        yield put({
+          type: CATALOG_GET__,
+          payload: { stage: 'namespaces' },
+        });
+        yield putTake(namespacesGet(), [NAMESPACES_GET__S, NAMESPACES_GET__F]);
+      }
 
       //
       return {};

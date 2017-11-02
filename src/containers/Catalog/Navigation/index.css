@@ -8,6 +8,11 @@
 
   :global {
 
+    /* no excessive padding */
+    .ant-tree {
+      padding: 0;
+    }
+
     /* transparent expand icons */
     .ant-tree.ant-tree-show-line li span.ant-tree-switcher {
       background-color: initial;
@@ -22,6 +27,7 @@
 }
 
 .controls {
+  margin: 0 2px;
   padding: 5px 0 4px 0;
   border-bottom: 1px solid $color-grey-200;
 }
