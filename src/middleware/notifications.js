@@ -37,10 +37,10 @@ export default store => next => action => {
 
     // general error
     else {
-      const { message } = error;
+      const { title, message } = error;
       notification.open({
-        message: 'Warning',
-        description: message,
+        message: title || 'Warning',
+        description: message || 'No description',
         style: { 'backgroundColor': 'bisque' },
       });
     }
