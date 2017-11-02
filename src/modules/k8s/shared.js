@@ -97,14 +97,14 @@ export function* putTake(actionPut, actionsTake) {
   yield put(actionPut);
 
   // take
-  const [, actionTypeF] = actionsTake;
+  const [actionTypeS/*, actionTypeF*/] = actionsTake;
   let action = { meta: { $id: null }};
   while (action.meta.$id !== $id) {
     action = yield take(actionsTake);
   }
 
   //
-  return action.type === actionTypeF ? null : action;
+  return action.type === actionTypeS ? action : null;
 }
 
 export function* takeEveryReq(actions, fn, _onSuccess) {
