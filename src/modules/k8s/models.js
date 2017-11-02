@@ -2,6 +2,10 @@ import { all, call } from 'redux-saga/effects';
 import update from 'immutability-helper';
 
 import {
+  NotiErrorApi,
+} from '../../middleware/notifications';
+
+import {
   toKeysObject,
 } from '../../utils';
 
@@ -57,8 +61,17 @@ function* sagaModelsGet() {
     function* (action) {
       const { group } = action.payload;
 
-      // models
-      let { models } = yield call(cacheGet, `/swaggerapi${group[URL]}`);
+      // get models
+      let models;
+      try { models = (yield call(cacheGet, `/swaggerapi${group[URL]}`)).models; }
+      catch (error) {
+        throw !(error instanceof NotiErrorApi) || error.code !== 404 ? error : {
+          title: group.name,
+          message: 'No swagger schemas provided. Removing readonly properties for items in this group won\'t work.',
+        };
+      }
+
+      // process models
       const { version } = group.preferredVersion;
       models = Object.keys(models)
         .filter(key => key.startsWith(version))

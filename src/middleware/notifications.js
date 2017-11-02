@@ -6,6 +6,7 @@ export class NotiErrorApi {
     // api response is an object
     if (typeof apiResponse === 'object') {
       const { code, reason, message } = apiResponse;
+      this.code = code;
       this.message = `${code} ${reason}`;
       this.description = message;
     }
@@ -13,6 +14,7 @@ export class NotiErrorApi {
     // api response is a string or nothing
     else {
       const { status, statusText, url } = netResponse;
+      this.code = status;
       this.message = `${status} ${statusText}`;
       this.description = apiResponse || url;
       this.silent = status === 403;
