@@ -103,6 +103,11 @@ export default class Content extends React.Component {
     /* id: yaml */
   };
 
+  elements = {
+
+    editor: undefined,
+  };
+
 
   // antd-specific handlers
   // ------------------------
@@ -157,9 +162,34 @@ export default class Content extends React.Component {
   // editor actions
   // ----------------
 
+  editorOnInit = editor => {
+    const { elements } = this;
+    elements.editor = editor;
+  };
+
   editorOnValue = yaml => {
     const { tabs: { id }} = this.props;
     this.setState({ [id]: yaml });
+  };
+
+  editorOnCursor = cursorPosition => {
+
+    console.log('editorOnCursor', cursorPosition);
+  };
+
+  editorOnScroll = scrollPosition => {
+
+    console.log('editorOnScroll', scrollPosition);
+  };
+
+  editorSetCursor = cursorPosition => {
+    const { editor } = this.elements;
+    editor.setCursorPosition(cursorPosition);
+  };
+
+  editorSetScroll = scrollPosition => {
+    const { editor } = this.elements;
+    editor.setScrollPosition(scrollPosition);
   };
 
 
@@ -248,7 +278,10 @@ export default class Content extends React.Component {
       tabsOnEdit,
       tabsOnClose,
 
+      editorOnInit,
       editorOnValue,
+      editorOnCursor,
+      editorOnScroll,
 
       tabOnOpen,
       tabOnClose,
@@ -355,10 +388,16 @@ export default class Content extends React.Component {
         </Tabs>
         <Editor
           value={yaml}
-          onChange={editorOnValue}
+
+          onValue={editorOnValue}
+          onCursor={editorOnCursor}
+          onScroll={editorOnScroll}
+
           onSave={tabOnSave}
           onClose={tabOnClose}
           onReload={tabOnReload}
+
+          ref={editorOnInit}
         />
         {
           hideEditor &&
