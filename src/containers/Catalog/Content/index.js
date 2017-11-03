@@ -16,9 +16,9 @@ import {
   itemPost,
   itemPut,
   itemDelete,
+  tabsClose,
   tabOpen,
   tabClose,
-  tabCloseAll,
 } from 'modules/k8s';
 
 import Editor from './Editor';
@@ -34,7 +34,7 @@ import css from './index.css';
     itemDelete,
     tabOpen,
     tabClose,
-    tabCloseAll,
+    tabsClose,
   }, dispatch),
 )
 
@@ -48,9 +48,9 @@ export default class Content extends React.Component {
     itemPost: PropTypes.func.isRequired,
     itemPut: PropTypes.func.isRequired,
     itemDelete: PropTypes.func.isRequired,
+    tabsClose: PropTypes.func.isRequired,
     tabOpen: PropTypes.func.isRequired,
     tabClose: PropTypes.func.isRequired,
-    tabCloseAll: PropTypes.func.isRequired,
     defaultTab: PropTypes.string,
   };
 
@@ -148,11 +148,16 @@ export default class Content extends React.Component {
     }
   };
 
+  tabsOnClose = () => {
+
+    this.props.tabsClose();
+  };
+
 
   // editor actions
   // ----------------
 
-  onEdit = yaml => {
+  editorOnValue = yaml => {
     const { tabs: { id }} = this.props;
     this.setState({ [id]: yaml });
   };
@@ -161,40 +166,35 @@ export default class Content extends React.Component {
   // tab actions
   // -------------
 
-  onOpen = () => {
+  tabOnOpen = () => {
 
     this.tabsOnEdit(null, 'add');
   };
 
-  onClose = () => {
+  tabOnClose = () => {
 
     this.tabsOnEdit(this.props.tabs.id, 'remove');
   };
 
-  onCloseAll = () => {
-
-    this.props.tabCloseAll();
-  };
-
-  onDiscard = id => {
+  tabOnDiscard = id => {
 
     this.setState({ [id]: null });
   };
 
-  onReload = () => {
+  tabOnReload = () => {
     const {
       props: {
         tabs: { id },
         itemGet,
       },
-      onDiscard,
+      tabOnDiscard,
     } = this;
 
     return new Promise(resolve => itemGet(id, resolve))
-      .then(() => onDiscard(id));
+      .then(() => tabOnDiscard(id));
   };
 
-  onSave = () => {
+  tabOnSave = () => {
     const {
       props: {
         tabs: { id },
@@ -203,24 +203,24 @@ export default class Content extends React.Component {
         itemPut,
       },
       state: { [id]: yaml },
-      onDiscard,
+      tabOnDiscard,
     } = this;
 
     return new Promise(resolve => (item ? itemPut : itemPost)(id, yaml, resolve))
-      .then(() => onDiscard(id));
+      .then(() => tabOnDiscard(id));
   };
 
-  onDelete = () => {
+  tabOnDelete = () => {
     const {
       props: {
         tabs: { id },
         itemDelete,
       },
-      onDiscard,
+      tabOnDiscard,
     } = this;
 
     return new Promise(resolve => itemDelete(id, resolve))
-      .then(() => onDiscard(id));
+      .then(() => tabOnDiscard(id));
   };
 
 
@@ -228,7 +228,9 @@ export default class Content extends React.Component {
   // ----
 
   render() {
+
     const {
+
       props: {
         items,
         tabs: {
@@ -236,19 +238,23 @@ export default class Content extends React.Component {
           ids: tabIds,
         },
       },
+
       state,
       state: {
         [id]: yamlEdited,
       },
+
       tabsOnChange,
       tabsOnEdit,
-      onEdit,
-      onOpen,
-      onClose,
-      onCloseAll,
-      onReload,
-      onSave,
-      onDelete,
+      tabsOnClose,
+
+      editorOnValue,
+
+      tabOnOpen,
+      tabOnClose,
+      tabOnReload,
+      tabOnSave,
+      tabOnDelete,
     } = this;
 
     const item = items[id];
@@ -286,7 +292,7 @@ export default class Content extends React.Component {
                   shape="circle"
                   icon="plus"
                   size="small"
-                  onClick={onOpen}
+                  onClick={tabOnOpen}
                   title="Open new tab"
                 />
                 <Button
@@ -294,7 +300,7 @@ export default class Content extends React.Component {
                   shape="circle"
                   icon="close"
                   size="small"
-                  onClick={onCloseAll}
+                  onClick={tabsOnClose}
                   disabled={!showCloseAll}
                   title="Close all tabs"
                 />
@@ -305,7 +311,7 @@ export default class Content extends React.Component {
                   shape="circle"
                   icon="reload"
                   size="small"
-                  onClick={onReload}
+                  onClick={tabOnReload}
                   disabled={!item || itemLoading}
                   title="Reload, ⌘⌥R"
                 />
@@ -315,7 +321,7 @@ export default class Content extends React.Component {
                   icon="save"
                   size="small"
                   type="primary"
-                  onClick={onSave}
+                  onClick={tabOnSave}
                   disabled={!dirty || itemLoading}
                   title="Save, ⌘⌥S"
                 />
@@ -323,7 +329,7 @@ export default class Content extends React.Component {
                   placement="bottomRight"
                   title="Are you sure to delete this item?"
                   okText="Yes" cancelText="No"
-                  onConfirm={onDelete}>
+                  onConfirm={tabOnDelete}>
                   <Button
                     className={css.button}
                     shape="circle"
@@ -349,10 +355,10 @@ export default class Content extends React.Component {
         </Tabs>
         <Editor
           value={yaml}
-          onChange={onEdit}
-          onSave={onSave}
-          onClose={onClose}
-          onReload={onReload}
+          onChange={editorOnValue}
+          onSave={tabOnSave}
+          onClose={tabOnClose}
+          onReload={tabOnReload}
         />
         {
           hideEditor &&
