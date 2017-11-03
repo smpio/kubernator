@@ -6,7 +6,6 @@ import css from './index.css';
 
 const PUBLIC_URL = process.env.PUBLIC_URL;
 
-
 export default class Editor extends React.PureComponent {
 
   static propTypes = {
@@ -61,14 +60,17 @@ export default class Editor extends React.PureComponent {
   }
 
   onSave = () => {
+
     this.props.onSave();
   };
 
   onClose = () => {
+
     this.props.onClose();
   };
 
   onReload = () => {
+
     this.props.onReload();
   };
 

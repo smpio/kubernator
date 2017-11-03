@@ -55,6 +55,7 @@ export default class Content extends React.Component {
   };
 
   static defaultProps = {
+
     defaultTab: '',
   };
 
@@ -87,11 +88,8 @@ export default class Content extends React.Component {
     );
   }
 
-  state = {
-    /* id: yaml */
-  };
-
   shouldComponentUpdate(props) {
+
     return !props.flags[IS_LOADING_CATALOG];
   }
 
@@ -100,7 +98,17 @@ export default class Content extends React.Component {
     if (defaultTab) tabOpen(defaultTab);
   }
 
+  state = {
+
+    /* id: yaml */
+  };
+
+
+  // antd-specific handlers
+  // ------------------------
+
   tabsOnChange = id => {
+
     this.props.tabOpen(id);
   };
 
@@ -140,18 +148,38 @@ export default class Content extends React.Component {
     }
   };
 
+
+  // editor actions
+  // ----------------
+
   onEdit = yaml => {
     const { tabs: { id }} = this.props;
     this.setState({ [id]: yaml });
   };
 
-  onDiscard = id => {
-    this.setState({ [id]: null });
+
+  // tab actions
+  // -------------
+
+  onOpen = () => {
+
+    this.tabsOnEdit(null, 'add');
   };
 
-  onOpen = () => this.tabsOnEdit(null, 'add');
-  onClose = () => this.tabsOnEdit(this.props.tabs.id, 'remove');
-  onCloseAll = () => this.props.tabCloseAll();
+  onClose = () => {
+
+    this.tabsOnEdit(this.props.tabs.id, 'remove');
+  };
+
+  onCloseAll = () => {
+
+    this.props.tabCloseAll();
+  };
+
+  onDiscard = id => {
+
+    this.setState({ [id]: null });
+  };
 
   onReload = () => {
     const {
@@ -194,6 +222,10 @@ export default class Content extends React.Component {
     return new Promise(resolve => itemDelete(id, resolve))
       .then(() => onDiscard(id));
   };
+
+
+  // ui
+  // ----
 
   render() {
     const {
