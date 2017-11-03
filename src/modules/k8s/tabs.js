@@ -110,7 +110,7 @@ function* sagaTabOpen() {
       }
 
       //
-      return { id };
+      return { id, yaml };
     },
   );
 }
