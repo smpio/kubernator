@@ -1,3 +1,5 @@
+@import "../../../variables.css";
+
 $animation-duration: .3s;
 
 .content {
@@ -63,18 +65,20 @@ $animation-duration: .3s;
           border-color: transparent;
           margin-right: 1px;
 
+          color: $color-grey-600;
           :local {
-            .tabModified { color: brown; }
-            .tabDetached { color: green; }
+            .tabModified { color: $color-red-300; }
+            .tabDetached { color: $color-green-400; }
           }
         }
 
         .ant-tabs-tab-active {
           border-color: white;
 
+          color: $color-grey-800;
           :local {
-            .tabModified { color: lighten(brown, 10%); }
-            .tabDetached { color: lighten(green, 10%); }
+            .tabModified { color: $color-red-900; }
+            .tabDetached { color: $color-green-800; }
           }
         }
 
