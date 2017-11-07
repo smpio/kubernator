@@ -24,16 +24,21 @@ import {
 // codes
 // -------
 
+export const TABS_CLOSE = `${PREFIX}/TABS_CLOSE`;
+
 export const TAB_OPEN = `${PREFIX}/TAB_OPEN`;
 export const TAB_OPEN__S = `${PREFIX}/TAB_OPEN/S`;
 export const TAB_OPEN__F = `${PREFIX}/TAB_OPEN/F`;
 
 export const TAB_CLOSE = `${PREFIX}/TAB_CLOSE`;
-export const TAB_CLOSEALL = `${PREFIX}/TAB_CLOSEALL`;
 
 
 // creators
 // ----------
+
+export const tabsClose = () => ({
+  type: TABS_CLOSE,
+});
 
 export const tabOpen = (id, yaml, _resolve, _reject) => ({
   type: TAB_OPEN,
@@ -44,10 +49,6 @@ export const tabOpen = (id, yaml, _resolve, _reject) => ({
 export const tabClose = id => ({
   type: TAB_CLOSE,
   payload: { id },
-});
-
-export const tabCloseAll = () => ({
-  type: TAB_CLOSEALL,
 });
 
 
@@ -127,6 +128,15 @@ export function* tabsSaga() {
 
 export const tabsReducer = {
 
+  [TABS_CLOSE]: (state, action) => {
+    return update(state, {
+      tabs: {
+        id: { $set: undefined },
+        ids: { $set: [] },
+      },
+    });
+  },
+
   [TAB_OPEN__S]: (state, action) => {
     const { id } = action.payload;
     return update(state, {
@@ -155,15 +165,6 @@ export const tabsReducer = {
       tabs: {
         id: { $set: idNext },
         ids: { $pop: [idClose] },
-      },
-    });
-  },
-
-  [TAB_CLOSEALL]: (state, action) => {
-    return update(state, {
-      tabs: {
-        id: { $set: undefined },
-        ids: { $set: [] },
       },
     });
   },

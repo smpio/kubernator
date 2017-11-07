@@ -16,9 +16,9 @@ import {
   itemPost,
   itemPut,
   itemDelete,
+  tabsClose,
   tabOpen,
   tabClose,
-  tabCloseAll,
 } from 'modules/k8s';
 
 import Editor from './Editor';
@@ -34,7 +34,7 @@ import css from './index.css';
     itemDelete,
     tabOpen,
     tabClose,
-    tabCloseAll,
+    tabsClose,
   }, dispatch),
 )
 
@@ -48,13 +48,14 @@ export default class Content extends React.Component {
     itemPost: PropTypes.func.isRequired,
     itemPut: PropTypes.func.isRequired,
     itemDelete: PropTypes.func.isRequired,
+    tabsClose: PropTypes.func.isRequired,
     tabOpen: PropTypes.func.isRequired,
     tabClose: PropTypes.func.isRequired,
-    tabCloseAll: PropTypes.func.isRequired,
     defaultTab: PropTypes.string,
   };
 
   static defaultProps = {
+
     defaultTab: '',
   };
 
@@ -87,11 +88,8 @@ export default class Content extends React.Component {
     );
   }
 
-  state = {
-    /* id: yaml */
-  };
-
   shouldComponentUpdate(props) {
+
     return !props.flags[IS_LOADING_CATALOG];
   }
 
@@ -100,8 +98,65 @@ export default class Content extends React.Component {
     if (defaultTab) tabOpen(defaultTab);
   }
 
+  state = {
+
+    /* [id]: yaml */
+  };
+
+  notstate = {
+    // not state to save excessive renders
+    // because monaco doesn't accept these params as react arguments
+    // and should be manipulated directly instead
+
+    cursorPositions: {
+      /*
+        [id]: {
+          lineNumber: Number,
+          column: Number,
+        }
+      */
+    },
+
+    scrollPositions: {
+      /*
+        [id]: {
+          scrollTop: Number,
+          scrolleft: Number,
+        }
+      */
+    },
+  };
+
+  elements = {
+
+    editor: undefined,
+  };
+
+
+  // antd-specific handlers
+  // ------------------------
+
   tabsOnChange = id => {
-    this.props.tabOpen(id);
+    const {
+      props: {
+        tabOpen,
+      },
+      notstate: {
+        cursorPositions: { [id]: cursorPosition },
+        scrollPositions: { [id]: scrollPosition },
+      },
+      editorSetCursor,
+      editorSetScroll,
+      editorSetFocus,
+    } = this;
+
+    tabOpen(id, null, () => {
+      setTimeout(() => {
+        if (cursorPosition) editorSetCursor(cursorPosition);
+        if (scrollPosition) editorSetScroll(scrollPosition);
+        editorSetFocus();
+      });
+    });
   };
 
   tabsOnEdit = (id, action) => {
@@ -140,33 +195,89 @@ export default class Content extends React.Component {
     }
   };
 
-  onEdit = yaml => {
-    const { tabs: { id }} = this.props;
-    this.setState({ [id]: yaml });
+  tabsOnClose = () => {
+
+    this.props.tabsClose();
   };
 
-  onDiscard = id => {
+
+  // editor actions
+  // ----------------
+
+  editorOnInit = editor => {
+    const { elements } = this;
+    elements.editor = editor;
+  };
+
+  editorOnValue = yaml => {
+    const { tabs: { id }} = this.props;
+    if (id) this.setState({ [id]: yaml });
+  };
+
+  editorOnCursor = cursorPosition => {
+    const {
+      props: { tabs: { id } },
+      notstate: { cursorPositions },
+    } = this;
+    if (id) cursorPositions[id] = cursorPosition;
+  };
+
+  editorOnScroll = scrollPosition => {
+    const {
+      props: { tabs: { id } },
+      notstate: { scrollPositions },
+    } = this;
+    if (id) scrollPositions[id] = scrollPosition;
+  };
+
+  editorSetFocus = () => {
+    const { editor } = this.elements;
+    editor.setFocus();
+  };
+
+  editorSetCursor = cursorPosition => {
+    const { editor } = this.elements;
+    editor.setCursorPosition(cursorPosition);
+  };
+
+  editorSetScroll = scrollPosition => {
+    const { editor } = this.elements;
+    editor.setScrollPosition(scrollPosition);
+  };
+
+
+  // tab actions
+  // -------------
+
+  tabOnOpen = () => {
+
+    this.tabsOnEdit(null, 'add');
+  };
+
+  tabOnClose = () => {
+
+    this.tabsOnEdit(this.props.tabs.id, 'remove');
+  };
+
+  tabOnDiscard = id => {
+
     this.setState({ [id]: null });
   };
 
-  onOpen = () => this.tabsOnEdit(null, 'add');
-  onClose = () => this.tabsOnEdit(this.props.tabs.id, 'remove');
-  onCloseAll = () => this.props.tabCloseAll();
-
-  onReload = () => {
+  tabOnReload = () => {
     const {
       props: {
         tabs: { id },
         itemGet,
       },
-      onDiscard,
+      tabOnDiscard,
     } = this;
 
     return new Promise(resolve => itemGet(id, resolve))
-      .then(() => onDiscard(id));
+      .then(() => tabOnDiscard(id));
   };
 
-  onSave = () => {
+  tabOnSave = () => {
     const {
       props: {
         tabs: { id },
@@ -175,28 +286,34 @@ export default class Content extends React.Component {
         itemPut,
       },
       state: { [id]: yaml },
-      onDiscard,
+      tabOnDiscard,
     } = this;
 
     return new Promise(resolve => (item ? itemPut : itemPost)(id, yaml, resolve))
-      .then(() => onDiscard(id));
+      .then(() => tabOnDiscard(id));
   };
 
-  onDelete = () => {
+  tabOnDelete = () => {
     const {
       props: {
         tabs: { id },
         itemDelete,
       },
-      onDiscard,
+      tabOnDiscard,
     } = this;
 
     return new Promise(resolve => itemDelete(id, resolve))
-      .then(() => onDiscard(id));
+      .then(() => tabOnDiscard(id));
   };
 
+
+  // ui
+  // ----
+
   render() {
+
     const {
+
       props: {
         items,
         tabs: {
@@ -204,19 +321,26 @@ export default class Content extends React.Component {
           ids: tabIds,
         },
       },
+
       state,
       state: {
         [id]: yamlEdited,
       },
+
       tabsOnChange,
       tabsOnEdit,
-      onEdit,
-      onOpen,
-      onClose,
-      onCloseAll,
-      onReload,
-      onSave,
-      onDelete,
+      tabsOnClose,
+
+      editorOnInit,
+      editorOnValue,
+      editorOnCursor,
+      editorOnScroll,
+
+      tabOnOpen,
+      tabOnClose,
+      tabOnReload,
+      tabOnSave,
+      tabOnDelete,
     } = this;
 
     const item = items[id];
@@ -254,7 +378,7 @@ export default class Content extends React.Component {
                   shape="circle"
                   icon="plus"
                   size="small"
-                  onClick={onOpen}
+                  onClick={tabOnOpen}
                   title="Open new tab"
                 />
                 <Button
@@ -262,7 +386,7 @@ export default class Content extends React.Component {
                   shape="circle"
                   icon="close"
                   size="small"
-                  onClick={onCloseAll}
+                  onClick={tabsOnClose}
                   disabled={!showCloseAll}
                   title="Close all tabs"
                 />
@@ -273,7 +397,7 @@ export default class Content extends React.Component {
                   shape="circle"
                   icon="reload"
                   size="small"
-                  onClick={onReload}
+                  onClick={tabOnReload}
                   disabled={!item || itemLoading}
                   title="Reload, ⌘⌥R"
                 />
@@ -283,7 +407,7 @@ export default class Content extends React.Component {
                   icon="save"
                   size="small"
                   type="primary"
-                  onClick={onSave}
+                  onClick={tabOnSave}
                   disabled={!dirty || itemLoading}
                   title="Save, ⌘⌥S"
                 />
@@ -291,7 +415,7 @@ export default class Content extends React.Component {
                   placement="bottomRight"
                   title="Are you sure to delete this item?"
                   okText="Yes" cancelText="No"
-                  onConfirm={onDelete}>
+                  onConfirm={tabOnDelete}>
                   <Button
                     className={css.button}
                     shape="circle"
@@ -317,10 +441,16 @@ export default class Content extends React.Component {
         </Tabs>
         <Editor
           value={yaml}
-          onChange={onEdit}
-          onSave={onSave}
-          onClose={onClose}
-          onReload={onReload}
+
+          onValue={editorOnValue}
+          onCursor={editorOnCursor}
+          onScroll={editorOnScroll}
+
+          onSave={tabOnSave}
+          onClose={tabOnClose}
+          onReload={tabOnReload}
+
+          ref={editorOnInit}
         />
         {
           hideEditor &&
