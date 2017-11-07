@@ -184,11 +184,6 @@ export default class Editor extends React.PureComponent {
   // ui
   // ----
 
-  focus = () => {
-    const { editor } = this.state;
-    editor.focus();
-  };
-
   setCursorPosition = cursorPosition => {
     /*
       cursorPosition is {
@@ -209,6 +204,11 @@ export default class Editor extends React.PureComponent {
     */
     const { editor } = this.state;
     editor.setScrollPosition(scrollPosition);
+  };
+
+  setFocus = () => {
+    const { editor } = this.state;
+    editor.focus();
   };
 
   render() {
