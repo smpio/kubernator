@@ -184,6 +184,11 @@ export default class Editor extends React.PureComponent {
   // ui
   // ----
 
+  focus = () => {
+    const { editor } = this.state;
+    editor.focus();
+  };
+
   setCursorPosition = cursorPosition => {
     /*
       cursorPosition is {

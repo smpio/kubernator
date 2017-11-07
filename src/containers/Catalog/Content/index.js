@@ -100,7 +100,31 @@ export default class Content extends React.Component {
 
   state = {
 
-    /* id: yaml */
+    /* [id]: yaml */
+  };
+
+  notstate = {
+    // not state to save excessive renders
+    // because monaco doesn't accept these params as react arguments
+    // and should be manipulated directly instead
+
+    cursorPositions: {
+      /*
+        [id]: {
+          lineNumber: Number,
+          column: Number,
+        }
+      */
+    },
+
+    scrollPositions: {
+      /*
+        [id]: {
+          scrollTop: Number,
+          scrolleft: Number,
+        }
+      */
+    },
   };
 
   elements = {
@@ -113,8 +137,26 @@ export default class Content extends React.Component {
   // ------------------------
 
   tabsOnChange = id => {
+    const {
+      props: {
+        tabOpen,
+      },
+      notstate: {
+        cursorPositions: { [id]: cursorPosition },
+        scrollPositions: { [id]: scrollPosition },
+      },
+      editorSetCursor,
+      editorSetScroll,
+      editorFocus,
+    } = this;
 
-    this.props.tabOpen(id);
+    tabOpen(id, null, () => {
+      setTimeout(() => {
+        if (cursorPosition) editorSetCursor(cursorPosition);
+        if (scrollPosition) editorSetScroll(scrollPosition);
+        editorFocus();
+      });
+    });
   };
 
   tabsOnEdit = (id, action) => {
@@ -169,17 +211,28 @@ export default class Content extends React.Component {
 
   editorOnValue = yaml => {
     const { tabs: { id }} = this.props;
-    this.setState({ [id]: yaml });
+    if (id) this.setState({ [id]: yaml });
   };
 
   editorOnCursor = cursorPosition => {
-
-    console.log('editorOnCursor', cursorPosition);
+    const {
+      props: { tabs: { id } },
+      notstate: { cursorPositions },
+    } = this;
+    if (id) cursorPositions[id] = cursorPosition;
   };
 
   editorOnScroll = scrollPosition => {
+    const {
+      props: { tabs: { id } },
+      notstate: { scrollPositions },
+    } = this;
+    if (id) scrollPositions[id] = scrollPosition;
+  };
 
-    console.log('editorOnScroll', scrollPosition);
+  editorFocus = () => {
+    const { editor } = this.elements;
+    editor.focus();
   };
 
   editorSetCursor = cursorPosition => {
