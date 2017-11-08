@@ -51,12 +51,6 @@ export default class Content extends React.Component {
     tabsClose: PropTypes.func.isRequired,
     tabOpen: PropTypes.func.isRequired,
     tabClose: PropTypes.func.isRequired,
-    defaultTab: PropTypes.string,
-  };
-
-  static defaultProps = {
-
-    defaultTab: '',
   };
 
   static renderTab(props) {
@@ -91,11 +85,6 @@ export default class Content extends React.Component {
   shouldComponentUpdate(props) {
 
     return !props.flags[IS_LOADING_CATALOG];
-  }
-
-  componentDidMount() {
-    const { defaultTab, tabOpen } = this.props;
-    if (defaultTab) tabOpen(defaultTab);
   }
 
   state = {
