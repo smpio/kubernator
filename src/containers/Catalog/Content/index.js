@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import throttle from 'react-throttle-render';
 
 import { Tabs, Button, Popconfirm } from 'antd';
 import classnames from 'classnames';
@@ -11,7 +12,8 @@ import {
   PREFIX,
   LOADING,
   YAML,
-  IS_LOADING_CATALOG,
+  CATALOG_LOADING_STAGE,
+  UI_THROTTLE,
   itemGet,
   itemPost,
   itemPut,
@@ -38,6 +40,7 @@ import css from './index.css';
   }, dispatch),
 )
 
+@throttle(UI_THROTTLE)
 export default class Content extends React.Component {
 
   static propTypes = {
@@ -84,7 +87,7 @@ export default class Content extends React.Component {
 
   shouldComponentUpdate(props) {
 
-    return !props.flags[IS_LOADING_CATALOG];
+    return !props.flags[CATALOG_LOADING_STAGE];
   }
 
   state = {

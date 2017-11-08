@@ -4,7 +4,10 @@ import update from 'immutability-helper';
 import {
   PREFIX,
   RESOURCE_IDS,
-  IS_LOADING_CATALOG,
+  CATALOG_LOADING_STAGE,
+  CATALOG_LOADING_STAGE_GROUPS,
+  CATALOG_LOADING_STAGE_RESOURCES,
+  CATALOG_LOADING_STAGE_NAMESPACES,
   NO_GROUP,
   NO_NAMESPACE,
   putTake,
@@ -114,7 +117,7 @@ function* sagaCatalogGet() {
       if (!groups) {
         yield put({
           type: CATALOG_GET__,
-          payload: { stage: 'groups' },
+          payload: { stage: CATALOG_LOADING_STAGE_GROUPS },
         });
         groups = (yield putTake(groupsGet(), [GROUPS_GET__S, GROUPS_GET__F])).payload.groups;
       }
@@ -122,7 +125,7 @@ function* sagaCatalogGet() {
       // resources <- [state] <- [storage] <- [api]
       yield put({
         type: CATALOG_GET__,
-        payload: { stage: 'resources' },
+        payload: { stage: CATALOG_LOADING_STAGE_RESOURCES },
       });
       yield all(groups
         .filter(group => !group[RESOURCE_IDS].length)
@@ -135,7 +138,7 @@ function* sagaCatalogGet() {
       if (!namespaces) {
         yield put({
           type: CATALOG_GET__,
-          payload: { stage: 'namespaces' },
+          payload: { stage: CATALOG_LOADING_STAGE_NAMESPACES },
         });
         yield putTake(namespacesGet(), [NAMESPACES_GET__S, NAMESPACES_GET__F]);
       }
@@ -261,7 +264,7 @@ export const comboReducer = {
     const { stage } = action.payload;
     return update(state, {
       flags: {
-        [IS_LOADING_CATALOG]: { $set: stage },
+        [CATALOG_LOADING_STAGE]: { $set: stage },
       },
     });
   },
@@ -269,7 +272,7 @@ export const comboReducer = {
   [CATALOG_GET__S]: (state, action) => {
     return update(state, {
       flags: {
-        [IS_LOADING_CATALOG]: { $set: null },
+        [CATALOG_LOADING_STAGE]: { $set: null },
       },
     });
   },

@@ -3,7 +3,6 @@ import { createSelector } from 'reselect';
 import {
   ITEM_IDS,
   IS_LISTABLE,
-  IS_LOADING_CATALOG,
   NO_NAMESPACE,
 } from '../../../modules/k8s';
 
@@ -112,10 +111,7 @@ function buildNamespaces(argsGlobal) {
     .sort(sortByName);
 }
 
-const selectFlags = state => ({
-  loadingStage: state.flags[IS_LOADING_CATALOG],
-});
-
+const selectFlags = state => state.flags;
 const selectNamespaces = state => state.namespaces;
 const selectResources = state => state.resources;
 const selectItems = state => state.items;

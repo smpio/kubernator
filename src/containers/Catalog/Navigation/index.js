@@ -9,6 +9,10 @@ import { Button, Tree as TreeRoot, Spin } from 'antd';
 import {
   PREFIX,
   ID,
+  CATALOG_LOADING_STAGE,
+  CATALOG_LOADING_STAGE_GROUPS,
+  CATALOG_LOADING_STAGE_RESOURCES,
+  CATALOG_LOADING_STAGE_NAMESPACES,
   UI_THROTTLE,
   catalogGet,
   namespaceItemsGet,
@@ -37,8 +41,7 @@ const TreeNode = TreeRoot.TreeNode;
   }, dispatch),
 )
 
-@throttle(UI_THROTTLE)
-
+@throttle(UI_THROTTLE * 4)
 export default class Navigation extends React.Component {
 
   static propTypes = {
@@ -53,17 +56,21 @@ export default class Navigation extends React.Component {
     tabOpen: PropTypes.func.isRequired,
   };
 
+  static loadingStageLabels = {
+    [CATALOG_LOADING_STAGE_GROUPS]: 'groups',
+    [CATALOG_LOADING_STAGE_RESOURCES]: 'resources',
+    [CATALOG_LOADING_STAGE_NAMESPACES]: 'namespaces',
+  };
+
   constructor(props) {
     super(props);
     this.state = { expandedKeys: [] };
   }
 
   shouldComponentUpdate(props) {
-    const { loadingStage } = props.flags;
-    const { loadingStage: loadingStagePrev } = this.props.flags;
-
-    if (loadingStage) return loadingStage !== loadingStagePrev;
-    else return true;
+    const { [CATALOG_LOADING_STAGE]: loadingStageCurrent } = props.flags;
+    const { [CATALOG_LOADING_STAGE]: loadingStagePrevious } = this.props.flags;
+    return loadingStageCurrent ? loadingStageCurrent !== loadingStagePrevious : true;
   }
 
   componentDidMount() {
@@ -167,10 +174,11 @@ export default class Navigation extends React.Component {
   };
 
   render() {
+
     const {
       props: {
         flags: {
-          loadingStage,
+          [CATALOG_LOADING_STAGE]: loadingStage,
         },
         catalog,
       },
@@ -189,7 +197,7 @@ export default class Navigation extends React.Component {
         {
           loadingStage &&
           <div className={css.spinner}>
-            <Spin tip={loadingStage} />
+            <Spin tip={Navigation.loadingStageLabels[loadingStage]} />
           </div>
         }
         {
