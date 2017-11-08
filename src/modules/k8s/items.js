@@ -138,6 +138,14 @@ function itemApiDelete(url) {
     url,
     {
       method: 'DELETE',
+      body: JSON.stringify({
+        apiVersion: 'v1',
+        kind: 'DeleteOptions',
+        propagationPolicy: 'Foreground',
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
     },
   );
 }
