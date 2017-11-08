@@ -23,7 +23,11 @@ export const ITEM_IDS = Symbol('ITEM_IDS');
 
 export const IS_READONLY = Symbol('IS_READONLY');
 export const IS_LISTABLE = Symbol('IS_LISTABLE');
-export const IS_LOADING_CATALOG = Symbol('IS_LOADING_CATALOG');
+
+export const CATALOG_LOADING_STAGE = Symbol('CATALOG_LOADING_STAGE');
+export const CATALOG_LOADING_STAGE_GROUPS = Symbol('CATALOG_LOADING_STAGE_GROUPS');
+export const CATALOG_LOADING_STAGE_RESOURCES = Symbol('CATALOG_LOADING_STAGE_RESOURCES');
+export const CATALOG_LOADING_STAGE_NAMESPACES = Symbol('CATALOG_LOADING_STAGE_NAMESPACES');
 
 export const URL_PART_GROUP = Symbol('URL_PART_GROUP');
 export const URL_PART_RESOURCE = Symbol('URL_PART_RESOURCE');
@@ -32,7 +36,7 @@ export const NO_GROUP = '[nogroup]';
 export const NO_NAMESPACE = '[nonamespace]';
 export const NO_UID = '[nouid]';
 
-export const UI_THROTTLE = 500;
+export const UI_THROTTLE = 100;
 
 export async function apiFetch(url, options = {}, parser = 'json') {
   const netResponse = await fetch(url, options);
