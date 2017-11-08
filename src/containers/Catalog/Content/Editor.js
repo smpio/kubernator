@@ -192,7 +192,7 @@ export default class Editor extends React.PureComponent {
       }
     */
     const { editor } = this.state;
-    editor.setPosition(cursorPosition);
+    if (editor) editor.setPosition(cursorPosition);
   };
 
   setScrollPosition = scrollPosition => {
@@ -203,22 +203,26 @@ export default class Editor extends React.PureComponent {
       }
     */
     const { editor } = this.state;
-    editor.setScrollPosition(scrollPosition);
+    if (editor) editor.setScrollPosition(scrollPosition);
   };
 
   setFocus = () => {
     const { editor } = this.state;
-    editor.focus();
+    if (editor) editor.focus();
   };
 
   render() {
+
     const {
       props: {
         value = '',
         onValue,
       },
       onMount,
+      setFocus,
     } = this;
+
+    setTimeout(setFocus);
     return (
       <div className={css.editor}>
         <MonacoEditor

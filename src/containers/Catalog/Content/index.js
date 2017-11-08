@@ -147,14 +147,12 @@ export default class Content extends React.Component {
       },
       editorSetCursor,
       editorSetScroll,
-      editorSetFocus,
     } = this;
 
     tabOpen(id, null, () => {
       setTimeout(() => {
         if (cursorPosition) editorSetCursor(cursorPosition);
         if (scrollPosition) editorSetScroll(scrollPosition);
-        editorSetFocus();
       });
     });
   };
