@@ -58,13 +58,6 @@ export default class Editor extends React.PureComponent {
     tabSize: 2,
   };
 
-  static KeyCode = {
-    Ctrl: 256,
-    Alt: 512,
-    Shift: 1024,
-    Meta: 2048,
-  };
-
 
   // init
   // ------
@@ -93,13 +86,22 @@ export default class Editor extends React.PureComponent {
       onReload,
     } = this;
 
-    const { Meta, Alt } = Editor.KeyCode;
-    const { KEY_S, KEY_C, KEY_R } = monaco.KeyCode;
+    const {
+      KeyMod: {
+        Alt,
+        CtrlCmd,
+      },
+      KeyCode: {
+        KEY_S,
+        KEY_C,
+        KEY_R,
+      },
+    } = monaco;
 
     /* eslint-disable no-bitwise */
-    editor.addCommand(Meta | Alt | KEY_S, onSave);
-    editor.addCommand(Meta | Alt | KEY_C, onClose);
-    editor.addCommand(Meta | Alt | KEY_R, onReload);
+    editor.addCommand(CtrlCmd | Alt | KEY_S, onSave);
+    editor.addCommand(CtrlCmd | Alt | KEY_C, onClose);
+    editor.addCommand(CtrlCmd | Alt | KEY_R, onReload);
     /* eslint-enable no-bitwise */
 
 
