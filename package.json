@@ -1,6 +1,6 @@
 {
   "name": "kube-browser",
-  "version": "0.8.3",
+  "version": "0.9.0",
   "private": true,
   "dependencies": {
     "@uqee/immutability-helper-x": "^0.2.1",
