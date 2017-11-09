@@ -64,11 +64,14 @@ function* sagaModelsGet() {
       // get models
       let models;
       try { models = (yield call(cacheGet, `/swaggerapi${group[URL]}`)).models; }
-      catch (error) {
-        throw !(error instanceof NotiErrorApi) || error.code !== 404 ? error : {
-          title: group.name,
-          message: 'No swagger schemas provided. Removing readonly properties for items in this group won\'t work.',
-        };
+      catch (e) {
+        if (!(e instanceof NotiErrorApi && e.code === 404)) throw e;
+        else {
+          const error = new Error();
+          error.title = group.name;
+          error.message = 'No swagger schemas provided. Removing readonly properties for items in this group won\'t work.';
+          throw error;
+        }
       }
 
       // process models
