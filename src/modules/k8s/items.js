@@ -1,6 +1,11 @@
 import { all, call, put, select } from 'redux-saga/effects';
 import update from 'immutability-helper';
 import jsYaml from 'js-yaml';
+import DiffMatchPatch from 'diff-match-patch';
+
+import {
+  NotiErrorApi,
+} from '../../middleware/notifications';
 
 import {
   toKeysObject,
@@ -32,6 +37,12 @@ import {
   tabOpen,
   tabClose,
 } from './tabs';
+
+import {
+  messageShow,
+} from './messages';
+
+const diffMatchPatch = new DiffMatchPatch();
 
 
 // action codes
@@ -259,6 +270,8 @@ function* sagaItemPut() {
     function* (action) {
       const { id } = action.payload;
       let { yaml } = action.payload;
+      let item;
+      let diff;
 
       //
       const {
@@ -267,18 +280,65 @@ function* sagaItemPut() {
       } = yield select(itemSelect, id);
       const resource = yield select(resourceSelect, resourceId);
 
-      // put
-      const item = yield call(itemApiPut, url, yaml);
-      if (item.status === 'Failure') throw item;
+      // try to put
+      try { item = yield call(itemApiPut, url, yaml); }
 
-      // decorate item
-      itemDecorate(resource)(item);
+      // on failure
+      catch (e) {
 
-      // sync yaml
-      yaml = yield call(itemApiGetYaml, url);
+        // on unknown error do nothing
+        if (!(e instanceof NotiErrorApi && e.code === 409)) throw e;
+
+        // on conflict
+        else {
+
+          // show warning
+          yield put(
+            messageShow({
+              title: e.message,
+              message: e.description,
+            })
+          );
+
+          // save yaml versions
+          const versionLocal = yaml;
+          const versionRemote = yield call(itemApiGetYaml, url);
+
+          // calc a difference
+          diff = diffMatchPatch.diff_main(versionLocal, versionRemote)
+            .reduce(
+              (result, chunk) => {
+                const [type, text] = chunk;
+                switch (type) {
+                  case 0: return `${result}${text}`;
+                  case 1: return `${result}\n+++\n${text}\n+++\n`;
+                  case -1: return `${result}\n---\n${text}\n---\n`;
+                  default: return result;
+                }
+              },
+              '',
+            );
+
+          // get item from cache
+          item = yield select(itemSelect, id);
+
+          // sync yaml
+          yaml = versionRemote;
+        }
+      }
+
+      // on success
+      if (!diff) {
+
+        // decorate item
+        itemDecorate(resource)(item);
+
+        // sync yaml
+        yaml = yield call(itemApiGetYaml, url);
+      }
 
       //
-      return { id, item, yaml };
+      return { id, item, yaml, diff };
     },
   );
 }

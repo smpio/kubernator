@@ -249,22 +249,11 @@ export default class Content extends React.Component {
     this.tabsOnEdit(this.props.tabs.id, 'remove');
   };
 
-  tabOnDiscard = id => {
-
-    this.setState({ [id]: null });
-  };
-
   tabOnReload = () => {
-    const {
-      props: {
-        tabs: { id },
-        itemGet,
-      },
-      tabOnDiscard,
-    } = this;
+    const { tabs: { id }, itemGet } = this;
 
     return new Promise(resolve => itemGet(id, resolve))
-      .then(() => tabOnDiscard(id));
+      .then(() => this.setState({ [id]: null }));
   };
 
   tabOnSave = () => {
@@ -276,24 +265,17 @@ export default class Content extends React.Component {
         itemPut,
       },
       state: { [id]: yaml },
-      tabOnDiscard,
     } = this;
 
     return new Promise(resolve => (item ? itemPut : itemPost)(id, yaml, resolve))
-      .then(() => tabOnDiscard(id));
+      .then(({ diff }) => this.setState({ [id]: diff || null }));
   };
 
   tabOnDelete = () => {
-    const {
-      props: {
-        tabs: { id },
-        itemDelete,
-      },
-      tabOnDiscard,
-    } = this;
+    const { tabs: { id }, itemDelete } = this.props;
 
     return new Promise(resolve => itemDelete(id, resolve))
-      .then(() => tabOnDiscard(id));
+      .then(() => this.setState({ [id]: null }));
   };
 
 
