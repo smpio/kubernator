@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import throttle from 'react-throttle-render';
 
 import { Tabs, Button, Popconfirm } from 'antd';
 import classnames from 'classnames';
@@ -13,7 +12,6 @@ import {
   LOADING,
   YAML,
   CATALOG_LOADING_STAGE,
-  UI_THROTTLE,
   itemGet,
   itemPost,
   itemPut,
@@ -40,7 +38,6 @@ import css from './index.css';
   }, dispatch),
 )
 
-@throttle(UI_THROTTLE)
 export default class Content extends React.Component {
 
   static propTypes = {
