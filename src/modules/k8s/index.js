@@ -44,6 +44,7 @@ export * from './models';
 export * from './items';
 export * from './tabs';
 export * from './combo';
+export * from './messages';
 
 export function* saga() {
   yield all([

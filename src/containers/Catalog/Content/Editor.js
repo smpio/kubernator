@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import MonacoEditor from 'react-monaco-editor';
+import MonacoEditor from 'react-monaco-editor/lib/diff';
 
 import css from './index.css';
 
@@ -11,6 +11,7 @@ const NOOP = () => {};
 export default class Editor extends React.PureComponent {
 
   static propTypes = {
+    original: PropTypes.string,
     value: PropTypes.string,
 
     onValue: PropTypes.func,
@@ -34,14 +35,16 @@ export default class Editor extends React.PureComponent {
     onReload: NOOP,
   };
 
-  static requireConfig = {
+  static optionsRequire = {
     // cp node_modules/monaco-editor public/monaco-editor
     url: `${PUBLIC_URL}/monaco-editor/min/vs/loader.js`,
     paths: { 'vs': `${PUBLIC_URL}/monaco-editor/min/vs` },
   };
 
-  static editorOptions = {
+  static optionsEditor = {
     // https://github.com/Microsoft/monaco-editor/blob/master/website/playground/monaco.d.ts.txt#L1103
+
+    // simple
     folding: true,
     wordWrap: true,
     wrappingIndent: 'same',
@@ -51,9 +54,14 @@ export default class Editor extends React.PureComponent {
     //renderIndentGuides: true,
     //readOnly: false,
     automaticLayout: true,
+
+    // diff
+    renderSideBySide: false,
+    //enableSplitViewResizing: true,
+    //originalEditable: false,
   };
 
-  static modelOptions = {
+  static optionsModel = {
 
     tabSize: 2,
   };
@@ -67,14 +75,15 @@ export default class Editor extends React.PureComponent {
     monaco: undefined,
   };
 
-  onMount = (editor, monaco) => {
+  onMount = (instance, monaco) => {
+    const editor = instance.modifiedEditor || instance;
 
 
     // model options
     // ---------------
 
-    editor.getModel()
-      .updateOptions(Editor.modelOptions);
+    const models = monaco.editor.getModels();
+    models.forEach(model => model.updateOptions(Editor.optionsModel));
 
 
     // key bindings
@@ -214,9 +223,9 @@ export default class Editor extends React.PureComponent {
   };
 
   render() {
-
     const {
       props: {
+        original,
         value = '',
         onValue,
       },
@@ -228,12 +237,13 @@ export default class Editor extends React.PureComponent {
     return (
       <div className={css.editor}>
         <MonacoEditor
-          requireConfig={Editor.requireConfig}
-          options={Editor.editorOptions}
+          requireConfig={Editor.optionsRequire}
+          options={Editor.optionsEditor}
           editorDidMount={onMount}
           width="auto"
           height="auto"
           language="yaml"
+          original={original}
           value={value}
           onChange={onValue}
         />

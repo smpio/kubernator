@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import throttle from 'react-throttle-render';
 
 import { Tabs, Button, Popconfirm } from 'antd';
 import classnames from 'classnames';
@@ -13,7 +12,6 @@ import {
   LOADING,
   YAML,
   CATALOG_LOADING_STAGE,
-  UI_THROTTLE,
   itemGet,
   itemPost,
   itemPut,
@@ -40,7 +38,6 @@ import css from './index.css';
   }, dispatch),
 )
 
-@throttle(UI_THROTTLE)
 export default class Content extends React.Component {
 
   static propTypes = {
@@ -249,22 +246,10 @@ export default class Content extends React.Component {
     this.tabsOnEdit(this.props.tabs.id, 'remove');
   };
 
-  tabOnDiscard = id => {
-
-    this.setState({ [id]: null });
-  };
-
   tabOnReload = () => {
-    const {
-      props: {
-        tabs: { id },
-        itemGet,
-      },
-      tabOnDiscard,
-    } = this;
-
+    const { tabs: { id }, itemGet } = this.props;
     return new Promise(resolve => itemGet(id, resolve))
-      .then(() => tabOnDiscard(id));
+      .then(() => this.setState({ [id]: null }));
   };
 
   tabOnSave = () => {
@@ -276,24 +261,19 @@ export default class Content extends React.Component {
         itemPut,
       },
       state: { [id]: yaml },
-      tabOnDiscard,
     } = this;
 
     return new Promise(resolve => (item ? itemPut : itemPost)(id, yaml, resolve))
-      .then(() => tabOnDiscard(id));
+      .then(payload => {
+        const { conflict } = payload;
+        if (!conflict) this.setState({ [id]: null });
+      });
   };
 
   tabOnDelete = () => {
-    const {
-      props: {
-        tabs: { id },
-        itemDelete,
-      },
-      tabOnDiscard,
-    } = this;
-
+    const { tabs: { id }, itemDelete } = this.props;
     return new Promise(resolve => itemDelete(id, resolve))
-      .then(() => tabOnDiscard(id));
+      .then(() => this.setState({ [id]: null }));
   };
 
 
@@ -305,10 +285,17 @@ export default class Content extends React.Component {
     const {
 
       props: {
-        items,
         tabs: {
           id,
           ids: tabIds,
+        },
+        items,
+        items: {
+          [id]: item,
+          [id]: {
+            [LOADING]: itemLoading,
+            [YAML]: yamlOriginal,
+          } = {},
         },
       },
 
@@ -333,17 +320,11 @@ export default class Content extends React.Component {
       tabOnDelete,
     } = this;
 
-    const item = items[id];
-    const yamlOriginal = item && item[YAML];
-
-    const dirty = yamlEdited && yamlEdited !== yamlOriginal;
-    const yaml = yamlEdited || yamlOriginal;
+    const isEdited = yamlEdited && (yamlEdited !== yamlOriginal);
 
     const hideTabs = false;
     const hideEditor = !tabIds.length;
-
-    const showCloseAll = !!tabIds.length;
-    const itemLoading = item && item[LOADING];
+    const hideCloseAll = !tabIds.length;
 
     return (
       <div
@@ -377,7 +358,7 @@ export default class Content extends React.Component {
                   icon="close"
                   size="small"
                   onClick={tabsOnClose}
-                  disabled={!showCloseAll}
+                  disabled={hideCloseAll}
                   title="Close all tabs"
                 />
               </span>
@@ -398,7 +379,7 @@ export default class Content extends React.Component {
                   size="small"
                   type="primary"
                   onClick={tabOnSave}
-                  disabled={!dirty || itemLoading}
+                  disabled={!isEdited || itemLoading}
                   title="Save, ⌘⌥S"
                 />
                 <Popconfirm
@@ -430,7 +411,10 @@ export default class Content extends React.Component {
           }
         </Tabs>
         <Editor
-          value={yaml}
+          ref={editorOnInit}
+
+          original={yamlOriginal}
+          value={yamlEdited || yamlOriginal}
 
           onValue={editorOnValue}
           onCursor={editorOnCursor}
@@ -439,8 +423,6 @@ export default class Content extends React.Component {
           onSave={tabOnSave}
           onClose={tabOnClose}
           onReload={tabOnReload}
-
-          ref={editorOnInit}
         />
         {
           hideEditor &&

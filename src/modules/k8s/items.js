@@ -3,6 +3,10 @@ import update from 'immutability-helper';
 import jsYaml from 'js-yaml';
 
 import {
+  NotiErrorApi,
+} from '../../middleware/notifications';
+
+import {
   toKeysObject,
   toKeysArray,
 } from '../../utils';
@@ -32,6 +36,10 @@ import {
   tabOpen,
   tabClose,
 } from './tabs';
+
+import {
+  messageShow,
+} from './messages';
 
 
 // action codes
@@ -267,18 +275,37 @@ function* sagaItemPut() {
       } = yield select(itemSelect, id);
       const resource = yield select(resourceSelect, resourceId);
 
-      // put
-      const item = yield call(itemApiPut, url, yaml);
-      if (item.status === 'Failure') throw item;
+      // try to put
+      let item;
+      try { item = yield call(itemApiPut, url, yaml); }
+      catch (e) {
+        if (!(e instanceof NotiErrorApi && e.code === 409)) throw e;
+        else {
 
-      // decorate item
-      itemDecorate(resource)(item);
+          // on conflict
+          // show warning instead of error
+          // and proceed
+          yield put(
+            messageShow({
+              title: e.message,
+              message: e.description,
+            })
+          );
+        }
+      }
+
+      //
+      const conflict = !item;
+
+      // process item
+      if (item) itemDecorate(resource)(item);
+      else item = yield select(itemSelect, id);
 
       // sync yaml
       yaml = yield call(itemApiGetYaml, url);
 
       //
-      return { id, item, yaml };
+      return { id, item, yaml, conflict };
     },
   );
 }
