@@ -287,10 +287,17 @@ export default class Content extends React.Component {
     const {
 
       props: {
-        items,
         tabs: {
           id,
           ids: tabIds,
+        },
+        items,
+        items: {
+          [id]: item,
+          [id]: {
+            [LOADING]: itemLoading,
+            [YAML]: yamlOriginal,
+          } = {},
         },
       },
 
@@ -315,17 +322,11 @@ export default class Content extends React.Component {
       tabOnDelete,
     } = this;
 
-    const item = items[id];
-    const yamlOriginal = item && item[YAML];
-
-    const dirty = yamlEdited && yamlEdited !== yamlOriginal;
-    const yaml = yamlEdited || yamlOriginal;
+    const isEdited = yamlEdited && (yamlEdited !== yamlOriginal);
 
     const hideTabs = false;
     const hideEditor = !tabIds.length;
-
-    const showCloseAll = !!tabIds.length;
-    const itemLoading = item && item[LOADING];
+    const hideCloseAll = !tabIds.length;
 
     return (
       <div
@@ -359,7 +360,7 @@ export default class Content extends React.Component {
                   icon="close"
                   size="small"
                   onClick={tabsOnClose}
-                  disabled={!showCloseAll}
+                  disabled={hideCloseAll}
                   title="Close all tabs"
                 />
               </span>
@@ -380,7 +381,7 @@ export default class Content extends React.Component {
                   size="small"
                   type="primary"
                   onClick={tabOnSave}
-                  disabled={!dirty || itemLoading}
+                  disabled={!isEdited || itemLoading}
                   title="Save, ⌘⌥S"
                 />
                 <Popconfirm
@@ -412,7 +413,10 @@ export default class Content extends React.Component {
           }
         </Tabs>
         <Editor
-          value={yaml}
+          ref={editorOnInit}
+
+          original={yamlOriginal}
+          value={yamlEdited || yamlOriginal}
 
           onValue={editorOnValue}
           onCursor={editorOnCursor}
@@ -421,8 +425,6 @@ export default class Content extends React.Component {
           onSave={tabOnSave}
           onClose={tabOnClose}
           onReload={tabOnReload}
-
-          ref={editorOnInit}
         />
         {
           hideEditor &&
