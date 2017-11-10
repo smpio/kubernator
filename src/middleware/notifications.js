@@ -44,6 +44,7 @@ export default store => next => action => {
         message: title || 'Warning',
         description: message || 'No description',
         style: { 'backgroundColor': 'bisque' },
+        duration: 3,
       });
     }
   }
