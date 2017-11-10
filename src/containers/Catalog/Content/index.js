@@ -267,7 +267,10 @@ export default class Content extends React.Component {
     } = this;
 
     return new Promise(resolve => (item ? itemPut : itemPost)(id, yaml, resolve))
-      .then(({ diff }) => this.setState({ [id]: diff || null }));
+      .then(payload => {
+        const { conflict } = payload;
+        if (!conflict) this.setState({ [id]: null });
+      });
   };
 
   tabOnDelete = () => {
