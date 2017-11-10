@@ -250,8 +250,7 @@ export default class Content extends React.Component {
   };
 
   tabOnReload = () => {
-    const { tabs: { id }, itemGet } = this;
-
+    const { tabs: { id }, itemGet } = this.props;
     return new Promise(resolve => itemGet(id, resolve))
       .then(() => this.setState({ [id]: null }));
   };
@@ -273,7 +272,6 @@ export default class Content extends React.Component {
 
   tabOnDelete = () => {
     const { tabs: { id }, itemDelete } = this.props;
-
     return new Promise(resolve => itemDelete(id, resolve))
       .then(() => this.setState({ [id]: null }));
   };
