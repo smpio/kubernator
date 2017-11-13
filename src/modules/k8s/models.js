@@ -61,47 +61,44 @@ function* sagaModelsGet() {
     function* (action) {
       const { group } = action.payload;
 
+      //
+      const {
+        [URL]: groupUrl,
+        name: groupName,
+      } = group;
+
       // get models
       let models;
-      try { models = (yield call(cacheGet, `/swaggerapi${group[URL]}`)).models; }
+      try { models = (yield call(cacheGet, `/swaggerapi${groupUrl}`)).models; }
       catch (e) {
         if (!(e instanceof NotiErrorApi && e.code === 404)) throw e;
         else {
           const error = new Error();
-          error.title = group.name;
+          error.title = groupName;
           error.message = 'No swagger schemas provided. Removing readonly properties for items in this group won\'t work.';
           throw error;
         }
       }
 
       // process models
-      const { version } = group.preferredVersion;
-      models = Object.keys(models)
-        .filter(key => key.startsWith(version))
-        .map(key => {
-          const [, kind] = key.split('.');
-          const model = models[key];
+      models = Object.keys(models).map(key => {
+        const model = models[key];
 
-          // set id
-          delete model.id;
-          model[ID] = kind;
+        // set id
+        delete model.id;
+        model[ID] = key;
 
-          // rename refs
-          const { properties } = model;
-          Object.keys(properties).forEach(id => {
-            const property = properties[id];
-            const { $ref, description } = property;
-
-            // rename ref
-            if ($ref) property.$ref = $ref.split('.')[1];
-
-            // set readonly flag
-            property[IS_READONLY] = description && description.includes('Read-only.');
-          });
-
-          //
-          return model;
+        // set readonly flags
+        const { properties } = model;
+        Object.keys(properties).forEach(id => {
+          const property = properties[id];
+          const { description } = property;
+          property[IS_READONLY] = description && description.includes('Read-only.');
         });
+
+        //
+        return model;
+      });
 
       //
       return { models };

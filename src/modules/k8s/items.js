@@ -479,7 +479,7 @@ export const itemsReducer = {
 // helpers
 // ---------
 
-export function itemDecorate(resource) {
+function itemDecorate(resource) {
   const { [ID]: resourceId } = resource;
   return item => {
     const { uid, name, namespace } = item.metadata;
@@ -490,6 +490,11 @@ export function itemDecorate(resource) {
   };
 }
 
+function itemGetModelId(item) {
+  const { apiVersion, kind } = item;
+  return `${apiVersion}.${kind}`;
+}
+
 export function itemRemoveReadonlyProperties(item, models, modelId, forcedKeys) {
   if (item && models) {
 
@@ -497,7 +502,7 @@ export function itemRemoveReadonlyProperties(item, models, modelId, forcedKeys) 
     forcedKeys && forcedKeys.forEach(key => delete item[key]);
 
     // remove readonly keys
-    const model = models[modelId];
+    const model = models[modelId || itemGetModelId(item)];
     if (model) {
       const { properties } = model;
       Object.keys(properties).forEach(key => {
