@@ -16,6 +16,7 @@ import {
   ID,
   URL,
   YAML,
+  VERSION,
   RESOURCE_ID,
   ITEM_IDS,
   IS_READONLY,
@@ -480,12 +481,15 @@ export const itemsReducer = {
 // ---------
 
 function itemDecorate(resource) {
-  const { [ID]: resourceId } = resource;
+  const {
+    [ID]: resourceId,
+    [VERSION]: version,
+  } = resource;
   return item => {
     const { uid, name, namespace } = item.metadata;
     const resourceUrl = resourceGetUrl(resource, namespace);
     item[RESOURCE_ID] = resourceId;
-    item[ID] = uid || `${NO_UID}-${name}`;
+    item[ID] = `${version}.` + (uid || `${NO_UID}-${name}`);
     item[URL] = `${resourceUrl}/${name}`;
   };
 }
