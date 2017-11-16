@@ -30,7 +30,7 @@ import {
 import {
   resourceGetUrl,
   resourceSelect,
-  resourceSelectByKind,
+  resourceSelectByKindAndVersion,
 } from './resources';
 
 import {
@@ -229,12 +229,12 @@ function* sagaItemPost() {
       let { id, yaml } = action.payload;
 
       // parse item
-      const { kind, metadata: { namespace } = {}} = jsYaml.safeLoad(yaml);
-      if (!kind) throw new Error('Please, specify item\'s kind.');
+      const { apiVersion, kind, metadata: { namespace } = {}} = jsYaml.safeLoad(yaml);
+      if (!apiVersion || !kind) throw new Error('Please, specify item\'s apiVersion and kind.');
 
       // find resource
-      const resource = yield select(resourceSelectByKind, kind);
-      if (!resource) throw new Error('Can\'t find correponding resource by kind.');
+      const resource = yield select(resourceSelectByKindAndVersion, kind, itemGetVersionByApiVersion(apiVersion));
+      if (!resource) throw new Error('Can\'t find correponding resource by apiVersion and kind.');
 
       // get url
       const { namespaced, [URL]: resourceUrl } = resource;
@@ -494,9 +494,20 @@ function itemDecorate(resource) {
   };
 }
 
+function itemGetVersionByApiVersion(apiVersion) {
+  return (
+    apiVersion &&
+    (
+      apiVersion.includes('/')
+        ? apiVersion.split('/')[1]
+        : apiVersion
+    )
+  );
+}
+
 function itemGetModelId(item) {
   const { apiVersion, kind } = item;
-  return `${apiVersion}.${kind}`;
+  return `${itemGetVersionByApiVersion(apiVersion)}.${kind}`;
 }
 
 export function itemRemoveReadonlyProperties(item, models, modelId, forcedKeys) {

@@ -77,7 +77,7 @@ export function resourceSelect(state, id) {
   return state[PREFIX].resources[id];
 }
 
-export function resourceSelectByKind(state, kind) {
+export function resourceSelectByKindAndVersion(state, kind, version) {
   const { resources } = state[PREFIX];
 
   // find correponding resources
@@ -86,6 +86,7 @@ export function resourceSelectByKind(state, kind) {
       const resource = resources[resourceId];
       return (
         resource.kind === kind &&
+        resource[VERSION] === version &&
         resource.verbs.includes('create')
       );
     });
