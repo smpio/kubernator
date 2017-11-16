@@ -77,11 +77,11 @@ function buildKinds(argsGlobal, argsLocal) {
 
     .map(id => {
       const resource = resources[id];
-      const { kind, [ITEM_IDS]: itemIds } = resource;
+      const { [ITEM_IDS]: itemIds } = resource;
       return {
         type: TYPE_RESOURCE,
-        id: `${namespaceName}:${kind}`,
-        name: kind,
+        id: `${namespaceName}:${id}`,
+        name: id,
         children: buildItems(argsGlobal, { namespace, itemIds }),
         payload: { resource, namespace },
       };

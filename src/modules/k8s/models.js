@@ -12,11 +12,14 @@ import {
 import {
   PREFIX,
   ID,
-  URL,
   IS_READONLY,
   cacheGet,
   takeEveryReq,
 } from './shared';
+
+import {
+  groupGetUrl,
+} from './groups';
 
 
 // action codes
@@ -30,9 +33,9 @@ export const MODELS_GET__F = `${PREFIX}/MODELS_GET/F`;
 // action creators
 // -----------------
 
-export const modelsGet = group => ({
+export const modelsGet = (group, version) => ({
   type: MODELS_GET,
-  payload: { group },
+  payload: { group, version },
 });
 
 
@@ -59,22 +62,19 @@ function* sagaModelsGet() {
       MODELS_GET__F,
     ],
     function* (action) {
-      const { group } = action.payload;
+      const { group, version } = action.payload;
 
       //
-      const {
-        [URL]: groupUrl,
-        name: groupName,
-      } = group;
+      const modelUrl = `/swaggerapi${groupGetUrl(group, version)}`;
 
       // get models
       let models;
-      try { models = (yield call(cacheGet, `/swaggerapi${groupUrl}`)).models; }
+      try { models = (yield call(cacheGet, modelUrl)).models; }
       catch (e) {
         if (!(e instanceof NotiErrorApi && e.code === 404)) throw e;
         else {
           const error = new Error();
-          error.title = groupName;
+          error.title = group.name;
           error.message = 'No swagger schemas provided. Removing readonly properties for items in this group won\'t work.';
           throw error;
         }

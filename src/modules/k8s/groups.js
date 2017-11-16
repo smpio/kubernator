@@ -10,6 +10,7 @@ import {
   PREFIX,
   ID,
   URL,
+  VERSIONS,
   RESOURCE_IDS,
   NO_GROUP,
   cacheGet,
@@ -78,11 +79,8 @@ function* sagaGroupsGet() {
       // as a fake group
       groups.push({
         name: NO_GROUP,
-        preferredVersion: {
-          groupVersion: '/api/v1',
-          version: 'v1',
-        },
-        [URL]: '/api/v1',
+        versions: [{ version: 'v1' }],
+        preferredVersion: { version: 'v1' },
       });
 
       // decorate
@@ -142,8 +140,15 @@ export const groupsReducer = {
 
 function groupDecorate() {
   return group => {
-    group[ID] = group.name;
-    group[URL] = group[URL] || `/apis/${group.preferredVersion.groupVersion}`;
+    const { name, versions = [] } = group;
+    group[ID] = name;
+    group[URL] = name === NO_GROUP ? '/api' : `/apis/${name}`; // + '/' + version
+    group[VERSIONS] = versions.map(v => v.version);
     group[RESOURCE_IDS] = [];
   };
+}
+
+export function groupGetUrl(group, version) {
+  const { preferredVersion, [URL]: groupUrl } = group;
+  return `${groupUrl}/${version || preferredVersion.version}`;
 }
