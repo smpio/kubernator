@@ -5,6 +5,8 @@ import {
   NotiErrorApi,
 } from '../../middleware/notifications';
 
+// constants
+// -----------
 
 export const PREFIX = 'k8s';
 
@@ -38,6 +40,23 @@ export const NO_UID = '[nouid]';
 
 export const UI_THROTTLE = 100;
 
+
+// network
+// ---------
+
+export const apiFlagsUnset = {
+  [LOADING]: false,
+  [FAILURE]: false,
+};
+
+export function apiFlagsSet(state, action) {
+  const { payload: { error } = {}} = action;
+  return {
+    [LOADING]: !error,
+    [FAILURE]: !!error,
+  };
+}
+
 export async function apiFetch(url, options = {}, parser = 'json') {
   const netResponse = await fetch(url, options);
   if (netResponse.ok) return netResponse[parser]();
@@ -61,28 +80,6 @@ export async function apiFetch(url, options = {}, parser = 'json') {
   }
 }
 
-export function apiFlagsSet(state, action) {
-  const { payload: { error } = {}} = action;
-  return {
-    [LOADING]: !error,
-    [FAILURE]: !!error,
-  };
-}
-
-export const apiFlagsUnset = {
-  [LOADING]: false,
-  [FAILURE]: false,
-};
-
-(async function cacheInit() {
-  const version = await apiFetch('/version');
-  const gitVersion = store.get('version.gitVersion');
-  if (gitVersion !== version.gitVersion) {
-    store.clearAll();
-    store.set('version.gitVersion', version.gitVersion);
-  }
-})();
-
 export async function cacheGet(url) {
   let result = store.get(url);
   if (!result) {
@@ -91,6 +88,10 @@ export async function cacheGet(url) {
   }
   return Promise.resolve(result);
 }
+
+
+// actions
+// ---------
 
 export function* putTake(actionPut, actionsTake) {
   const $id = Date.now();
@@ -136,14 +137,4 @@ export function* takeEveryReq(actions, fn, _onSuccess) {
       });
     }
   });
-}
-
-export function selectArrOptional(arr) {
-
-  return arr.length ? arr : null;
-}
-
-export function selectArr(obj = {}) {
-
-  return selectArrOptional(Object.keys(obj).map(key => obj[key]));
 }

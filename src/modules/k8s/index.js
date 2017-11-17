@@ -2,6 +2,12 @@ import { all } from 'redux-saga/effects';
 import { createReducer } from '../../utils';
 
 import {
+  basicSaga,
+  basicState,
+  basicReducer,
+} from './basic';
+
+import {
   groupsSaga,
   groupsState,
   groupsReducer,
@@ -38,6 +44,7 @@ import {
 } from './combo';
 
 export * from './shared';
+export * from './basic';
 export * from './groups';
 export * from './resources';
 export * from './models';
@@ -48,6 +55,7 @@ export * from './messages';
 
 export function* saga() {
   yield all([
+    basicSaga(),
     groupsSaga(),
     resourcesSaga(),
     modelsSaga(),
@@ -59,6 +67,7 @@ export function* saga() {
 
 export const reducer = createReducer(
   {
+    ...basicReducer,
     ...groupsReducer,
     ...resourcesReducer,
     ...modelsReducer,
@@ -67,6 +76,7 @@ export const reducer = createReducer(
     ...comboReducer,
   },
   {
+    ...basicState,
     ...groupsState,
     ...resourcesState,
     ...modelsState,

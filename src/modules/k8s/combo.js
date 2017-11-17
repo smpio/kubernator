@@ -2,6 +2,10 @@ import { all, put, select } from 'redux-saga/effects';
 import update from 'immutability-helper';
 
 import {
+  selectArr,
+} from '../../utils';
+
+import {
   PREFIX,
   RESOURCE_IDS,
   CATALOG_LOADING_STAGE,
@@ -12,7 +16,6 @@ import {
   NO_NAMESPACE,
   putTake,
   takeEveryReq,
-  selectArr,
 } from './shared';
 
 import {

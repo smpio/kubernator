@@ -1,25 +1,16 @@
 import React from 'react';
 import { Link, Switch, Route, Redirect } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
+import { Layout, Menu } from 'antd';
 
-import {
-  Catalog,
-  Rbac,
-} from '../';
-
-import {
-  Layout,
-  Menu,
-} from 'antd';
+import { Catalog, Rbac } from '../';
+import PageTitle from './PageTitle';
 
 import logo from './logo.png';
 import css from './index.css';
 
 export default props =>
   <Layout className={css.layout}>
-    <Helmet>
-      <title>App</title>
-    </Helmet>
+    <PageTitle />
     <Layout.Header>
       <Link to="/">
         <img className={css.logo} src={logo} alt="logo" />
