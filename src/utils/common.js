@@ -9,3 +9,13 @@ export function toKeysArray(arr, key) {
   if (!Array.isArray(arr)) arr = [arr];
   return arr.map(item => item[key]);
 }
+
+export function selectArrOptional(arr) {
+
+  return arr.length ? arr : null;
+}
+
+export function selectArr(obj = {}) {
+
+  return selectArrOptional(Object.keys(obj).map(key => obj[key]));
+}

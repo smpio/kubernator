@@ -1,5 +1,4 @@
 import React from 'react';
-import { Helmet } from 'react-helmet';
 
 import Controls from './Controls';
 import Legend from './Graph/Legend';
@@ -34,9 +33,6 @@ export default class Rbac extends React.PureComponent {
     } = this;
     return (
       <div className={css.rbac}>
-        <Helmet>
-          <title>Rbac</title>
-        </Helmet>
         <Controls
           showLegend={showLegend}
           showIsolated={showIsolated}

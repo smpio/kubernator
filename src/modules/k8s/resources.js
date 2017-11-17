@@ -4,6 +4,7 @@ import update from 'immutability-helper';
 import {
   toKeysObject,
   toKeysArray,
+  selectArrOptional,
 } from '../../utils';
 
 import {
@@ -19,7 +20,6 @@ import {
   cacheGet,
   putTake,
   takeEveryReq,
-  selectArrOptional,
 } from './shared';
 
 import {
