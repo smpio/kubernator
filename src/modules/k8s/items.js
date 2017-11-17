@@ -16,6 +16,7 @@ import {
   ID,
   URL,
   YAML,
+  VERSION,
   RESOURCE_ID,
   ITEM_IDS,
   IS_READONLY,
@@ -29,7 +30,7 @@ import {
 import {
   resourceGetUrl,
   resourceSelect,
-  resourceSelectByKind,
+  resourceSelectByKindAndVersion,
 } from './resources';
 
 import {
@@ -228,12 +229,12 @@ function* sagaItemPost() {
       let { id, yaml } = action.payload;
 
       // parse item
-      const { kind, metadata: { namespace } = {}} = jsYaml.safeLoad(yaml);
-      if (!kind) throw new Error('Please, specify item\'s kind.');
+      const { apiVersion, kind, metadata: { namespace } = {}} = jsYaml.safeLoad(yaml);
+      if (!apiVersion || !kind) throw new Error('Please, specify item\'s apiVersion and kind.');
 
       // find resource
-      const resource = yield select(resourceSelectByKind, kind);
-      if (!resource) throw new Error('Can\'t find correponding resource by kind.');
+      const resource = yield select(resourceSelectByKindAndVersion, kind, itemGetVersionByApiVersion(apiVersion));
+      if (!resource) throw new Error('Can\'t find correponding resource by apiVersion and kind.');
 
       // get url
       const { namespaced, [URL]: resourceUrl } = resource;
@@ -479,15 +480,34 @@ export const itemsReducer = {
 // helpers
 // ---------
 
-export function itemDecorate(resource) {
-  const { [ID]: resourceId } = resource;
+function itemDecorate(resource) {
+  const {
+    [ID]: resourceId,
+    [VERSION]: version,
+  } = resource;
   return item => {
     const { uid, name, namespace } = item.metadata;
     const resourceUrl = resourceGetUrl(resource, namespace);
     item[RESOURCE_ID] = resourceId;
-    item[ID] = uid || `${NO_UID}-${name}`;
+    item[ID] = `${version}.` + (uid || `${NO_UID}-${name}`);
     item[URL] = `${resourceUrl}/${name}`;
   };
+}
+
+function itemGetVersionByApiVersion(apiVersion) {
+  return (
+    apiVersion &&
+    (
+      apiVersion.includes('/')
+        ? apiVersion.split('/')[1]
+        : apiVersion
+    )
+  );
+}
+
+function itemGetModelId(item) {
+  const { apiVersion, kind } = item;
+  return `${itemGetVersionByApiVersion(apiVersion)}.${kind}`;
 }
 
 export function itemRemoveReadonlyProperties(item, models, modelId, forcedKeys) {
@@ -497,7 +517,7 @@ export function itemRemoveReadonlyProperties(item, models, modelId, forcedKeys) 
     forcedKeys && forcedKeys.forEach(key => delete item[key]);
 
     // remove readonly keys
-    const model = models[modelId];
+    const model = models[modelId || itemGetModelId(item)];
     if (model) {
       const { properties } = model;
       Object.keys(properties).forEach(key => {

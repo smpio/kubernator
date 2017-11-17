@@ -193,7 +193,7 @@ function* sagaNamespacesGet() {
     function* (action) {
 
       // resource [cache]
-      const id = 'namespaces';
+      const id = 'v1.namespaces';
       let resource = yield select(resourceSelect, id);
       if (!resource) {
 

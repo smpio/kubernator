@@ -17,6 +17,9 @@ export const ID = Symbol('ID');
 export const URL = Symbol('URL');
 export const YAML = Symbol('YAML');
 
+export const VERSION = Symbol('VERSION');
+export const VERSIONS = Symbol('VERSIONS');
+
 export const GROUP_ID = Symbol('GROUP_ID');
 export const RESOURCE_ID = Symbol('RESOURCE_ID');
 

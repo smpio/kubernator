@@ -11,6 +11,8 @@ import {
   PREFIX,
   ID,
   URL,
+  VERSION,
+  VERSIONS,
   GROUP_ID,
   RESOURCE_IDS,
   ITEM_IDS,
@@ -21,6 +23,10 @@ import {
   putTake,
   takeEveryReq,
 } from './shared';
+
+import {
+  groupGetUrl,
+} from './groups';
 
 import {
   MODELS_GET__S,
@@ -71,7 +77,7 @@ export function resourceSelect(state, id) {
   return state[PREFIX].resources[id];
 }
 
-export function resourceSelectByKind(state, kind) {
+export function resourceSelectByKindAndVersion(state, kind, version) {
   const { resources } = state[PREFIX];
 
   // find correponding resources
@@ -80,6 +86,7 @@ export function resourceSelectByKind(state, kind) {
       const resource = resources[resourceId];
       return (
         resource.kind === kind &&
+        resource[VERSION] === version &&
         resource.verbs.includes('create')
       );
     });
@@ -105,17 +112,30 @@ function* sagaResourcesGet() {
       RESOURCES_GET__F,
     ],
     function* (action) {
-      const { group } = action.payload;
+      const { group, group: { [VERSIONS]: versions } } = action.payload;
 
-      // resources
-      const { resources } = yield call(cacheGet, group[URL]);
+      // get resources for all group versions
+      const results = yield all(versions.map(version => call(cacheGet, groupGetUrl(group, version))));
 
       // decorate
-      const decorate = resourceDecorate(group);
-      resources.forEach(decorate);
+      results.forEach(({ resources }, index) => {
+        const decorate = resourceDecorate(group, versions[index]);
+        resources.forEach(decorate);
+      });
+
+      // merge
+      const resources = results.reduce(
+        (result, { resources }) => {
+          result.push(...resources);
+          return result;
+        },
+        [],
+      );
 
       // models
-      yield putTake(modelsGet(group), [MODELS_GET__S, MODELS_GET__F]);
+      yield all(group[VERSIONS].map(version =>
+        putTake(modelsGet(group, version), [MODELS_GET__S, MODELS_GET__F])
+      ));
 
       //
       return { group, resources };
@@ -152,23 +172,21 @@ export const resourcesReducer = {
 // helpers
 // ---------
 
-export function resourceDecorate(group) {
-  const {
-    [ID]: groupId,
-    [URL]: groupUrl,
-  } = group;
+export function resourceDecorate(group, version) {
+  const { [ID]: groupId, [URL]: groupUrl } = group;
   return resource => {
     const { name, verbs } = resource;
 
     resource[GROUP_ID] = groupId;
-    resource[ID] = name;
-    resource[URL] = `${groupUrl}/${name}`;
+    resource[VERSION] = version;
+    resource[ID] = `${version}.${name}`;
+    resource[URL] = `${groupUrl}/${version}/${name}`;
     resource[ITEM_IDS] = [];
     resource[IS_LISTABLE] = verbs.includes('list');
 
     // crunches for correct item urls
-    resource[URL_PART_GROUP] = groupUrl;
-    resource[URL_PART_RESOURCE] = `${name}`;
+    resource[URL_PART_GROUP] = `${groupUrl}/${version}`;
+    resource[URL_PART_RESOURCE] = name;
   };
 }
 

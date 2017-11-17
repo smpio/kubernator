@@ -12,11 +12,14 @@ import {
 import {
   PREFIX,
   ID,
-  URL,
   IS_READONLY,
   cacheGet,
   takeEveryReq,
 } from './shared';
+
+import {
+  groupGetUrl,
+} from './groups';
 
 
 // action codes
@@ -30,9 +33,9 @@ export const MODELS_GET__F = `${PREFIX}/MODELS_GET/F`;
 // action creators
 // -----------------
 
-export const modelsGet = group => ({
+export const modelsGet = (group, version) => ({
   type: MODELS_GET,
-  payload: { group },
+  payload: { group, version },
 });
 
 
@@ -59,11 +62,14 @@ function* sagaModelsGet() {
       MODELS_GET__F,
     ],
     function* (action) {
-      const { group } = action.payload;
+      const { group, version } = action.payload;
+
+      //
+      const modelUrl = `/swaggerapi${groupGetUrl(group, version)}`;
 
       // get models
       let models;
-      try { models = (yield call(cacheGet, `/swaggerapi${group[URL]}`)).models; }
+      try { models = (yield call(cacheGet, modelUrl)).models; }
       catch (e) {
         if (!(e instanceof NotiErrorApi && e.code === 404)) throw e;
         else {
@@ -75,33 +81,24 @@ function* sagaModelsGet() {
       }
 
       // process models
-      const { version } = group.preferredVersion;
-      models = Object.keys(models)
-        .filter(key => key.startsWith(version))
-        .map(key => {
-          const [, kind] = key.split('.');
-          const model = models[key];
+      models = Object.keys(models).map(key => {
+        const model = models[key];
 
-          // set id
-          delete model.id;
-          model[ID] = kind;
+        // set id
+        delete model.id;
+        model[ID] = key;
 
-          // rename refs
-          const { properties } = model;
-          Object.keys(properties).forEach(id => {
-            const property = properties[id];
-            const { $ref, description } = property;
-
-            // rename ref
-            if ($ref) property.$ref = $ref.split('.')[1];
-
-            // set readonly flag
-            property[IS_READONLY] = description && description.includes('Read-only.');
-          });
-
-          //
-          return model;
+        // set readonly flags
+        const { properties } = model;
+        Object.keys(properties).forEach(id => {
+          const property = properties[id];
+          const { description } = property;
+          property[IS_READONLY] = description && description.includes('Read-only.');
         });
+
+        //
+        return model;
+      });
 
       //
       return { models };
