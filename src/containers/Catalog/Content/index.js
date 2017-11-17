@@ -11,7 +11,10 @@ import {
   PREFIX,
   LOADING,
   YAML,
+  RESOURCE_ID,
   CATALOG_LOADING_STAGE,
+  NO_NAMESPACE,
+  NO_NAME,
   itemGet,
   itemPost,
   itemPut,
@@ -53,17 +56,16 @@ export default class Content extends React.Component {
     tabClose: PropTypes.func.isRequired,
   };
 
-  static renderTab(props) {
-    const { id, item, yaml } = props;
-    const {
-      metadata: { name, namespace } = {},
-      [YAML]: yamlOriginal,
-    } = item || {};
+  static renderTab({ id, item, yaml, resources }) {
 
-    let title = '';
-    if (namespace) title += namespace;
-    if (namespace && name) title += ' / ';
-    title += name || 'Untitled';
+    const {
+      metadata: {
+        name: itemName = NO_NAME,
+        namespace: itemNamespace = NO_NAMESPACE,
+      } = {},
+      [YAML]: yamlOriginal,
+      [RESOURCE_ID]: resourceId,
+    } = item || {};
 
     return (
       <Tabs.TabPane
@@ -74,7 +76,7 @@ export default class Content extends React.Component {
               [css.tabModified]: yaml && yaml !== yamlOriginal,
               [css.tabDetached]: !item,
             })}>
-            {title}
+            {`${itemNamespace} • ${resourceId} • ${itemName}`}
           </span>
         }
         closable

@@ -37,6 +37,7 @@ export const URL_PART_RESOURCE = Symbol('URL_PART_RESOURCE');
 export const NO_GROUP = '[nogroup]';
 export const NO_NAMESPACE = '[nonamespace]';
 export const NO_UID = '[nouid]';
+export const NO_NAME = '[noname]';
 
 export const UI_THROTTLE = 100;
 
