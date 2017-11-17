@@ -41,6 +41,11 @@ $animation-duration: .3s;
       padding: .1em .5em;
       color: lightgrey;
     }
+
+    .legendCaption {
+      color: $color-grey-300;
+      font-weight: lighter;
+    }
   }
 
 

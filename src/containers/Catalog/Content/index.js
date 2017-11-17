@@ -432,16 +432,24 @@ export default class Content extends React.Component {
           <table className={css.legend}>
             <tbody>
               <tr>
-                <td>⌘&nbsp;+&nbsp;⌥&nbsp;+&nbsp;S</td>
-                <td>Tab.Save</td>
+                <td><span className={css.legendCaption}>Ctrl + Alt + </span>←</td>
+                <td><span className={css.legendCaption}>Tabs </span>Left</td>
               </tr>
               <tr>
-                <td>⌘&nbsp;+&nbsp;⌥&nbsp;+&nbsp;C</td>
-                <td>Tab.Close</td>
+                <td><span className={css.legendCaption}>Ctrl + Alt + </span>→</td>
+                <td><span className={css.legendCaption}>Tabs </span>Right</td>
               </tr>
               <tr>
-                <td>⌘&nbsp;+&nbsp;⌥&nbsp;+&nbsp;R</td>
-                <td>Tab.Reload</td>
+                <td><span className={css.legendCaption}>Ctrl + Alt + </span>S</td>
+                <td><span className={css.legendCaption}>Tab </span>Save</td>
+              </tr>
+              <tr>
+                <td><span className={css.legendCaption}>Ctrl + Alt + </span>C</td>
+                <td><span className={css.legendCaption}>Tab </span>Close</td>
+              </tr>
+              <tr>
+                <td><span className={css.legendCaption}>Ctrl + Alt + </span>R</td>
+                <td><span className={css.legendCaption}>Tab </span>Reload</td>
               </tr>
             </tbody>
           </table>
