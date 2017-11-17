@@ -54,6 +54,22 @@ $animation-duration: .3s;
     margin-left: .25em;
   }
 
+  .tabText {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .tabTextMeta {
+    font-size: .75em;
+    font-weight: lighter;
+    line-height: 1;
+    color: $color-grey-500;
+  }
+
+  .tabTextName {
+    line-height: 1.25;
+  }
+
   :global {
 
     .ant-tabs.ant-tabs-editable-card {
@@ -61,31 +77,68 @@ $animation-duration: .3s;
       & > .ant-tabs-bar {
         margin: 0;
 
+        .ant-tabs-nav-container {
+          height: 38px; /* +6px */
+        }
+
+        .ant-tabs-extra-content {
+          position: relative;
+          top: 3px; /* +6px / 2 */
+
+          .ant-tabs-new-tab {
+            background-color: white;
+            position: relative;
+            top: 1px;
+          }
+        }
+
         .ant-tabs-tab {
           border-color: transparent;
           margin-right: 1px;
+          padding-left: 8px;
+          padding-right: 8px;
 
           color: $color-grey-600;
           :local {
             .tabModified { color: $color-red-300; }
             .tabDetached { color: $color-green-400; }
           }
+
+          &:hover {
+            padding-left: 16px;
+            padding-right: 14px;
+
+            .anticon-close {
+              margin-left: 6px;
+              width: 12px;
+            }
+          }
+
+          .anticon-close {
+            height: 11px;
+          }
         }
 
         .ant-tabs-tab-active {
           border-color: white;
+          padding-left: 8px;
+          padding-right: 6px;
 
           color: $color-grey-800;
           :local {
             .tabModified { color: $color-red-900; }
             .tabDetached { color: $color-green-800; }
           }
-        }
 
-        .ant-tabs-extra-content .ant-tabs-new-tab {
-          background-color: white;
-          position: relative;
-          top: 1px;
+          &:hover {
+            padding-left: 8px;
+            padding-right: 6px;
+          }
+
+          .anticon-close {
+            margin-left: 6px;
+            width: 12px;
+          }
         }
       }
 

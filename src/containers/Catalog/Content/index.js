@@ -11,7 +11,9 @@ import {
   PREFIX,
   LOADING,
   YAML,
+  RESOURCE_ID,
   CATALOG_LOADING_STAGE,
+  NO_NAMESPACE,
   itemGet,
   itemPost,
   itemPut,
@@ -53,29 +55,32 @@ export default class Content extends React.Component {
     tabClose: PropTypes.func.isRequired,
   };
 
-  static renderTab(props) {
-    const { id, item, yaml } = props;
-    const {
-      metadata: { name, namespace } = {},
-      [YAML]: yamlOriginal,
-    } = item || {};
+  static renderTab({ id, item, yaml, resources }) {
 
-    let title = '';
-    if (namespace) title += namespace;
-    if (namespace && name) title += ' / ';
-    title += name || 'Untitled';
+    const {
+      metadata: {
+        name: itemName = 'Untitled',
+        namespace: itemNamespace = NO_NAMESPACE,
+      } = {},
+      [YAML]: yamlOriginal,
+      [RESOURCE_ID]: resourceId,
+    } = item || {};
 
     return (
       <Tabs.TabPane
         key={id}
         tab={
-          <span
-            className={classnames({
-              [css.tabModified]: yaml && yaml !== yamlOriginal,
-              [css.tabDetached]: !item,
-            })}>
-            {title}
-          </span>
+          <div
+            className={classnames(
+              css.tabText,
+              {
+                [css.tabModified]: yaml && yaml !== yamlOriginal,
+                [css.tabDetached]: !item,
+              }
+            )}>
+            <div className={css.tabTextMeta}>{itemNamespace}{resourceId ? ` • ${resourceId}` : ''}</div>
+            <div className={css.tabTextName}>{itemName}</div>
+          </div>
         }
         closable
       />
