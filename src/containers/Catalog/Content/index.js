@@ -14,7 +14,6 @@ import {
   RESOURCE_ID,
   CATALOG_LOADING_STAGE,
   NO_NAMESPACE,
-  NO_NAME,
   itemGet,
   itemPost,
   itemPut,
@@ -60,7 +59,7 @@ export default class Content extends React.Component {
 
     const {
       metadata: {
-        name: itemName = NO_NAME,
+        name: itemName = 'Untitled',
         namespace: itemNamespace = NO_NAMESPACE,
       } = {},
       [YAML]: yamlOriginal,
@@ -71,13 +70,17 @@ export default class Content extends React.Component {
       <Tabs.TabPane
         key={id}
         tab={
-          <span
-            className={classnames({
-              [css.tabModified]: yaml && yaml !== yamlOriginal,
-              [css.tabDetached]: !item,
-            })}>
-            {`${itemNamespace} • ${resourceId} • ${itemName}`}
-          </span>
+          <div
+            className={classnames(
+              css.tabText,
+              {
+                [css.tabModified]: yaml && yaml !== yamlOriginal,
+                [css.tabDetached]: !item,
+              }
+            )}>
+            <div className={css.tabTextMeta}>{itemNamespace}{resourceId ? ` • ${resourceId}` : ''}</div>
+            <div className={css.tabTextName}>{itemName}</div>
+          </div>
         }
         closable
       />

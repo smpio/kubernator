@@ -54,12 +54,43 @@ $animation-duration: .3s;
     margin-left: .25em;
   }
 
+  .tabText {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .tabTextMeta {
+    font-size: .75em;
+    font-weight: lighter;
+    line-height: 1;
+    color: $color-grey-500;
+  }
+
+  .tabTextName {
+    line-height: 1.25;
+  }
+
   :global {
 
     .ant-tabs.ant-tabs-editable-card {
 
       & > .ant-tabs-bar {
         margin: 0;
+
+        .ant-tabs-nav-container {
+          height: 38px; /* +6px */
+        }
+
+        .ant-tabs-extra-content {
+          position: relative;
+          top: 3px; /* +6px / 2 */
+
+          .ant-tabs-new-tab {
+            background-color: white;
+            position: relative;
+            top: 1px;
+          }
+        }
 
         .ant-tabs-tab {
           border-color: transparent;
@@ -81,6 +112,10 @@ $animation-duration: .3s;
               margin-left: 6px;
               width: 12px;
             }
+          }
+
+          .anticon-close {
+            height: 11px;
           }
         }
 
@@ -104,12 +139,6 @@ $animation-duration: .3s;
             margin-left: 6px;
             width: 12px;
           }
-        }
-
-        .ant-tabs-extra-content .ant-tabs-new-tab {
-          background-color: white;
-          position: relative;
-          top: 1px;
         }
       }
 
