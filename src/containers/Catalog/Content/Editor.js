@@ -21,6 +21,9 @@ export default class Editor extends React.PureComponent {
     onSave: PropTypes.func,
     onClose: PropTypes.func,
     onReload: PropTypes.func,
+
+    onSwitchLeft: PropTypes.func,
+    onSwitchRight: PropTypes.func,
   };
 
   static defaultProps = {
@@ -33,6 +36,9 @@ export default class Editor extends React.PureComponent {
     onSave: NOOP,
     onClose: NOOP,
     onReload: NOOP,
+
+    onSwitchLeft: NOOP,
+    onSwitchRight: NOOP,
   };
 
   static optionsRequire = {
@@ -90,6 +96,10 @@ export default class Editor extends React.PureComponent {
     // --------------
 
     const {
+      props: {
+        onSwitchLeft,
+        onSwitchRight,
+      },
       onSave,
       onClose,
       onReload,
@@ -98,19 +108,23 @@ export default class Editor extends React.PureComponent {
     const {
       KeyMod: {
         Alt,
-        CtrlCmd,
+        WinCtrl,
       },
       KeyCode: {
         KEY_S,
         KEY_C,
         KEY_R,
+        LeftArrow,
+        RightArrow,
       },
     } = monaco;
 
     /* eslint-disable no-bitwise */
-    editor.addCommand(CtrlCmd | Alt | KEY_S, onSave);
-    editor.addCommand(CtrlCmd | Alt | KEY_C, onClose);
-    editor.addCommand(CtrlCmd | Alt | KEY_R, onReload);
+    editor.addCommand(WinCtrl | Alt | LeftArrow, onSwitchLeft);
+    editor.addCommand(WinCtrl | Alt | RightArrow, onSwitchRight);
+    editor.addCommand(WinCtrl | Alt | KEY_S, onSave);
+    editor.addCommand(WinCtrl | Alt | KEY_C, onClose);
+    editor.addCommand(WinCtrl | Alt | KEY_R, onReload);
     /* eslint-enable no-bitwise */
 
 

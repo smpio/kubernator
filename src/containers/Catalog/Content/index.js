@@ -21,6 +21,8 @@ import {
   tabsClose,
   tabOpen,
   tabClose,
+  tabSwitchLeft,
+  tabSwitchRight,
 } from 'modules/k8s';
 
 import Editor from './Editor';
@@ -34,9 +36,11 @@ import css from './index.css';
     itemPost,
     itemPut,
     itemDelete,
+    tabsClose,
     tabOpen,
     tabClose,
-    tabsClose,
+    tabSwitchLeft,
+    tabSwitchRight,
   }, dispatch),
 )
 
@@ -53,6 +57,8 @@ export default class Content extends React.Component {
     tabsClose: PropTypes.func.isRequired,
     tabOpen: PropTypes.func.isRequired,
     tabClose: PropTypes.func.isRequired,
+    tabSwitchLeft: PropTypes.func.isRequired,
+    tabSwitchRight: PropTypes.func.isRequired,
   };
 
   static renderTab({ id, item, yaml, resources }) {
@@ -156,31 +162,15 @@ export default class Content extends React.Component {
       case 'add':
         const {
           props: {
-            tabs: {
-              id: tabId,
-            },
-            items: {
-              [tabId]: {
-                [YAML]: itemYaml,
-              } = {},
-            },
+            tabs: { id: tabId },
+            items: { [tabId]: { [YAML]: itemYaml } = {} },
             tabOpen,
           },
-          state: {
-            [tabId]: tabYaml,
-          },
+          state: { [tabId]: tabYaml },
         } = this;
-        return tabOpen(
-          null,
-          tabYaml || itemYaml,
-          ({ id, yaml }) => this.setState({ [id]: yaml }),
-        );
+        return tabOpen(null, tabYaml || itemYaml, ({ id, yaml }) => this.setState({ [id]: yaml }));
       case 'remove':
-        const {
-          props: {
-            tabClose,
-          },
-        } = this;
+        const { tabClose } = this.props;
         return tabClose(id);
       default:
         return false;
@@ -243,12 +233,12 @@ export default class Content extends React.Component {
 
   tabOnOpen = () => {
 
-    this.tabsOnEdit(null, 'add');
+    return this.tabsOnEdit(null, 'add');
   };
 
   tabOnClose = () => {
 
-    this.tabsOnEdit(this.props.tabs.id, 'remove');
+    return this.tabsOnEdit(this.props.tabs.id, 'remove');
   };
 
   tabOnReload = () => {
@@ -290,10 +280,12 @@ export default class Content extends React.Component {
     const {
 
       props: {
+
         tabs: {
           id,
           ids: tabIds,
         },
+
         items,
         items: {
           [id]: item,
@@ -302,6 +294,9 @@ export default class Content extends React.Component {
             [YAML]: yamlOriginal,
           } = {},
         },
+
+        tabSwitchLeft,
+        tabSwitchRight,
       },
 
       state,
@@ -428,22 +423,33 @@ export default class Content extends React.Component {
           onSave={tabOnSave}
           onClose={tabOnClose}
           onReload={tabOnReload}
+
+          onSwitchLeft={tabSwitchLeft}
+          onSwitchRight={tabSwitchRight}
         />
         {
           hideEditor &&
           <table className={css.legend}>
             <tbody>
               <tr>
-                <td>⌘&nbsp;+&nbsp;⌥&nbsp;+&nbsp;S</td>
-                <td>Tab.Save</td>
+                <td><span className={css.legendCaption}>Ctrl + Alt + </span>←</td>
+                <td><span className={css.legendCaption}>Tabs </span>Left</td>
               </tr>
               <tr>
-                <td>⌘&nbsp;+&nbsp;⌥&nbsp;+&nbsp;C</td>
-                <td>Tab.Close</td>
+                <td><span className={css.legendCaption}>Ctrl + Alt + </span>→</td>
+                <td><span className={css.legendCaption}>Tabs </span>Right</td>
               </tr>
               <tr>
-                <td>⌘&nbsp;+&nbsp;⌥&nbsp;+&nbsp;R</td>
-                <td>Tab.Reload</td>
+                <td><span className={css.legendCaption}>Ctrl + Alt + </span>S</td>
+                <td><span className={css.legendCaption}>Tab </span>Save</td>
+              </tr>
+              <tr>
+                <td><span className={css.legendCaption}>Ctrl + Alt + </span>C</td>
+                <td><span className={css.legendCaption}>Tab </span>Close</td>
+              </tr>
+              <tr>
+                <td><span className={css.legendCaption}>Ctrl + Alt + </span>R</td>
+                <td><span className={css.legendCaption}>Tab </span>Reload</td>
               </tr>
             </tbody>
           </table>

@@ -32,6 +32,9 @@ export const TAB_OPEN__F = `${PREFIX}/TAB_OPEN/F`;
 
 export const TAB_CLOSE = `${PREFIX}/TAB_CLOSE`;
 
+export const TAB_SWITCH_LEFT = `${PREFIX}/TAB_SWITCH_LEFT`;
+export const TAB_SWITCH_RIGHT = `${PREFIX}/TAB_SWITCH_RIGHT`;
+
 
 // creators
 // ----------
@@ -49,6 +52,14 @@ export const tabOpen = (id, yaml, _resolve, _reject) => ({
 export const tabClose = id => ({
   type: TAB_CLOSE,
   payload: { id },
+});
+
+export const tabSwitchLeft = () => ({
+  type: TAB_SWITCH_LEFT,
+});
+
+export const tabSwitchRight = () => ({
+  type: TAB_SWITCH_RIGHT,
 });
 
 
@@ -167,5 +178,55 @@ export const tabsReducer = {
         ids: { $pop: [idClose] },
       },
     });
+  },
+
+  [TAB_SWITCH_LEFT]: (state, action) => {
+    const { id, ids } = state.tabs;
+
+    // find current tab's index
+    let index = ids.indexOf(id);
+
+    // if the tab wasn't found, avoid any changes
+    if (index < 0) return state;
+    else {
+
+      // if it's the first one, move to the last one
+      if (index === 0) index = ids.length;
+
+      // switch left
+      index--;
+
+      //
+      return update(state, {
+        tabs: {
+          id: { $set: ids[index] },
+        },
+      });
+    }
+  },
+
+  [TAB_SWITCH_RIGHT]: (state, action) => {
+    const { id, ids } = state.tabs;
+
+    // find current tab's index
+    let index = ids.indexOf(id);
+
+    // if the tab wasn't found, avoid any changes
+    if (index < 0) return state;
+    else {
+
+      // if it's the last one, move to the first one
+      if (index === ids.length - 1) index = -1;
+
+      // switch right
+      index++;
+
+      //
+      return update(state, {
+        tabs: {
+          id: { $set: ids[index] },
+        },
+      });
+    }
   },
 };
