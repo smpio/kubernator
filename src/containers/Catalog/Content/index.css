@@ -64,21 +64,45 @@ $animation-duration: .3s;
         .ant-tabs-tab {
           border-color: transparent;
           margin-right: 1px;
+          padding-left: 8px;
+          padding-right: 8px;
 
           color: $color-grey-600;
           :local {
             .tabModified { color: $color-red-300; }
             .tabDetached { color: $color-green-400; }
           }
+
+          &:hover {
+            padding-left: 16px;
+            padding-right: 14px;
+
+            .anticon-close {
+              margin-left: 6px;
+              width: 12px;
+            }
+          }
         }
 
         .ant-tabs-tab-active {
           border-color: white;
+          padding-left: 8px;
+          padding-right: 6px;
 
           color: $color-grey-800;
           :local {
             .tabModified { color: $color-red-900; }
             .tabDetached { color: $color-green-800; }
+          }
+
+          &:hover {
+            padding-left: 8px;
+            padding-right: 6px;
+          }
+
+          .anticon-close {
+            margin-left: 6px;
+            width: 12px;
           }
         }
 
