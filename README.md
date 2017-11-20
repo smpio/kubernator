@@ -5,7 +5,7 @@ Alternative [Kubernetes](https://kubernetes.io/) UI
 ## Table of Contents
 
 - [Installation](#installation)
-- [Usage](#usage)
+- [Features](#features)
 - [Support](#support)
 - [Contributing](#contributing)
 - [License](#license)
@@ -34,7 +34,59 @@ Alternative [Kubernetes](https://kubernetes.io/) UI
     yarn start
     ```
 
-## Usage
+## Features
+
+### Catalog
+
+#### Navigation
+
+##### Cache
+
+##### Tree view
+
+##### Lazy loading
+
+##### Group by namespace
+
+##### Same group, different API versions
+
+##### Reload namespaces
+
+#### Content
+
+##### Tabs
+
+Naming (namespace -> resource -> item)
+Colors (created | modified | original)
+
+##### Diff editor
+
+Saved in state:
++ Scroll position
++ Cursor position
++ Not applied updates
+
+##### Create tab
+
++ Based on the currently open tab. Swagger schemas.
++ Allow custom API version.
+
+##### Close tabs
+
+##### Key bindings
+
++ Reload item
++ Save item
++ Delete item
++ Switch tab (left/right)
+
+##### Notifications
+
+### Rbac
+
+#### Legend
+
+#### Graph
 
 ## Support
 
