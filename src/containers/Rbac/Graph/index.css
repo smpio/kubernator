@@ -46,7 +46,7 @@
 
     .node {
       cursor: move;
-      circle { transform-origin: center; }
+      circle { transform-origin: inherit; }
 
       &:global(.User) {
         circle {
