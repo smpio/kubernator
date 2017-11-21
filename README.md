@@ -1,4 +1,4 @@
-# kube-browser
+# Kubernator
 
 Alternative [Kubernetes](https://kubernetes.io/) UI
 
@@ -14,7 +14,7 @@ Alternative [Kubernetes](https://kubernetes.io/) UI
 
 1. Install and [set up](https://kubernetes.io/docs/tasks/tools/install-kubectl/) `kubectl`
   
-2. Clone and build `kube-browser`:
+2. Clone and build `Kubernator`:
 
     ```sh
     yarn install && yarn build
@@ -28,7 +28,7 @@ Alternative [Kubernetes](https://kubernetes.io/) UI
 
 4. Update `proxy` value in `package.json` according to the previous command's output.
 
-5. Run `kube-browser`:
+5. Run `Kubernator`:
 
     ```sh
     yarn start
@@ -90,7 +90,7 @@ Saved in state:
 
 ## Support
 
-Please [open an issue](https://github.com/smpio/kube-browser/issues/new) for support.
+Please [open an issue](https://github.com/smpio/kubernator/issues/new) for support.
 
 ## Contributing
 
