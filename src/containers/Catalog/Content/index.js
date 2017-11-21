@@ -48,6 +48,7 @@ export default class Content extends React.Component {
 
   static propTypes = {
     flags: PropTypes.object.isRequired,
+    resources: PropTypes.object.isRequired,
     items: PropTypes.object.isRequired,
     tabs: PropTypes.object.isRequired,
     itemGet: PropTypes.func.isRequired,
@@ -72,6 +73,10 @@ export default class Content extends React.Component {
       [RESOURCE_ID]: resourceId,
     } = item || {};
 
+    const {
+      kind: resourceKind,
+    } = resources[resourceId] || {};
+
     return (
       <Tabs.TabPane
         key={id}
@@ -84,7 +89,7 @@ export default class Content extends React.Component {
                 [css.tabDetached]: !item,
               }
             )}>
-            <div className={css.tabTextMeta}>{itemNamespace}{resourceId ? ` • ${resourceId}` : ''}</div>
+            <div className={css.tabTextMeta}>{itemNamespace}{resourceKind ? ` • ${resourceKind}` : ''}</div>
             <div className={css.tabTextName}>{itemName}</div>
           </div>
         }
@@ -286,6 +291,7 @@ export default class Content extends React.Component {
           ids: tabIds,
         },
 
+        resources,
         items,
         items: {
           [id]: item,
@@ -406,6 +412,7 @@ export default class Content extends React.Component {
                 id: itemId,
                 item: items[itemId],
                 yaml: state[itemId],
+                resources,
               })
             )
           }
