@@ -1,6 +1,8 @@
 import { createSelector } from 'reselect';
 
 import {
+  VERSION,
+  GROUP_ID,
   ITEM_IDS,
   IS_LISTABLE,
   NO_NAMESPACE,
@@ -48,7 +50,13 @@ function buildItems(argsGlobal, argsLocal) {
 }
 
 function buildKinds(argsGlobal, argsLocal) {
-  const { resources, items } = argsGlobal;
+
+  const {
+    groups,
+    resources,
+    items,
+  } = argsGlobal;
+
   const {
     namespace,
     namespace: {
@@ -56,7 +64,8 @@ function buildKinds(argsGlobal, argsLocal) {
       namespaced: namespaceNamespaced,
     },
   } = argsLocal;
-  return Object.keys(resources)
+
+  const selection = Object.keys(resources)
 
     .filter(id => {
       const {
@@ -75,13 +84,43 @@ function buildKinds(argsGlobal, argsLocal) {
       );
     })
 
+    .reduce(
+      (selection, id) => {
+
+        const {
+          kind: resourceKind,
+          [VERSION]: resourceVersion,
+          [GROUP_ID]: groupId,
+        } = resources[id];
+
+        const {
+          versions: groupVersions,
+        } = groups[groupId];
+
+        const index = groupVersions
+          .map(version => version.version)
+          .indexOf(resourceVersion);
+
+        const data = selection[resourceKind];
+        if (!data || data.index > index) {
+          selection[resourceKind] = { id, index };
+        }
+
+        return selection;
+      },
+      {},
+    );
+
+  return Object.keys(selection)
+    .map(key => selection[key].id)
+
     .map(id => {
       const resource = resources[id];
-      const { [ITEM_IDS]: itemIds } = resource;
+      const { kind, [ITEM_IDS]: itemIds } = resource;
       return {
         type: TYPE_RESOURCE,
         id: `${namespaceName}:${id}`,
-        name: id,
+        name: kind,
         children: buildItems(argsGlobal, { namespace, itemIds }),
         payload: { resource, namespace },
       };
@@ -112,15 +151,16 @@ function buildNamespaces(argsGlobal) {
 }
 
 const selectFlags = state => state.flags;
-const selectNamespaces = state => state.namespaces;
+const selectGroups = state => state.groups;
 const selectResources = state => state.resources;
 const selectItems = state => state.items;
+const selectNamespaces = state => state.namespaces;
 
 const selectCatalog = createSelector(
-  [selectFlags, selectResources, selectItems, selectNamespaces],
-  (flags, resources, items, namespaces) => {
+  [selectFlags, selectGroups, selectResources, selectItems, selectNamespaces],
+  (flags, groups, resources, items, namespaces) => {
     if (flags.loadingStage || !namespaces.length || !Object.keys(resources).length) return [];
-    else return buildNamespaces({ namespaces, resources, items });
+    else return buildNamespaces({ groups, resources, items, namespaces });
   },
 );
 
