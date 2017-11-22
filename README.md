@@ -101,9 +101,19 @@ Every error and warning shows itself in a floating message on the right top side
 
 ### Rbac
 
-#### Legend
+Rbac shows `Roles`, `ClusterRoles`, `RoleBindings`, `ClusterRoleBindings` and relationships between them in a visually intuitive way.
+
+#### Controls
+
+Simple controls pane allows to show/hide a legend, isolated nodes and extended names.
+
+![Rbac Overview](screenshots/rbac-overview.png)
 
 #### Graph
+
+Graph area (built with the awesome `d3` library) shows an interactive force graph of linked nodes. The graph can be paned, dragged and zoomed. Nodes are draggable too, and links also show some additional information when hovered.
+
+![Rbac Graph](screenshots/rbac-graph.gif)
 
 ## Support
 
