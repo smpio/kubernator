@@ -79,9 +79,12 @@ When a new item is being created based on the currently opened one, all unnecess
 
 ##### Actions bar
 
-Available actions via buttons and/or key bindings: open a new tab based on currently active one; close all tabs; reload, save or delete current item; switch currently active tab to the left/right neighbour.
+Available actions: open a new tab based on currently active one; close all tabs; reload, save or delete current item; switch currently active tab to the left/right neighbour.
 
 ![Catalog Tab Manipulations](screenshots/catalog-tab-manipulations.gif)
+
+Most frequent actions have associated keyboard shortcuts.
+
 ![Catalog Editor Key Bindings](screenshots/catalog-editor-key-bindings.gif)
 
 ##### Editor
