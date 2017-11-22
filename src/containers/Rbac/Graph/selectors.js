@@ -5,10 +5,10 @@ import {
 } from '../../../modules/k8s';
 
 
-const RESOURCE_ROLE = 'roles';
-const RESOURCE_CLUSTER_ROLE = 'clusterroles';
-const RESOURCE_ROLE_BINDING = 'rolebindings';
-const RESOURCE_CLUSTER_ROLE_BINDING = 'clusterrolebindings';
+const RESOURCE_ROLE = 'v1.roles';
+const RESOURCE_CLUSTER_ROLE = 'v1.clusterroles';
+const RESOURCE_ROLE_BINDING = 'v1.rolebindings';
+const RESOURCE_CLUSTER_ROLE_BINDING = 'v1.clusterrolebindings';
 
 const KIND_ROLE = 'Role';
 const KIND_CLUSTER_ROLE = 'ClusterRole';
