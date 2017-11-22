@@ -55,7 +55,7 @@ Navigation tree shows resources, grouped by namespaces, and resource items insid
 
 ##### Cache
 
-`Kubernator` fires a lot of API calls, that's why it actively caches their responses in browser's local storage to boost loading times in subsequent uses, e.g. API groups and Swagger schemas are reloaded only when API version changes. Resources reload every time the corresponding tree node is being opened. And items are reloaded again when opened in editor.
+`Kubernator` fires a lot of API calls, that's why it actively caches their responses in browser's local storage to boost loading times in subsequent uses, e.g. API groups and Swagger schemas are reloaded only when `kubectl` updates. Resources reload every time the corresponding tree node is being opened. And items are reloaded again when opened in editor.
 
 ##### Multiple API versions
 
