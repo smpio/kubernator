@@ -9,6 +9,7 @@
 
 ## Table of Contents
 
+- [Purpose](#purpose)
 - [Features](#features)
   - [Catalog](#catalog)
     - [Navigation](#navigation)
@@ -24,6 +25,10 @@
   - [Notifications](#notifications)
 - [Installation](#installation)
 - [Support](#support)
+
+## Purpose
+
+`Kubernator` is an alternative [Kubernetes](https://kubernetes.io/) UI. Although `kubectl` is a recommended way for running commands against Kubernetes clusters, it's just a command line tool, which lacks visual control and general convenience when working with YAML configs. `Kubernator` is built on top of `kubectl`'s API and offers simple yet powerful graphical interface.
 
 ## Features
 
