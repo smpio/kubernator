@@ -62,10 +62,10 @@ export default class Navigation extends React.Component {
     [CATALOG_LOADING_STAGE_NAMESPACES]: 'namespaces',
   };
 
-  constructor(props) {
-    super(props);
-    this.state = { expandedKeys: [] };
-  }
+  state = {
+
+    expandedKeys: [],
+  };
 
   shouldComponentUpdate(props) {
     const { [CATALOG_LOADING_STAGE]: loadingStageCurrent } = props.flags;

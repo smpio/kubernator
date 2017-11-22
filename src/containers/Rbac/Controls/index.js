@@ -2,9 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { Checkbox } from 'antd';
-
 import css from './index.css';
-
 
 export default class Controls extends React.Component {
 

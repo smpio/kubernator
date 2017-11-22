@@ -7,14 +7,11 @@ import css from './index.css';
 
 export default class Rbac extends React.PureComponent {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      showLegend: false,
-      showIsolated: false,
-      showNames: false,
-    };
-  }
+  state = {
+    showLegend: false,
+    showIsolated: false,
+    showNames: false,
+  };
 
   setShowLegend = showLegend => this.setState({ showLegend });
   setShowIsolated = showIsolated => this.setState({ showIsolated });

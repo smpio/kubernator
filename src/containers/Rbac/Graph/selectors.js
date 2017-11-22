@@ -5,10 +5,10 @@ import {
 } from '../../../modules/k8s';
 
 
-const RESOURCE_ROLE = 'roles';
-const RESOURCE_CLUSTER_ROLE = 'clusterroles';
-const RESOURCE_ROLE_BINDING = 'rolebindings';
-const RESOURCE_CLUSTER_ROLE_BINDING = 'clusterrolebindings';
+const RESOURCE_ROLE = 'v1.roles';
+const RESOURCE_CLUSTER_ROLE = 'v1.clusterroles';
+const RESOURCE_ROLE_BINDING = 'v1.rolebindings';
+const RESOURCE_CLUSTER_ROLE_BINDING = 'v1.clusterrolebindings';
 
 const KIND_ROLE = 'Role';
 const KIND_CLUSTER_ROLE = 'ClusterRole';
@@ -25,38 +25,34 @@ class GraphData {
       [RESOURCE_ROLE_BINDING]: KIND_ROLE_BINDING,
       [RESOURCE_CLUSTER_ROLE_BINDING]: KIND_CLUSTER_ROLE_BINDING,
     };
-
     this.oNodes = {};
     this.aLinks = [];
-
     this.flags = flags;
-
-    this.getId = this.getId.bind(this);
-    this.getKind = this.getKind.bind(this);
-    this.getKey = this.getKey.bind(this);
   }
 
-  getId() {
+  getId = () => {
+
     return ++this.nId;
-  }
+  };
 
-  getKind(resource) {
+  getKind = resource => {
+
     return this.oKinds[resource];
-  }
+  };
 
-  getKey(node) {
+  getKey = node => {
     const { kind, name } = node;
     return `${kind}:${name}`;
-  }
+  };
 
-  createNode(node) {
+  createNode = node => {
     const { oNodes, getId, getKey } = this;
     const key = getKey(node);
     if (!oNodes[key]) oNodes[key] = { ...node, id: getId() };
     return key;
-  }
+  };
 
-  createLink(link) {
+  createLink = link => {
     const {
       oNodes,
       aLinks,
@@ -86,15 +82,15 @@ class GraphData {
       oNodes[source].$linked = true;
       oNodes[target].$linked = true;
     }
-  }
+  };
 
-  findNode(node) {
+  findNode = node => {
     const { oNodes, getKey } = this;
     const key = getKey(node);
     return oNodes[key] && key;
-  }
+  };
 
-  getData() {
+  getData = () => {
     const {
       oNodes,
       aLinks,
@@ -121,7 +117,7 @@ class GraphData {
 
     //
     return { nodes, links };
-  }
+  };
 }
 
 const selectItems = state => state.items;
