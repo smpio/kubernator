@@ -1,11 +1,11 @@
 # Kubernator
 
-[![GitHub closed issues](https://img.shields.io/github/issues-closed/smpio/kube-browser.svg)](https://github.com/smpio/kube-browser)
-[![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/smpio/kube-browser.svg)](https://github.com/smpio/kube-browser)
-[![GitHub last commit](https://img.shields.io/github/last-commit/smpio/kube-browser.svg)](https://github.com/smpio/kube-browser)
-[![GitHub commit activity the past week, 4 weeks, year](https://img.shields.io/github/commit-activity/y/smpio/kube-browser.svg)](https://github.com/smpio/kube-browser)
-[![GitHub license](https://img.shields.io/github/license/smpio/kube-browser.svg)](https://github.com/smpio/kube-browser/blob/master/LICENSE)
-[![Twitter](https://img.shields.io/twitter/url/https/github.com/smpio/kube-browser.svg?style=social)](https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fsmpio%2Fkube-browser)
+[![GitHub closed issues](https://img.shields.io/github/issues-closed/smpio/kubernator.svg)](https://github.com/smpio/kubernator)
+[![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/smpio/kubernator.svg)](https://github.com/smpio/kubernator)
+[![GitHub last commit](https://img.shields.io/github/last-commit/smpio/kubernator.svg)](https://github.com/smpio/kubernator)
+[![GitHub commit activity the past week, 4 weeks, year](https://img.shields.io/github/commit-activity/y/smpio/kubernator.svg)](https://github.com/smpio/kubernator)
+[![GitHub license](https://img.shields.io/github/license/smpio/kubernator.svg)](https://github.com/smpio/kubernator/blob/master/LICENSE)
+[![Twitter](https://img.shields.io/twitter/url/https/github.com/smpio/kubernator.svg?style=social)](https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fsmpio%2Fkubernator)
 
 ## Table of Contents
 
@@ -132,8 +132,8 @@ Every error and warning shows itself in a floating message on the right top side
 
 ## Support
 
-Please [open an issue](https://github.com/smpio/kube-browser/issues/new) for support.
+Please [open an issue](https://github.com/smpio/kubernator/issues/new) for support.
 
-Please contribute using [Github Flow](https://guides.github.com/introduction/flow/). Create a branch, add commits, and [open a pull request](https://github.com/smpio/kube-browser/compare/).
+Please contribute using [Github Flow](https://guides.github.com/introduction/flow/). Create a branch, add commits, and [open a pull request](https://github.com/smpio/kubernator/compare/).
 
 MIT License
