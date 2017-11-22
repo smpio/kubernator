@@ -9,7 +9,6 @@
 
 ## Table of Contents
 
-- [Installation](#installation)
 - [Features](#features)
   - [Catalog](#catalog)
     - [Navigation](#navigation)
@@ -23,31 +22,8 @@
     - [Controls](#controls)
     - [Graph](#graph)
   - [Notifications](#notifications)
+- [Installation](#installation)
 - [Support](#support)
-
-## Installation
-
-1. Install and [set up](https://kubernetes.io/docs/tasks/tools/install-kubectl/) `kubectl`
-  
-2. Clone and build `Kubernator`:
-
-    ```sh
-    yarn install && yarn build
-    ```
-
-3. Run Kubernetes API server:
-
-    ```sh
-    kubectl proxy
-    ```
-
-4. Update `proxy` value in `package.json` according to the previous command's output.
-
-5. Run `Kubernator`:
-
-    ```sh
-    yarn start
-    ```
 
 ## Features
 
@@ -124,6 +100,30 @@ Graph area (built with the awesome `d3` library) shows an interactive force grap
 Every error and warning shows itself in a floating message on the right top side of the window. Errors are red and don't vanish automatically as warnings do. An example of concurrent edits of the same item:
 
 ![Catalog Notifications](screenshots/catalog-notifications.gif)
+
+## Installation
+
+1. Install and [set up](https://kubernetes.io/docs/tasks/tools/install-kubectl/) `kubectl`
+  
+2. Clone and build `Kubernator`:
+
+    ```sh
+    yarn install && yarn build
+    ```
+
+3. Run Kubernetes API server:
+
+    ```sh
+    kubectl proxy
+    ```
+
+4. Update `proxy` value in `package.json` according to the previous command's output.
+
+5. Run `Kubernator`:
+
+    ```sh
+    yarn start
+    ```
 
 ## Support
 
