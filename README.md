@@ -95,7 +95,9 @@ Diff editor is based on the powerful [Monaco Editor](https://microsoft.github.io
 
 ##### Notifications
 
-Every error and warning shows itself in a floating message on the right top side of the window. Errors are red and don't vanish automatically as warnings do.
+Every error and warning shows itself in a floating message on the right top side of the window. Errors are red and don't vanish automatically as warnings do. An example of concurrent edits of the same item:
+
+![Catalog Notifications](screenshots/catalog-notifications.gif)
 
 ### Rbac
 
