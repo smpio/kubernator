@@ -11,6 +11,18 @@
 
 - [Installation](#installation)
 - [Features](#features)
+  - [Catalog](#catalog)
+    - [Navigation](#navigation)
+      - [Cache](#cache)
+      - [Multiple API versions](#multiple-api-versions)
+    - [Content](#content)
+      - [Tabs](#tabs)
+      - [Actions bar](#actions-bar)
+      - [Editor](#editor)
+  - [Rbac](#rbac)
+    - [Controls](#controls)
+    - [Graph](#graph)
+  - [Notifications](#notifications)
 - [Support](#support)
 
 ## Installation
@@ -91,12 +103,6 @@ Diff editor is based on the powerful [Monaco Editor](https://microsoft.github.io
 
 ![Catalog Editor Diffs](screenshots/catalog-editor-diffs.gif)
 
-##### Notifications
-
-Every error and warning shows itself in a floating message on the right top side of the window. Errors are red and don't vanish automatically as warnings do. An example of concurrent edits of the same item:
-
-![Catalog Notifications](screenshots/catalog-notifications.gif)
-
 ### Rbac
 
 Rbac shows `Roles`, `ClusterRoles`, `RoleBindings`, `ClusterRoleBindings` and relationships between them in a visually intuitive way.
@@ -112,6 +118,12 @@ Simple controls pane allows to show/hide a legend, isolated nodes and extended n
 Graph area (built with the awesome `d3` library) shows an interactive force graph of linked nodes. The graph can be paned, dragged and zoomed. Nodes are draggable too, and links also show some additional information when hovered.
 
 ![Rbac Graph](screenshots/rbac-graph.gif)
+
+### Notifications
+
+Every error and warning shows itself in a floating message on the right top side of the window. Errors are red and don't vanish automatically as warnings do. An example of concurrent edits of the same item:
+
+![Catalog Notifications](screenshots/catalog-notifications.gif)
 
 ## Support
 
