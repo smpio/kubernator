@@ -17,8 +17,12 @@ import {
   forceCollide as d3forceCollide,
   forceLink as d3forceLink,
 } from 'd3-force';
-import { drag as d3drag } from 'd3-drag';
-import { zoom as d3zoom } from 'd3-zoom';
+import {
+  drag as d3drag,
+} from 'd3-drag';
+import {
+  zoom as d3zoom,
+} from 'd3-zoom';
 
 import {
   PREFIX,
