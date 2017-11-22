@@ -49,7 +49,7 @@ Catalog offers an intuitive interface for managing `Groups`, `Resources` and `It
 
 #### Navigation
 
-Navigation tree shows resources, grouped by namespaces, and resource items inside. All API groups are fetched, which yields a list of versions and endpoints for every group. Then for all groups and versions `Kubernator` loads resources list, and then ― list of items for every known resource. To show the tree, resources are grouped by their namespaces.
+Navigation tree shows resources, grouped by namespaces, and resource items inside. All API groups are fetched, which yields a list of versions and endpoints for every group. Then for all groups and versions `Kubernator` loads resources list, and then ― list of items for every known resource. To show the tree, resources are grouped by their namespaces. Navigation has its own actions bar, which currently consists from one action ― reload namespaces.
 
 ![Catalog Navigation](screenshots/catalog-navigation.gif)
 
@@ -62,10 +62,6 @@ Navigation tree shows resources, grouped by namespaces, and resource items insid
 Every group fetches its resources using all API versions, not only the preferred one, and then merges given resources into one list considering versions priority. It means we can access items through different API versions. Moreover, for a new item, an API endpoint will be choosed automatically based on the value of `apiVersion` field in its description.
 
 ![Catalog Editor API Versions](screenshots/catalog-editor-api-versions.gif)
-
-##### Reload namespaces
-
-Navigation has its own actions bar, which currently consists from one action ― reload namespaces.
 
 #### Content
 
