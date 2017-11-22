@@ -49,7 +49,7 @@ Catalog offers an intuitive interface for managing `Groups`, `Resources` and `It
 
 #### Navigation
 
-Navigation tree shows resources, grouped by namespaces, and resource items inside. All API groups are fetched, which gives us a list of versions and endpoints for every group. Then for all groups and versions `Kubernator` loads resources list, and then ― list of items for every known resource. To show the tree, resources are grouped by namespaces.
+Navigation tree shows resources, grouped by namespaces, and resource items inside. All API groups are fetched, which yields a list of versions and endpoints for every group. Then for all groups and versions `Kubernator` loads resources list, and then ― list of items for every known resource. To show the tree, resources are grouped by their namespaces.
 
 ![Catalog Navigation](screenshots/catalog-navigation.gif)
 
