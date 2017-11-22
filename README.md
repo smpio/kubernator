@@ -12,8 +12,6 @@
 - [Installation](#installation)
 - [Features](#features)
 - [Support](#support)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Installation
 
@@ -119,10 +117,6 @@ Graph area (built with the awesome `d3` library) shows an interactive force grap
 
 Please [open an issue](https://github.com/smpio/kube-browser/issues/new) for support.
 
-## Contributing
-
 Please contribute using [Github Flow](https://guides.github.com/introduction/flow/). Create a branch, add commits, and [open a pull request](https://github.com/smpio/kube-browser/compare/).
 
-## License
-
-MIT
+MIT License
