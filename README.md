@@ -7,11 +7,7 @@
 [![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/smpio/kubernator.svg)](https://github.com/smpio/kubernator)
 [![GitHub license](https://img.shields.io/github/license/smpio/kubernator.svg)](https://github.com/smpio/kubernator/blob/master/LICENSE)
 
-In contrast to high-level [Kubernetes dashboard](https://github.com/kubernetes/dashboard) `Kubernator` provides a low-level view and control of a cluster. As an entirely client-side app, it doesn't require any backend except Kubernetes API server itself.
-
-Kubernator gives you a clean view on *all* objects in your cluster with ability to edit, resolve conflicts and create new objects.
-
-Since Kubernator is client-side only (like `kubectl`), it respects cluster's access control.
+`Kubernator` is an alternative [Kubernetes](https://kubernetes.io) UI. In contrast to high-level [Kubernetes Dashboard](https://github.com/kubernetes/dashboard), `Kubernator` provides low-level control and clean view on **all** objects in a cluster with the ability to create new ones, edit and resolve conflicts. As an entirely client-side app (like `kubectl`), it doesn't require any backend except Kubernetes API server itself, and also respects cluster's access control.
 
 ![Catalog: Overview](screenshots/catalog-overview.png)
 
@@ -46,7 +42,7 @@ Catalog offers an intuitive interface for managing Kubernetes objects (like `Dep
 
 #### Navigation Tree
 
-Navigation tree shows object kinds, grouped by namespaces, and objects themselves. All API groups are fetched, which yields a list of versions and endpoints for every group. Then for all groups and versions `Kubernator` loads resources list, and then ― list of objects for every known resource. To show the tree, objects are grouped by their namespaces. Navigation has its own actions bar, which currently consists from one action ― reload namespaces.
+Navigation tree shows objects' kinds, grouped by namespaces, and objects themselves. All API groups are fetched, which yields a list of versions and endpoints for every group. Then for all groups and versions `Kubernator` loads resources list, and then ― list of objects for every known resource. To show the tree, objects are grouped by their namespaces. Navigation has its own actions bar, which currently consists from one action ― reload namespaces.
 
 ![Catalog: Navigation Tree](screenshots/catalog-navigation-tree.gif)
 
@@ -62,7 +58,7 @@ Every group fetches its resources using all API versions, not only the preferred
 
 #### Tabs
 
-Tab names reflect current object's location in the navigation tree (resource namespace → resource kind → item). New items have green tab color, modified and not submitted items ― red tab color. Local modifications are saved even if the tab was closed and reopened again.
+Tab names reflect current object's location in the navigation tree (resource.namespace → resource.kind → item). New items have green tab color, modified and not submitted items ― red tab color. Local modifications are saved even if the tab was closed and reopened again.
 
 ![Catalog: Tabs](screenshots/catalog-tabs.gif)
 
