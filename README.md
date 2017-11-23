@@ -9,7 +9,7 @@
 
 Although `kubectl` is a recommended way of running commands against [Kubernetes](https://kubernetes.io/) clusters, it's just a command line tool, which lacks visual control and general convenience when working with YAML configs. `Kubernator` is an alternative Kubernetes UI, which is built on top of `kubectl`'s API and offers simple yet powerful graphical interface: it gives you a clean view on *all* objects in your cluster with ability to edit, resolve conflicts and create new objects.
 
-![Catalog Overview](screenshots/catalog-overview.png)
+![Catalog: Overview](screenshots/catalog-overview.png)
 
 ## Table of Contents
 
@@ -44,7 +44,7 @@ Catalog offers an intuitive interface for managing `Groups`, `Resources` and `It
 
 Navigation tree shows resources, grouped by namespaces, and resource items inside. All API groups are fetched, which yields a list of versions and endpoints for every group. Then for all groups and versions `Kubernator` loads resources list, and then ― list of items for every known resource. To show the tree, resources are grouped by their namespaces. Navigation has its own actions bar, which currently consists from one action ― reload namespaces.
 
-![Catalog Navigation](screenshots/catalog-navigation.gif)
+![Catalog: Navigation Tree](screenshots/catalog-navigation-tree.gif)
 
 #### Extensive Caching
 
@@ -54,37 +54,37 @@ Navigation tree shows resources, grouped by namespaces, and resource items insid
 
 Every group fetches its resources using all API versions, not only the preferred one, and then merges given resources into one list considering versions priority. It means we can access items through different API versions. Moreover, for a new item, an API endpoint will be choosed automatically based on the value of `apiVersion` field in its description.
 
-![Catalog Editor API Versions](screenshots/catalog-editor-api-versions.gif)
+![Catalog: Multiple API Versions](screenshots/catalog-multiple-api-versions.gif)
 
 #### Item Tabs
 
 Tab names reflect current item's position in the navigation tree (resource namespace → resource kind → item). New items have green tab color, modified and not submitted items ― red tab color. Local modifications are saved even if the tab was closed and reopened again.
 
-![Catalog Tab Colors](screenshots/catalog-tab-colors.gif)
+![Catalog: Item Tabs](screenshots/catalog-item-tabs.gif)
 
 #### Swagger Schemas
 
 When a new item is being created based on the currently opened one, all unnecessary and read-only fields are automatically stripped as described in the corresponding Swagger scheme.
 
-![Catalog Tab New](screenshots/catalog-tab-new.gif)
+![Catalog: Swagger Schemas](screenshots/catalog-swagger-schemas.gif)
 
 #### Actions Bar
 
 Available actions: open a new tab based on currently active one; close all tabs; reload, save or delete current item; switch currently active tab to the left/right neighbour.
 
-![Catalog Tab Manipulations](screenshots/catalog-tab-manipulations.gif)
+![Catalog: Actions Bar](screenshots/catalog-actions-bar.gif)
 
 #### Keyboard Shortcuts
 
 Most frequent actions have associated keyboard shortcuts.
 
-![Catalog Editor Key Bindings](screenshots/catalog-editor-key-bindings.gif)
+![Catalog: Keyboard Shortcuts](screenshots/catalog-keyboard-shortcuts.gif)
 
 #### Diff Editor
 
 Diff editor is based on the powerful `Monaco Editor`. Cursor position, scroll position and not applied updates are saved automatically for every open tab.
 
-![Catalog Editor Diffs](screenshots/catalog-editor-diffs.gif)
+![Catalog: Diff Editor](screenshots/catalog-diff-editor.gif)
 
 ### Rbac
 
@@ -94,19 +94,19 @@ Rbac shows `Roles`, `ClusterRoles`, `RoleBindings`, `ClusterRoleBindings` and re
 
 Simple controls pane allows to show/hide a legend, isolated nodes and extended names.
 
-![Rbac Overview](screenshots/rbac-overview.png)
+![Rbac: Overview](screenshots/rbac-overview.png)
 
 #### Graph
 
 Graph area (built with the awesome `d3` library) shows an interactive force graph of linked nodes. The graph can be paned, dragged and zoomed. Nodes are draggable too, and links also show some additional information when hovered.
 
-![Rbac Graph](screenshots/rbac-graph.gif)
+![Rbac: Graph](screenshots/rbac-graph.gif)
 
 ### Notifications
 
 Every error and warning shows itself in a floating message on the right top side of the window. Errors are red and don't vanish automatically as warnings do. An example of concurrent edits of the same item:
 
-![Catalog Notifications](screenshots/catalog-notifications.gif)
+![Notifications](screenshots/notifications.gif)
 
 ## Getting started
 
