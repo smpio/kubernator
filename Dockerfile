@@ -8,7 +8,9 @@ COPY package.json yarn.lock ./
 RUN yarn install
 
 COPY . .
+RUN cp -R ./node_modules/monaco-editor ./public/monaco-editor
 RUN yarn build
+RUN rm ./build/static/(js|css)/*.map
 
 
 # Runner
