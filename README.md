@@ -15,21 +15,22 @@ Although `kubectl` is a recommended way of running commands against Kubernetes c
 
 - [Features](#features)
   - [Catalog](#catalog)
-    - [Navigation](#navigation)
-      - [Cache](#cache)
-      - [Multiple API versions](#multiple-api-versions)
-    - [Content](#content)
-      - [Tabs](#tabs)
-      - [Actions bar](#actions-bar)
-      - [Editor](#editor)
+    - [Navigation Tree](#navigation-tree)
+    - [Caching](#caching)
+    - [Multiple API Versions](#multiple-api-versions)
+    - [Tabs](#tabs)
+    - [Swagger Schemas](#swagger-schemas)
+    - [Actions Bar](#actions-bar)
+    - [Keyboard Shortcuts](#keyboard-shortcuts)
+    - [Diff Editor](#diff-editor)
   - [Rbac](#rbac)
     - [Controls](#controls)
     - [Graph](#graph)
   - [Notifications](#notifications)
 - [Getting Started](#getting-started)
-  - [Install on cluster](#install-on-cluster-recommended)
-  - [Run in docker locally](#run-in-docker-locally)
-  - [Build and run locally](#build-and-run-locally)
+  - [Install on Cluster](#install-on-cluster-recommended)
+  - [Run in Docker Locally](#run-in-docker-locally)
+  - [Build and Run Locally](#build-and-run-locally)
 - [Support](#support)
 
 ## Features
@@ -38,47 +39,47 @@ Although `kubectl` is a recommended way of running commands against Kubernetes c
 
 Catalog offers an intuitive interface for managing `Groups`, `Resources` and `Items` through the `kubectl` API instead of using console commands. Resource items can be created, compared, modified and removed using a powerful diff editor.
 
-#### Navigation
+#### Navigation Tree
 
 Navigation tree shows resources, grouped by namespaces, and resource items inside. All API groups are fetched, which yields a list of versions and endpoints for every group. Then for all groups and versions `Kubernator` loads resources list, and then ― list of items for every known resource. To show the tree, resources are grouped by their namespaces. Navigation has its own actions bar, which currently consists from one action ― reload namespaces.
 
 ![Catalog Navigation](screenshots/catalog-navigation.gif)
 
-##### Cache
+#### Caching
 
 `Kubernator` fires a lot of API calls, that's why it actively caches their responses in browser's local storage to boost loading times in subsequent uses, e.g. API groups and Swagger schemas are reloaded only when `kubectl` updates. Resources reload every time the corresponding tree node is being opened. And items are reloaded again when opened in editor.
 
-##### Multiple API versions
+#### Multiple API Versions
 
 Every group fetches its resources using all API versions, not only the preferred one, and then merges given resources into one list considering versions priority. It means we can access items through different API versions. Moreover, for a new item, an API endpoint will be choosed automatically based on the value of `apiVersion` field in its description.
 
 ![Catalog Editor API Versions](screenshots/catalog-editor-api-versions.gif)
 
-#### Content
-
-Content pane shows open items grouped in tabs, actions bar and diff editor, which does also provide handy key bindings for the most recent actions.
-
-##### Tabs
+#### Tabs
 
 Tab names reflect current item's position in the navigation tree (resource namespace → resource kind → item). New items have green tab color, modified and not submitted items ― red tab color. Local modifications are saved even if the tab was closed and reopened again.
 
 ![Catalog Tab Colors](screenshots/catalog-tab-colors.gif)
 
+#### Swagger Schemas
+
 When a new item is being created based on the currently opened one, all unnecessary and read-only fields are automatically stripped as described in the corresponding Swagger scheme.
 
 ![Catalog Tab New](screenshots/catalog-tab-new.gif)
 
-##### Actions bar
+#### Actions Bar
 
 Available actions: open a new tab based on currently active one; close all tabs; reload, save or delete current item; switch currently active tab to the left/right neighbour.
 
 ![Catalog Tab Manipulations](screenshots/catalog-tab-manipulations.gif)
 
+#### Keyboard Shortcuts
+
 Most frequent actions have associated keyboard shortcuts.
 
 ![Catalog Editor Key Bindings](screenshots/catalog-editor-key-bindings.gif)
 
-##### Editor
+#### Diff Editor
 
 Diff editor is based on the powerful [Monaco Editor](https://microsoft.github.io/monaco-editor/). Cursor position, scroll position and not applied updates are saved automatically for every open tab.
 
@@ -108,7 +109,7 @@ Every error and warning shows itself in a floating message on the right top side
 
 ## Getting started
 
-There are many ways to run Kubernator:
+There are many ways to run `Kubernator`:
 
 ### Install on cluster (recommended)
 
@@ -126,22 +127,30 @@ Then open [service proxy URL](http://localhost:8001/api/v1/namespaces/kubernator
 ### Run in docker locally
 
 1. Exec `docker run -d --name=kubernator -p 3000:80 smpio/kubernator`
+
 2. Run `kubectl proxy`.
+
 3. Open [http://localhost:8001/](http://localhost:8001/) in your browser.
 
 ### Build and run locally
 
 1. Install and [set up](https://kubernetes.io/docs/tasks/tools/install-kubectl/) `kubectl`  
+
 2. Clone and build `Kubernator`:
+
     ```sh
     yarn install && yarn build
     ```
+
 3. Run Kubernetes API server:
+
     ```sh
     kubectl proxy
     ```
 4. Update `proxy` value in `package.json` according to the previous command's output.
+
 5. Run `Kubernator`:
+
     ```sh
     yarn start
     ```
