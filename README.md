@@ -7,7 +7,7 @@
 [![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/smpio/kubernator.svg)](https://github.com/smpio/kubernator)
 [![GitHub license](https://img.shields.io/github/license/smpio/kubernator.svg)](https://github.com/smpio/kubernator/blob/master/LICENSE)
 
-Although `kubectl` is a recommended way of running commands against [Kubernetes](https://kubernetes.io/) clusters, it's just a command line tool, which lacks visual control and general convenience when working with YAML configs. `Kubernator` is an alternative Kubernetes UI, which is built on top of `kubectl`'s API and offers simple yet powerful graphical interface: it gives you a clean view on *all* objects in your cluster with ability to edit, resolve conflicts and create new objects.
+`Kubernator` is an alternative [Kubernetes](https://kubernetes.io) UI. In contrast to high-level [Kubernetes Dashboard](https://github.com/kubernetes/dashboard), it provides low-level control and clean view on **all** objects in a cluster with the ability to create new ones, edit and resolve conflicts. As an entirely client-side app (like `kubectl`), it doesn't require any backend except Kubernetes API server itself, and also respects cluster's access control.
 
 ![Catalog: Overview](screenshots/catalog-overview.png)
 
@@ -18,12 +18,12 @@ Although `kubectl` is a recommended way of running commands against [Kubernetes]
     - [Navigation Tree](#navigation-tree)
     - [Extensive Caching](#extensive-caching)
     - [Multiple API Versions](#multiple-api-versions)
-    - [Item Tabs](#item-tabs)
-    - [Swagger Schemas](#swagger-schemas)
+    - [Tabs](#tabs)
+    - [Copying Objects](#copying-objects)
     - [Actions Bar](#actions-bar)
     - [Keyboard Shortcuts](#keyboard-shortcuts)
     - [Diff Editor](#diff-editor)
-  - [Rbac](#rbac)
+  - [RBAC Viewer](#rbac-viewer)
     - [Controls](#controls)
     - [Graph](#graph)
   - [Notifications](#notifications)
@@ -38,39 +38,39 @@ Although `kubectl` is a recommended way of running commands against [Kubernetes]
 
 ### Catalog
 
-Catalog offers an intuitive interface for managing `Groups`, `Resources` and `Items` through the `kubectl` API instead of using console commands. Resource items can be created, compared, modified and removed using a powerful diff editor.
+Catalog offers an intuitive interface for managing Kubernetes objects (like `Deployment`, `Service` and everything else). Objects can be created, compared, modified and removed using a powerful diff editor.
 
 #### Navigation Tree
 
-Navigation tree shows resources, grouped by namespaces, and resource items inside. All API groups are fetched, which yields a list of versions and endpoints for every group. Then for all groups and versions `Kubernator` loads resources list, and then ― list of items for every known resource. To show the tree, resources are grouped by their namespaces. Navigation has its own actions bar, which currently consists from one action ― reload namespaces.
+Navigation tree shows objects' kinds, grouped by namespaces, and objects themselves. All API groups are fetched, which yields a list of versions and endpoints for every group. Then for all groups and versions `Kubernator` loads resources list, and then ― list of objects for every known resource. To show the tree, objects are grouped by their namespaces. Navigation has its own actions bar, which currently consists from one action ― reload namespaces.
 
 ![Catalog: Navigation Tree](screenshots/catalog-navigation-tree.gif)
 
 #### Extensive Caching
 
-`Kubernator` fires a lot of API calls, that's why it actively caches their responses in browser's local storage to boost loading times in subsequent uses, e.g. API groups and Swagger schemas are reloaded only when `kubectl` updates. Resources reload every time the corresponding tree node is being opened. And items are reloaded again when opened in editor.
+`Kubernator` fires a lot of API calls, that's why it actively caches their responses in browser's local storage to boost loading times in subsequent uses, e.g. API groups and Swagger schemas are reloaded only when cluster is upgraded. Resources are reloaded every time the corresponding kind or namespace is being opened. And objects are reloaded again when opened in the editor.
 
 #### Multiple API Versions
 
-Every group fetches its resources using all API versions, not only the preferred one, and then merges given resources into one list considering versions priority. It means we can access items through different API versions. Moreover, for a new item, an API endpoint will be choosed automatically based on the value of `apiVersion` field in its description.
+Every group fetches its resources using all API versions, not only the preferred one, and then merges given resources into one list considering versions priority. It means we can access objects through different API versions. Moreover, when a new object is created, an API endpoint would be choosed automatically based on the value of `apiVersion` field in its description.
 
 ![Catalog: Multiple API Versions](screenshots/catalog-multiple-api-versions.gif)
 
-#### Item Tabs
+#### Tabs
 
-Tab names reflect current item's position in the navigation tree (resource namespace → resource kind → item). New items have green tab color, modified and not submitted items ― red tab color. Local modifications are saved even if the tab was closed and reopened again.
+Tab names reflect current object's location in the navigation tree (object.namespace → object.kind → object). New objects have green tab color, modified and not submitted objects ― red tab color. Local modifications are saved even if the tab was closed and reopened again.
 
-![Catalog: Item Tabs](screenshots/catalog-item-tabs.gif)
+![Catalog: Tabs](screenshots/catalog-tabs.gif)
 
-#### Swagger Schemas
+#### Copying Objects
 
-When a new item is being created based on the currently opened one, all unnecessary and read-only fields are automatically stripped as described in the corresponding Swagger scheme.
+When object is being copied, all unnecessary and read-only fields are automatically stripped as described in the corresponding Swagger scheme.
 
-![Catalog: Swagger Schemas](screenshots/catalog-swagger-schemas.gif)
+![Catalog: Copying Objects](screenshots/catalog-copying-objects.gif)
 
 #### Actions Bar
 
-Available actions: open a new tab based on currently active one; close all tabs; reload, save or delete current item; switch currently active tab to the left/right neighbour.
+Available actions: open a new tab copying current object; close all tabs; reload, save or delete current object; switch currently active tab to the left/right neighbour.
 
 ![Catalog: Actions Bar](screenshots/catalog-actions-bar.gif)
 
@@ -86,25 +86,25 @@ Diff editor is based on the powerful `Monaco Editor`. Cursor position, scroll po
 
 ![Catalog: Diff Editor](screenshots/catalog-diff-editor.gif)
 
-### Rbac
+### RBAC Viewer
 
-Rbac shows `Roles`, `ClusterRoles`, `RoleBindings`, `ClusterRoleBindings` and relationships between them in a visually intuitive way.
+RBAC viewer shows `Roles`, `ClusterRoles`, `RoleBindings`, `ClusterRoleBindings` and relationships between them in a visually intuitive way.
 
 #### Controls
 
 Simple controls pane allows to show/hide a legend, isolated nodes and extended names.
 
-![Rbac: Overview](screenshots/rbac-overview.png)
+![RBAC: Overview](screenshots/rbac-overview.png)
 
 #### Graph
 
 Graph area (built with the awesome `d3` library) shows an interactive force graph of linked nodes. The graph can be paned, dragged and zoomed. Nodes are draggable too, and links also show some additional information when hovered.
 
-![Rbac: Graph](screenshots/rbac-graph.gif)
+![RBAC: Graph](screenshots/rbac-graph.gif)
 
 ### Notifications
 
-Every error and warning shows itself in a floating message on the right top side of the window. Errors are red and don't vanish automatically as warnings do. An example of concurrent edits of the same item:
+Every error and warning shows itself in a floating message on the right top side of the window. Errors are red and don't vanish automatically as warnings do. An example of concurrent edits of the same object:
 
 ![Notifications: Overview](screenshots/notifications-overview.gif)
 
@@ -131,7 +131,7 @@ Then open [service proxy URL](http://localhost:8001/api/v1/namespaces/kubernator
 
 2. Run `kubectl proxy`.
 
-3. Open [http://localhost:8001/](http://localhost:8001/) in your browser.
+3. Open [http://localhost:3000/](http://localhost:3000/) in your browser.
 
 ### Build and run locally
 
