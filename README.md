@@ -25,7 +25,10 @@
     - [Controls](#controls)
     - [Graph](#graph)
   - [Notifications](#notifications)
-- [Installation](#installation)
+- [Getting Started](#getting-started)
+  - [Install on cluster](#install-on-cluster)
+  - [Run in docker locally](#run-in-docker-locally)
+  - [Build and run locally](#build-and-run-locally)
 - [Support](#support)
 
 ## Features
@@ -102,29 +105,49 @@ Every error and warning shows itself in a floating message on the right top side
 
 ![Catalog Notifications](screenshots/catalog-notifications.gif)
 
-## Installation
+## Getting started
 
-1. Install and [set up](https://kubernetes.io/docs/tasks/tools/install-kubectl/) `kubectl`
-  
+There are many ways to run Kubernator:
+
+### Install on cluster (recommended)
+
+After installation you will have access to Kubernator just by running `kubectl proxy`. You won't have to run anything else locally. To install, run the following commands:
+
+```sh
+kubectl create ns kubernator
+kubectl -n kubernator run --image=smpio/kubernator --port=80 kubernator
+kubectl -n kubernator expose deploy kubernator
+kubectl proxy
+```
+
+Then open [service proxy URL](http://localhost:8001/api/v1/namespaces/kubernator/services/kubernator/proxy/) in your browser.
+
+### Run in docker locally
+
+1. Exec `docker run -d --name=kubernator -p 3000:80 smpio/kubernator`
+2. Run `kubectl proxy`.
+3. Open [http://localhost:8001/](http://localhost:8001/) in your browser.
+
+### Build and run locally
+
+1. Install and [set up](https://kubernetes.io/docs/tasks/tools/install-kubectl/) `kubectl`  
 2. Clone and build `Kubernator`:
-
     ```sh
     yarn install && yarn build
     ```
-
 3. Run Kubernetes API server:
-
     ```sh
     kubectl proxy
     ```
-
 4. Update `proxy` value in `package.json` according to the previous command's output.
-
 5. Run `Kubernator`:
-
     ```sh
     yarn start
     ```
+
+### Desktop app
+
+Coming soon.
 
 ## Support
 
