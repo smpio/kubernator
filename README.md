@@ -16,9 +16,9 @@ Although `kubectl` is a recommended way of running commands against Kubernetes c
 - [Features](#features)
   - [Catalog](#catalog)
     - [Navigation Tree](#navigation-tree)
-    - [Caching](#caching)
+    - [Extensive Caching](#extensive-caching)
     - [Multiple API Versions](#multiple-api-versions)
-    - [Tabs](#tabs)
+    - [Item Tabs](#item-tabs)
     - [Swagger Schemas](#swagger-schemas)
     - [Actions Bar](#actions-bar)
     - [Keyboard Shortcuts](#keyboard-shortcuts)
@@ -45,7 +45,7 @@ Navigation tree shows resources, grouped by namespaces, and resource items insid
 
 ![Catalog Navigation](screenshots/catalog-navigation.gif)
 
-#### Caching
+#### Extensive Caching
 
 `Kubernator` fires a lot of API calls, that's why it actively caches their responses in browser's local storage to boost loading times in subsequent uses, e.g. API groups and Swagger schemas are reloaded only when `kubectl` updates. Resources reload every time the corresponding tree node is being opened. And items are reloaded again when opened in editor.
 
@@ -55,7 +55,7 @@ Every group fetches its resources using all API versions, not only the preferred
 
 ![Catalog Editor API Versions](screenshots/catalog-editor-api-versions.gif)
 
-#### Tabs
+#### Item Tabs
 
 Tab names reflect current item's position in the navigation tree (resource namespace → resource kind → item). New items have green tab color, modified and not submitted items ― red tab color. Local modifications are saved even if the tab was closed and reopened again.
 
