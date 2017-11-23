@@ -9,6 +9,17 @@
 
 `Kubernator` is an alternative [Kubernetes](https://kubernetes.io) UI. In contrast to high-level [Kubernetes Dashboard](https://github.com/kubernetes/dashboard), it provides low-level control and clean view on **all** objects in a cluster with the ability to create new ones, edit and resolve conflicts. As an entirely client-side app (like `kubectl`), it doesn't require any backend except Kubernetes API server itself, and also respects cluster's access control.
 
+## TL;DR
+
+```sh
+kubectl create ns kubernator
+kubectl -n kubernator run --image=smpio/kubernator --port=80 kubernator
+kubectl -n kubernator expose deploy kubernator
+kubectl proxy
+```
+
+Then open [service proxy URL](http://localhost:8001/api/v1/namespaces/kubernator/services/kubernator/proxy/) in your browser.
+
 ![Catalog: Overview](screenshots/catalog-overview.png)
 
 ## Table of Contents
