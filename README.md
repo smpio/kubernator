@@ -52,13 +52,13 @@ Navigation tree shows objects' kinds, grouped by namespaces, and objects themsel
 
 #### Multiple API Versions
 
-Every group fetches its resources using all API versions, not only the preferred one, and then merges given resources into one list considering versions priority. It means we can access items through different API versions. Moreover, when creating a new item, an API endpoint will be choosed automatically based on the value of `apiVersion` field in its description.
+Every group fetches its resources using all API versions, not only the preferred one, and then merges given resources into one list considering versions priority. It means we can access objects through different API versions. Moreover, when a new object is created, an API endpoint would be choosed automatically based on the value of `apiVersion` field in its description.
 
 ![Catalog: Multiple API Versions](screenshots/catalog-multiple-api-versions.gif)
 
 #### Tabs
 
-Tab names reflect current object's location in the navigation tree (resource.namespace → resource.kind → item). New items have green tab color, modified and not submitted items ― red tab color. Local modifications are saved even if the tab was closed and reopened again.
+Tab names reflect current object's location in the navigation tree (object.namespace → object.kind → object). New objects have green tab color, modified and not submitted objects ― red tab color. Local modifications are saved even if the tab was closed and reopened again.
 
 ![Catalog: Tabs](screenshots/catalog-tabs.gif)
 
