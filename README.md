@@ -7,7 +7,7 @@
 [![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/smpio/kubernator.svg)](https://github.com/smpio/kubernator)
 [![GitHub license](https://img.shields.io/github/license/smpio/kubernator.svg)](https://github.com/smpio/kubernator/blob/master/LICENSE)
 
-`Kubernator` is an alternative [Kubernetes](https://kubernetes.io) UI. In contrast to high-level [Kubernetes Dashboard](https://github.com/kubernetes/dashboard), `Kubernator` provides low-level control and clean view on **all** objects in a cluster with the ability to create new ones, edit and resolve conflicts. As an entirely client-side app (like `kubectl`), it doesn't require any backend except Kubernetes API server itself, and also respects cluster's access control.
+`Kubernator` is an alternative [Kubernetes](https://kubernetes.io) UI. In contrast to high-level [Kubernetes Dashboard](https://github.com/kubernetes/dashboard), it provides low-level control and clean view on **all** objects in a cluster with the ability to create new ones, edit and resolve conflicts. As an entirely client-side app (like `kubectl`), it doesn't require any backend except Kubernetes API server itself, and also respects cluster's access control.
 
 ![Catalog: Overview](screenshots/catalog-overview.png)
 
