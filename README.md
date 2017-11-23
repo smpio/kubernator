@@ -27,7 +27,7 @@ Since Kubernator is client-side only (like `kubectl`), it respects cluster acces
     - [Actions Bar](#actions-bar)
     - [Keyboard Shortcuts](#keyboard-shortcuts)
     - [Diff Editor](#diff-editor)
-  - [RBAC](#rbac)
+  - [RBAC Viewer](#rbac-viewer)
     - [Controls](#controls)
     - [Graph](#graph)
   - [Notifications](#notifications)
@@ -90,7 +90,7 @@ Diff editor is based on the powerful `Monaco Editor`. Cursor position, scroll po
 
 ![Catalog: Diff Editor](screenshots/catalog-diff-editor.gif)
 
-### RBAC viewer
+### RBAC Viewer
 
 RBAC viewer shows `Roles`, `ClusterRoles`, `RoleBindings`, `ClusterRoleBindings` and relationships between them in a visually intuitive way.
 
