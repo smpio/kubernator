@@ -7,11 +7,11 @@
 [![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/smpio/kubernator.svg)](https://github.com/smpio/kubernator)
 [![GitHub license](https://img.shields.io/github/license/smpio/kubernator.svg)](https://github.com/smpio/kubernator/blob/master/LICENSE)
 
-In contrast to high-level [Kubernates dashboard](https://github.com/kubernetes/dashboard) *Kubernator* gives you low-level view and control of a cluster. It is entirely client-side app and it doesn't require any backend except Kubernetes apiserver itself.
+In contrast to high-level [Kubernetes dashboard](https://github.com/kubernetes/dashboard) `Kubernator` provides a low-level view and control of a cluster. As an entirely client-side app, it doesn't require any backend except Kubernetes API server itself.
 
 Kubernator gives you a clean view on *all* objects in your cluster with ability to edit, resolve conflicts and create new objects.
 
-Since Kubernator is client-side only (like `kubectl`), it respects cluster access control.
+Since Kubernator is client-side only (like `kubectl`), it respects cluster's access control.
 
 ![Catalog: Overview](screenshots/catalog-overview.png)
 
@@ -23,7 +23,7 @@ Since Kubernator is client-side only (like `kubectl`), it respects cluster acces
     - [Extensive Caching](#extensive-caching)
     - [Multiple API Versions](#multiple-api-versions)
     - [Tabs](#tabs)
-    - [Copy objects](#copy-obects)
+    - [Copying Objects](#copying-objects)
     - [Actions Bar](#actions-bar)
     - [Keyboard Shortcuts](#keyboard-shortcuts)
     - [Diff Editor](#diff-editor)
@@ -52,7 +52,7 @@ Navigation tree shows object kinds, grouped by namespaces, and objects themselve
 
 #### Extensive Caching
 
-`Kubernator` fires a lot of API calls, that's why it actively caches their responses in browser's local storage to boost loading times in subsequent uses, e.g. API groups and Swagger schemas are reloaded only when cluster is upgraded. Resources are reloaded every time the corresponding Kind or namespace is being opened. And objects are reloaded again when opened in editor.
+`Kubernator` fires a lot of API calls, that's why it actively caches their responses in browser's local storage to boost loading times in subsequent uses, e.g. API groups and Swagger schemas are reloaded only when cluster is upgraded. Resources are reloaded every time the corresponding kind or namespace is being opened. And objects are reloaded again when opened in the editor.
 
 #### Multiple API Versions
 
@@ -64,13 +64,13 @@ Every group fetches its resources using all API versions, not only the preferred
 
 Tab names reflect current object's location in the navigation tree (resource namespace → resource kind → item). New items have green tab color, modified and not submitted items ― red tab color. Local modifications are saved even if the tab was closed and reopened again.
 
-![Catalog: Tabs](screenshots/catalog-item-tabs.gif)
+![Catalog: Tabs](screenshots/catalog-tabs.gif)
 
-#### Copy objects
+#### Copying Objects
 
 When object is being copied, all unnecessary and read-only fields are automatically stripped as described in the corresponding Swagger scheme.
 
-![Catalog: Copy objects](screenshots/catalog-swagger-schemas.gif)
+![Catalog: Copying Objects](screenshots/catalog-copying-objects.gif)
 
 #### Actions Bar
 
