@@ -26,7 +26,7 @@
     - [Graph](#graph)
   - [Notifications](#notifications)
 - [Getting Started](#getting-started)
-  - [Install on cluster](#install-on-cluster)
+  - [Install on cluster](#install-on-cluster-recommended)
   - [Run in docker locally](#run-in-docker-locally)
   - [Build and run locally](#build-and-run-locally)
 - [Support](#support)
