@@ -31,6 +31,7 @@ Although `kubectl` is a recommended way of running commands against Kubernetes c
   - [Install on Cluster](#install-on-cluster-recommended)
   - [Run in Docker Locally](#run-in-docker-locally)
   - [Build and Run Locally](#build-and-run-locally)
+  - [Desktop App](#desktop-app)
 - [Support](#support)
 
 ## Features
