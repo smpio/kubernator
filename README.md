@@ -108,7 +108,7 @@ Graph area (built with the awesome `d3` library) shows an interactive force grap
 
 ### Notifications
 
-Every error and warning shows itself in a floating message on the right top side of the window. Errors are red and don't vanish automatically as warnings do. An example of concurrent edits of the same obect:
+Every error and warning shows itself in a floating message on the right top side of the window. Errors are red and don't vanish automatically as warnings do. An example of concurrent edits of the same object:
 
 ![Notifications: Overview](screenshots/notifications-overview.gif)
 
