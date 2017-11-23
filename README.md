@@ -7,7 +7,9 @@
 [![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/smpio/kubernator.svg)](https://github.com/smpio/kubernator)
 [![GitHub license](https://img.shields.io/github/license/smpio/kubernator.svg)](https://github.com/smpio/kubernator/blob/master/LICENSE)
 
-`Kubernator` is an alternative [Kubernetes](https://kubernetes.io/) UI. Although `kubectl` is a recommended way for running commands against Kubernetes clusters, it's just a command line tool, which lacks visual control and general convenience when working with YAML configs. `Kubernator` is built on top of `kubectl`'s API and offers simple yet powerful graphical interface: it gives you a clean view on *all* objects in your cluster with ability to edit, resolve conflicts and create new objects.
+`Kubernator` is an alternative [Kubernetes](https://kubernetes.io/) UI. Although `kubectl` is a recommended way of running commands against Kubernetes clusters, it's just a command line tool, which lacks visual control and general convenience when working with YAML configs.
+
+`Kubernator` is built on top of `kubectl`'s API and offers simple yet powerful graphical interface: it gives you a clean view on *all* objects in your cluster with ability to edit, resolve conflicts and create new objects.
 
 ![Catalog Overview](screenshots/catalog-overview.png)
 
