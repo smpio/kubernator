@@ -7,7 +7,7 @@
 [![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/smpio/kubernator.svg)](https://github.com/smpio/kubernator)
 [![GitHub license](https://img.shields.io/github/license/smpio/kubernator.svg)](https://github.com/smpio/kubernator/blob/master/LICENSE)
 
-Although `kubectl` is a recommended way of running commands against Kubernetes clusters, it's just a command line tool, which lacks visual control and general convenience when working with YAML configs. `Kubernator` is an alternative [Kubernetes](https://kubernetes.io/) UI, which is built on top of `kubectl`'s API and offers simple yet powerful graphical interface: it gives you a clean view on *all* objects in your cluster with ability to edit, resolve conflicts and create new objects.
+Although `kubectl` is a recommended way of running commands against [Kubernetes](https://kubernetes.io/) clusters, it's just a command line tool, which lacks visual control and general convenience when working with YAML configs. `Kubernator` is an alternative Kubernetes UI, which is built on top of `kubectl`'s API and offers simple yet powerful graphical interface: it gives you a clean view on *all* objects in your cluster with ability to edit, resolve conflicts and create new objects.
 
 ![Catalog Overview](screenshots/catalog-overview.png)
 
@@ -82,7 +82,7 @@ Most frequent actions have associated keyboard shortcuts.
 
 #### Diff Editor
 
-Diff editor is based on the powerful [Monaco Editor](https://microsoft.github.io/monaco-editor/). Cursor position, scroll position and not applied updates are saved automatically for every open tab.
+Diff editor is based on the powerful `Monaco Editor`. Cursor position, scroll position and not applied updates are saved automatically for every open tab.
 
 ![Catalog Editor Diffs](screenshots/catalog-editor-diffs.gif)
 
