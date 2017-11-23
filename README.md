@@ -1,15 +1,17 @@
-# Kubernator
+# Kubernator &nbsp; [![Twitter](https://img.shields.io/twitter/url/https/github.com/smpio/kubernator.svg?style=social)](https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fsmpio%2Fkubernator)
 
 [![GitHub closed issues](https://img.shields.io/github/issues-closed/smpio/kubernator.svg)](https://github.com/smpio/kubernator)
 [![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/smpio/kubernator.svg)](https://github.com/smpio/kubernator)
 [![GitHub last commit](https://img.shields.io/github/last-commit/smpio/kubernator.svg)](https://github.com/smpio/kubernator)
 [![GitHub commit activity the past week, 4 weeks, year](https://img.shields.io/github/commit-activity/y/smpio/kubernator.svg)](https://github.com/smpio/kubernator)
 [![GitHub license](https://img.shields.io/github/license/smpio/kubernator.svg)](https://github.com/smpio/kubernator/blob/master/LICENSE)
-[![Twitter](https://img.shields.io/twitter/url/https/github.com/smpio/kubernator.svg?style=social)](https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fsmpio%2Fkubernator)
+
+`Kubernator` is an alternative [Kubernetes](https://kubernetes.io/) UI. Although `kubectl` is a recommended way for running commands against Kubernetes clusters, it's just a command line tool, which lacks visual control and general convenience when working with YAML configs. `Kubernator` is built on top of `kubectl`'s API and offers simple yet powerful graphical interface.
+
+![Catalog Overview](screenshots/catalog-overview.png)
 
 ## Table of Contents
 
-- [Purpose](#purpose)
 - [Features](#features)
   - [Catalog](#catalog)
     - [Navigation](#navigation)
@@ -25,12 +27,6 @@
   - [Notifications](#notifications)
 - [Installation](#installation)
 - [Support](#support)
-
-## Purpose
-
-`Kubernator` is an alternative [Kubernetes](https://kubernetes.io/) UI. Although `kubectl` is a recommended way for running commands against Kubernetes clusters, it's just a command line tool, which lacks visual control and general convenience when working with YAML configs. `Kubernator` is built on top of `kubectl`'s API and offers simple yet powerful graphical interface.
-
-![Catalog Overview](screenshots/catalog-overview.png)
 
 ## Features
 
