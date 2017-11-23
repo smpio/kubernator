@@ -42,7 +42,7 @@ export default class Editor extends React.PureComponent {
   };
 
   static optionsRequire = {
-    // cp node_modules/monaco-editor public/monaco-editor
+    // cp -R ./node_modules/monaco-editor ./public/monaco-editor
     url: `${PUBLIC_URL}/monaco-editor/min/vs/loader.js`,
     paths: { 'vs': `${PUBLIC_URL}/monaco-editor/min/vs` },
   };

@@ -1,2 +1,10 @@
 build
 node_modules
+
+public/monaco-editor/**/*
+!public/monaco-editor/min/vs/loader.js
+!public/monaco-editor/min/vs/base/worker/workerMain.js
+!public/monaco-editor/min/vs/basic-languages/src/yaml.js
+!public/monaco-editor/min/vs/editor/editor.main.js
+!public/monaco-editor/min/vs/editor/editor.main.css
+!public/monaco-editor/min/vs/editor/editor.main.nls.js

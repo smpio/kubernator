@@ -9,6 +9,7 @@ RUN yarn install
 
 COPY . .
 RUN yarn build
+RUN rm ./build/static/**/*.map
 
 
 # Runner
