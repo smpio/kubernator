@@ -131,7 +131,7 @@ Then open [service proxy URL](http://localhost:8001/api/v1/namespaces/kubernator
 
 2. Run `kubectl proxy`.
 
-3. Open [http://localhost:8001/](http://localhost:8001/) in your browser.
+3. Open [http://localhost:3000/](http://localhost:3000/) in your browser.
 
 ### Build and run locally
 
