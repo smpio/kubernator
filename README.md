@@ -20,6 +20,8 @@ kubectl proxy
 
 Then open [service proxy URL](http://localhost:8001/api/v1/namespaces/kubernator/services/kubernator/proxy/) in your browser.
 
+Note that **exposing it as ingress** won't work, because the page should be on the same domain as API server. `kubectl proxy` **should be** running.
+
 ![Catalog: Overview](screenshots/catalog-overview.png)
 
 ## Table of Contents
@@ -135,6 +137,8 @@ kubectl proxy
 ```
 
 Then open [service proxy URL](http://localhost:8001/api/v1/namespaces/kubernator/services/kubernator/proxy/) in your browser.
+
+Note that **exposing it as ingress** won't work, because the page should be on the same domain as API server. `kubectl proxy` **should be** running.
 
 ### Run in docker locally
 
