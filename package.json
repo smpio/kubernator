@@ -1,6 +1,6 @@
 {
-  "name": "kube-browser",
-  "version": "0.14.6",
+  "name": "kubernator",
+  "version": "0.14.7",
   "private": true,
   "dependencies": {
     "@uqee/immutability-helper-x": "^0.2.1",
@@ -30,7 +30,7 @@
     "webcolors": "^1.2.2"
   },
   "devDependencies": {
-    "@uqee/react-scripts": "^1.0.13",
+    "@uqee/react-scripts": "1.0.13",
     "ajv": "^5.2.2",
     "babel-core": "^6.26.0",
     "babel-eslint": "^7.2.3",

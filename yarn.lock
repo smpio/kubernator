@@ -6,7 +6,7 @@
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/@uqee/immutability-helper-x/-/immutability-helper-x-0.2.1.tgz#ae4cf605ae0b3264f751fe2a1b520d510f7bd458"
 
-"@uqee/react-scripts@^1.0.13":
+"@uqee/react-scripts@1.0.13":
   version "1.0.13"
   resolved "https://registry.yarnpkg.com/@uqee/react-scripts/-/react-scripts-1.0.13.tgz#2603cc073fb8c1cf8ee310931516b56bddc366d0"
   dependencies:
