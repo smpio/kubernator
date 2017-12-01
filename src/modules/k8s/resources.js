@@ -191,7 +191,7 @@ export function resourceDecorate(group, version) {
 }
 
 export function resourceGetUrl(resource, namespace) {
-  return namespace
+  return resource.namespaced && namespace
     ? `${resource[URL_PART_GROUP]}/namespaces/${namespace}/${resource[URL_PART_RESOURCE]}`
     : resource[URL];
 }
