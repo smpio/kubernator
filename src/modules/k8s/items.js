@@ -236,11 +236,8 @@ function* sagaItemPost() {
       const resource = yield select(resourceSelectByKindAndVersion, kind, itemGetVersionByApiVersion(apiVersion));
       if (!resource) throw new Error('Can\'t find correponding resource by apiVersion and kind.');
 
-      // get url
-      const { namespaced, [URL]: resourceUrl } = resource;
-      const url = namespaced ? resourceGetUrl(resource, namespace) : resourceUrl;
-
       // post
+      const url = resourceGetUrl(resource, namespace || 'default');
       const item = yield call(itemApiPost, url, yaml);
       if (item.status === 'Failure') throw item;
 
