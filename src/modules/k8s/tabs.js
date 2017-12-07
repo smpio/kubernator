@@ -106,7 +106,7 @@ function* sagaTabOpen() {
         if (yaml) {
           const item = jsYaml.safeLoad(yaml);
           const models = yield select(modelsSelect);
-          itemRemoveReadonlyProperties(item, models);
+          itemRemoveReadonlyProperties(item, models, null, ['status']);
           yaml = jsYaml.safeDump(item, { noRefs: true });
         }
       }

@@ -1,6 +1,6 @@
 {
   "name": "kubernator",
-  "version": "0.14.8",
+  "version": "0.14.9",
   "private": true,
   "dependencies": {
     "@uqee/immutability-helper-x": "^0.2.1",
