@@ -20,7 +20,7 @@ export default props =>
           <Link to="/catalog">Catalog</Link>
         </Menu.Item>
         <Menu.Item key="rbac">
-          <Link to="/rbac">Rbac</Link>
+          <Link to="/rbac">RBAC</Link>
         </Menu.Item>
       </Menu>
     </Layout.Header>
