@@ -4,7 +4,7 @@ export class NotiErrorApi {
   constructor(apiResponse, netResponse) {
 
     // api response is an object
-    if (typeof apiResponse === 'object') {
+    if (typeof apiResponse === 'object' && apiResponse.kind === 'Status') {
       const { code, reason, message } = apiResponse;
       this.code = code;
       this.message = `${code} ${reason}`;
@@ -29,7 +29,7 @@ export class NotiErrorApi {
 export default store => next => action => {
   const { payload: { error } = {}} = action;
   if (error) {
-    
+
     // NotiErrorApi
     if (error instanceof NotiErrorApi) {
       const { silent, description } = error;
