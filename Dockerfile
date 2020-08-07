@@ -1,6 +1,6 @@
 # Builder
 
-FROM node:6 as builder
+FROM node:14 as builder
 
 WORKDIR /usr/src/app
 
