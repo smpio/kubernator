@@ -19,7 +19,7 @@
     "react-redux": "^5.0.5",
     "react-router": "^4.1.1",
     "react-router-dom": "^4.1.1",
-    "react-router-redux": "next",
+    "react-router-redux": "^5.0.0-alpha.9",
     "react-throttle-render": "^2.0.0",
     "redux": "^3.6.0",
     "redux-saga": "^0.15.3",
