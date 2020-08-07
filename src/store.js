@@ -4,7 +4,7 @@ import {
   compose,
 } from 'redux';
 
-import createHistory from 'history/createHashHistory';
+import { createHashHistory } from 'history';
 
 import { routerMiddleware } from 'react-router-redux';
 import createSagaMiddleware from 'redux-saga';
@@ -13,7 +13,7 @@ import thunkMiddleware from 'redux-thunk';
 import customMiddleware from './middleware';
 import { reducers, sagas } from './modules';
 
-export const history = createHistory();
+export const history = createHashHistory();
 const sagaMiddleware = createSagaMiddleware();
 
 const initialState = {};
