@@ -1,5 +1,5 @@
 import { call, put, take, takeEvery } from 'redux-saga/effects';
-import store from 'store';
+// import store from 'store';
 
 import {
   NotiErrorApi,
@@ -84,10 +84,12 @@ export async function apiFetch(url, options = {}, parser = 'json') {
 }
 
 export async function cacheGet(url) {
-  let result = store.get(url);
+  // cache is disabled because it is not important since new OpenAPI endpoint
+  // but it can break things with CRDs and external APIServices
+  let result = undefined; // store.get(url);
   if (!result) {
     result = await apiFetch(url);
-    store.set(url, result);
+    // store.set(url, result);
   }
   return Promise.resolve(result);
 }
