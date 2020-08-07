@@ -17,9 +17,14 @@
       background-color: transparent;
     }
 
+    .ant-layout {
+      overflow: auto;  /* fixes layout after update in git:3aa4791 */
+    }
+
     .ant-layout-content {
       display: flex;
       padding: 1em;
+      overflow: auto;  /* fixes layout after update in git:3aa4791 */
     }
   }
 }
