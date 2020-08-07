@@ -20,19 +20,12 @@ import {
   URL_PART_GROUP,
   URL_PART_RESOURCE,
   cacheGet,
-  putTake,
   takeEveryReq,
 } from './shared';
 
 import {
   groupGetUrl,
 } from './groups';
-
-import {
-  MODELS_GET__S,
-  MODELS_GET__F,
-  modelsGet,
-} from './models';
 
 
 // action codes
@@ -131,11 +124,6 @@ function* sagaResourcesGet() {
         },
         [],
       );
-
-      // models
-      yield all(group[VERSIONS].map(version =>
-        putTake(modelsGet(group, version), [MODELS_GET__S, MODELS_GET__F])
-      ));
 
       //
       return { group, resources };

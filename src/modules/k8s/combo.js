@@ -39,6 +39,12 @@ import {
 } from './resources';
 
 import {
+  MODELS_GET__S,
+  MODELS_GET__F,
+  modelsGet,
+} from './models';
+
+import {
   ITEMS_GET__S,
   ITEMS_GET__F,
   itemsGet,
@@ -134,6 +140,7 @@ function* sagaCatalogGet() {
         .filter(group => !group[RESOURCE_IDS].length)
         .map(group => putTake(resourcesGet(group), [RESOURCES_GET__S, RESOURCES_GET__F]))
       );
+      yield putTake(modelsGet(), [MODELS_GET__S, MODELS_GET__F]);
 
       // namespaces <- [state] <- [storage] <- [api]
       let namespaces;
@@ -176,7 +183,7 @@ function* sagaRbacGet() {
       yield all(resources.map(resource =>
         putTake(itemsGet(resource), [ITEMS_GET__S, ITEMS_GET__F])
       ));
-      
+
       //
       return {};
     },

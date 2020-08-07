@@ -496,31 +496,41 @@ function itemGetVersionByApiVersion(apiVersion) {
     apiVersion &&
     (
       apiVersion.includes('/')
-        ? apiVersion.split('/')[1]
-        : apiVersion
+        ? apiVersion
+        : ('core/' + apiVersion)
     )
   );
 }
 
 function itemGetModelId(item) {
   const { apiVersion, kind } = item;
-  return `${itemGetVersionByApiVersion(apiVersion)}.${kind}`;
+  return `${itemGetVersionByApiVersion(apiVersion)}/${kind}`;
 }
 
-export function itemRemoveReadonlyProperties(item, models, modelId, forcedKeys) {
+export function itemRemoveReadonlyProperties(item, models, defId, forcedKeys) {
   if (item && models) {
 
     // remove forced keys
     forcedKeys && forcedKeys.forEach(key => delete item[key]);
 
     // remove readonly keys
-    const model = models[modelId || itemGetModelId(item)];
+    let model;
+    if (defId) {
+      model = models.definitions[defId];
+    } else {
+      let modelId = itemGetModelId(item);
+      model = models.byGVK[modelId];
+    }
+
     if (model) {
       const { properties } = model;
       Object.keys(properties).forEach(key => {
         const { [IS_READONLY]: readonly, $ref } = properties[key];
         if (readonly) delete item[key];
-        else if ($ref) itemRemoveReadonlyProperties(item[key], models, $ref);
+        else if ($ref) {
+          const refDefId = $ref.replace(/^#\/definitions\//, '');
+          itemRemoveReadonlyProperties(item[key], models, refDefId);
+        }
       });
     }
   }
