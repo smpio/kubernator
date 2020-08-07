@@ -22,7 +22,6 @@ export default class PageTitle extends React.Component {
 
   render() {
     const {
-      appInfo: { version: appVersion } = {},
       apiInfo: { gitVersion: apiVersion } = {},
     } = this.props;
 
@@ -30,7 +29,6 @@ export default class PageTitle extends React.Component {
       <Helmet>
         <title>
           Kubernator
-          {appVersion ? ` v${appVersion}` : ''}
           {apiVersion ? ` | API ${apiVersion}` : ''}
         </title>
       </Helmet>
