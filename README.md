@@ -1,4 +1,7 @@
-# Kubernator &nbsp; [![Twitter](https://img.shields.io/twitter/url/https/github.com/smpio/kubernator.svg?style=social)](https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fsmpio%2Fkubernator)
+# Kubernator
+
+# DEPRECATED
+## In favor of [our new vscode extension](https://marketplace.visualstudio.com/items?itemName=smpio.kubernator-vscode)
 
 [![Docker Build Status](https://img.shields.io/docker/build/smpio/kubernator.svg)](https://hub.docker.com/r/smpio/kubernator/)
 [![GitHub last commit](https://img.shields.io/github/last-commit/smpio/kubernator.svg)](https://github.com/smpio/kubernator)
